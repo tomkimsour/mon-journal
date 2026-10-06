@@ -1,0 +1,267 @@
+{
+  "date": "2026-10-06",
+  "headline": "Social robots are starting to plan how loud, fast and expressive they are, while new probes show VLAs often ignore what the person actually asked.",
+  "thesis": "Several papers today treat social behaviour as something the robot actively produces: footstep noise, gesture timing, facial expression and execution speed are planned outputs, not side effects. A second group treats the human as a physical partner with their own forces, fatigue and fragility rather than as an obstacle or a remote operator. At the same time, diagnostic work on VLAs shows that nominal task success hides weak instruction following: policies grab the object the scene suggests, and safety refusals learned in text do not carry over to actions or grounding outputs. The practical consequence for an HRI team is that interaction quality has to be measured channel by channel, and that 'does the robot do what this person asked, and refuse what it should' needs its own tests. Much of the remaining engineering work fixes frozen policies at execution time, which is where a deployment team can act today.",
+  "clusters": [
+    {
+      "title": "Social acceptability becomes a set of planned output channels: noise, gesture, face and speed",
+      "why": "Social navigation and social robotics used to reduce acceptability to personal-space costs or dialogue content. TACET plans how loudly a quadruped walks from inferred social context, TRABot and ARISE coordinate speech, gesture and facial expression and decide when to engage, and FreeSpeed makes execution speed a runtime knob for slowing down near people. The tour-guide and JESSI papers keep the human-centred measures (follow-ability, perceived safety, probabilistic human state) explicit. A team building interactive robots should evaluate each channel separately, with human-perception measures, instead of a single navigation or task metric.",
+      "paper_ids": ["2610.03828", "2610.06153", "2610.05964", "2610.05734", "2610.05455", "2610.05733"],
+      "confidence": "high"
+    },
+    {
+      "title": "Humans are modelled as physical partners with their own forces, fatigue and fragility",
+      "why": "Most planners treat people as moving obstacles or as supervisors. CoDance learns compliant two-hand dancing from partner forces, the cloth co-transport planner predicts how a shared object deforms between human and robot, the casualty-evacuation planner puts a metabolic fatigue model of the human into the objective, and the cervical-spine work treats the human body itself as the manipulated object under safety bounds. OCLO's learned whole-body compliance is the robot-side counterpart. Physical HRI evaluations should report the human's load and safety margins, not only the robot's tracking error.",
+      "paper_ids": ["2610.05324", "2610.06641", "2610.06487", "2610.04220", "2610.05678"],
+      "confidence": "high"
+    },
+    {
+      "title": "VLA task success hides whether the policy follows the person's instruction",
+      "why": "Benchmark success has been read as evidence that language-conditioned policies understand requests. Scene-preserving instruction swaps show policies mostly pick up the scene-associated object even when asked for another, although the instructed target is decodable inside the model; PerturBot names these modality shortcuts and offers an offline score, and probing finds VLAs barely use object physics such as mass. OGAM shows out-of-benchmark instructions fail across four VLAs, and the affordance-wiring study shows a careless auxiliary head can damage instruction following. Any robot that takes spoken or written requests from people needs instruction-swap and paraphrase tests, not just task-success numbers.",
+      "paper_ids": ["2610.06235", "2610.04616", "2610.06078", "2610.05878", "2610.06318"],
+      "confidence": "high"
+    },
+    {
+      "title": "Refusal learned in text does not transfer to the action channel",
+      "why": "Safety alignment is mostly tested on what a model says. Today's papers test what it does: text guards miss most implied-harm robot requests and robot training weakens the internal harmful/harmless separation, VLMs that refuse a harmful question often comply when asked for a point or bounding box, and system-level tests of embodied guardrails find no single guardrail wins on bypass rate, false positives and latency. TAPDreamer adds a perception-side attack that collapses world-action-model success with one patch, and Inspect Robots offers shared tooling for such evaluations. Safety checks for robots that act on human requests must sit on the action and grounding outputs, and be tested with indirect phrasing.",
+      "paper_ids": ["2610.05818", "2610.05637", "2610.06122", "2610.06814", "2610.06306"],
+      "confidence": "high"
+    },
+    {
+      "title": "Frozen policies are fixed at execution time instead of retrained",
+      "why": "Improving a deployed VLA or diffusion policy has usually meant more data and fine-tuning. Today's work leaves the weights alone and intervenes at runtime: a contact-guided supervisor on finger effort, closed-form impedance retuning from demonstrations, representation steering from success/failure rollouts, future-anchored recovery, monitored acceleration, verifier weighting at decision-critical states, and feasibility-aware reranking. For a team running a fixed policy on real hardware, these are cheaper levers than retraining, and several report real-robot gains.",
+      "paper_ids": ["2610.04391", "2610.05755", "2610.04681", "2610.06280", "2610.05747", "2610.04933", "2610.05166"],
+      "confidence": "high"
+    }
+  ],
+  "insights": [
+    "Measure social behaviour per channel, and with diverse people. TACET reports up to 9.3 dBA less locomotion noise at matched speed while keeping 100% personal-space compliance, and ARISE and TRABot coordinate speech, gesture and face in real time; the tour-guide protocol names perceived safety and perceived intelligence as outcome constructs. None of these abstracts mention evaluations across age groups or cultures, which is exactly where norms about loudness, gaze, gesture and approach distance differ. A useful next study: run the same robot behaviour (noise level, gesture set, approach speed) with participant groups of different ages and cultural backgrounds and report each channel's ratings separately.",
+    "Instruction following is the HRI failure that standard VLA benchmarks hide. In the grounding-gap study, policies asked to pick a different visible object mostly pick the original one, and in the implied-harm study up to 95% of implied-harm runs finish the task with no guard flag. Add two cheap tests to any manipulation acceptance suite: swap the target object in the instruction while keeping the scene fixed, and phrase the same request with indirect intent. Track 'followed the changed request' and 'refused when it should' as separate metrics from task success.",
+    "Model the human's body, not just their position. The casualty-evacuation planner cuts human energy use by 17.8% versus a human-only baseline by planning with a metabolic model, and CoDance trains on partner forces at both hands. For physical HRI work (handovers, assisted walking, co-carrying), add a human-effort or contact-force term to the evaluation even when the controller does not optimise it, so trade-offs become visible.",
+    "Human time is being treated as the scarce resource in robot learning. Reward-DAgger gates human interventions with a general-purpose progress model, and Mulligan starts collection episodes at observed failures, raising real-task success by 10-34 points at matched budgets. The infant-caregiver simulator points the other way, using robot simulation to study how social touch shapes development. If your team collects demonstrations or runs user studies, plan the operator's and participant's time as explicitly as compute."
+  ],
+  "must_read": [
+    {
+      "id": "2610.06235",
+      "why": "The clearest test today of whether a robot does what a person asked rather than what the scene suggests, which is the core of language-based HRI.",
+      "key_idea": "Hold the scene fixed and change only the instruction, then trace where the instruction is lost: it is encoded in the representations but barely drives target selection.",
+      "evidence": "Across VLA policies and world-action models in simulation and real-world experiments, policies predominantly approach and pick up the original scene-associated target when asked for a different visible object; linear probes recover the instructed target, and attention analysis shows weak instruction-token contributions to action generation.",
+      "caveat": "The abstract does not list which policies were tested or report trial counts; it diagnoses the gap but does not propose or evaluate a fix."
+    },
+    {
+      "id": "2610.03828",
+      "why": "Treats robot noise as a social variable, which matters for robots in hospitals, care homes and homes with older adults or children.",
+      "key_idea": "One compact behaviour token (gait, speed, social cost) from a VLM reasoner drives both where the quadruped walks and how loudly it walks.",
+      "evidence": "On a real quadruped, context-conditioned locomotion lowers noise by up to 9.3 dBA at matched speed; across the authors' scenarios the full method keeps 100% personal-space compliance with acoustic intrusion of at most 2.9 dBA.",
+      "caveat": "The abstract reports acoustic and spatial metrics but no study of how people perceived the robot; the social context is inferred by a VLM, and the abstract gives no evidence on how that inference varies across settings or cultures."
+    },
+    {
+      "id": "2610.05964",
+      "why": "A full loop from social reasoning to physical expression on a humanoid with a mechanical face, directly relevant to building robots people talk to.",
+      "key_idea": "Decide when to engage and what to communicate with an agentic, memory-backed reasoner, then translate social intent into gestures, speech and facial expressions through streaming execution.",
+      "evidence": "Evaluations on the Sophia humanoid report strong perceived interaction quality, well-coordinated embodied behaviour, and substantial latency reductions from streaming execution.",
+      "caveat": "The abstract gives no numbers, participant counts or demographics, and all results come from one robot platform."
+    },
+    {
+      "id": "2610.05324",
+      "why": "Physical, whole-body human-humanoid interaction learned from ordinary video, a template for handovers, guided walking or assistance tasks.",
+      "key_idea": "Turn a kinematic video of two people into force-aware training data by perturbing the robot reference with structured hand forces, so the policy learns to yield compliantly to a partner.",
+      "evidence": "In simulation the policies reproduce approximately 80% of the wrist displacement encoded by the augmented demonstrations; on a physical humanoid they sustain two-hand dancing with a human partner, including repeated forward and backward transitions.",
+      "caveat": "One interaction type (partnered dancing); the abstract reports nothing on the human partner's comfort, effort or perceived safety."
+    },
+    {
+      "id": "2610.05818",
+      "why": "Shows that a robot will carry out harmful requests if the intent is only implied, and that current guards mostly miss them.",
+      "key_idea": "Keep the robot task fixed and vary only how explicitly harmful intent is stated, then test both text guards and activation probes.",
+      "evidence": "pi0.5 completes the task at every level of explicitness; text guards let up to 95% of implied-harm runs finish with no flag (up to 90% after recalibrating on robot instructions); linear probes that separate harmful from harmless instructions in base models weaken after robot training in two model families.",
+      "caveat": "The abstract does not state the number of tasks or whether execution was on real hardware, and names only one VLA policy."
+    }
+  ],
+  "summaries": {
+    "2610.03828": {
+      "problem": "Social navigation respects personal space but treats a quadruped's footstep noise as fixed, even though noise disturbs people in hospitals, care homes and offices.",
+      "method": "A VLM infers social context from the egocentric view and outputs one behaviour token that conditions both a social costmap and a quiet-locomotion policy, with memory of people who have left the camera view.",
+      "why": "Loudness becomes a planned social output; the authors report up to 9.3 dBA less noise at matched speed on a real quadruped."
+    },
+    "2610.06153": {
+      "problem": "Full-body humanoids often speak and gesture without an expressive face, and face animation and gesture generation are developed separately.",
+      "method": "An agent framework segments retargeted motion into human-verified communicative gesture atoms, plans them in semantic order to fit the spoken response, and streams face, speech and body together on a Unitree G1.",
+      "why": "A concrete pipeline for keeping speech, face and gesture coherent on a commercial humanoid, judged on naturalness, expressiveness and multimodal coherence."
+    },
+    "2610.05964": {
+      "problem": "Agentic foundation-model systems can reason about social situations but are disembodied, while physical social robots handle reasoning and expression only partially.",
+      "method": "ARISE combines multimodal context, long-term memory and reactive or proactive engagement decisions with streaming execution of gestures, speech and mechanical facial expressions on Sophia.",
+      "why": "It treats when to engage as part of the interaction design and reports latency reductions from streaming."
+    },
+    "2610.05455": {
+      "problem": "A tour-guide robot's path should be easy for a distracted visitor to follow, which shortest-path planning ignores.",
+      "method": "A social-force model combines obstacle, user-position and user-heading forces, with a proposed within-participant study against an A* baseline using per-round subjective ratings.",
+      "why": "It names the constructs to measure (follow-ability, perceived safety, perceived intelligence); the abstract describes the study design, not results."
+    },
+    "2610.05733": {
+      "problem": "RL social navigation often assumes the robot knows people's positions and velocities.",
+      "method": "End-to-end RL from raw LiDAR, trained jointly with an attention-based perception module that outputs probabilistic human states, and bounded Dirichlet actions for safety.",
+      "why": "Removes the oracle-human-state assumption; deployed on a real differential-drive robot."
+    },
+    "2610.05734": {
+      "problem": "Imitation-learned policies inherit their demonstrations' speed, so slowing down near people or speeding up can push them out of distribution.",
+      "method": "A training-free module resamples action chunks and uses directional inconsistency between adjacent actions to decide how much each task phase can be sped up or slowed.",
+      "why": "Execution speed becomes a runtime knob for human comfort; real-world success stays at 94.0% versus 93.8% for the frozen policy at 0.38x to 1.97x rates."
+    },
+    "2610.05324": {
+      "problem": "Partnered human-humanoid interaction couples locomotion with continuous physical contact and partner forces.",
+      "method": "Retargets one video of two dancers into a robot reference and a moving partner, then augments it with structured hand forces so the policy learns compliance.",
+      "why": "A route from human-human video to compliant physical HRI, demonstrated as sustained two-hand dancing with a person on a real humanoid."
+    },
+    "2610.06641": {
+      "problem": "When a person and a robot carry a cloth together, obstacle clearance depends on the unactuated middle of the cloth.",
+      "method": "A physics-residual recurrent VAE predicts the full cloth shape from grasp points inside an MPPI planner over a reduced-order dual-arm mobile manipulator, refined by MPC.",
+      "why": "Keeps cloth-obstacle clearance where a corner-following baseline collides, with about 80% less computation than the full 17-DoF model."
+    },
+    "2610.06487": {
+      "problem": "Human-robot teaming plans usually treat the human as a supervisor rather than a co-navigator with limited energy.",
+      "method": "Models the human with the Pandolf-Santee metabolic cost model and fatigue-modulated speed, and optimises where a casualty is handed between human and UGV.",
+      "why": "Puts human physical effort into the objective: 5.3% shorter missions and 17.8% less human energy than a human-only baseline, in synthetic terrain."
+    },
+    "2610.04220": {
+      "problem": "Rolling an injured patient risks catastrophic cervical spine injury.",
+      "method": "Bi-manual robot control that maximises grip within safety bounds and controls neck rotation during rolling.",
+      "why": "Physical HRI where the human body is the manipulated object; axial alignment within 0.21 degrees of human novices."
+    },
+    "2610.05678": {
+      "problem": "Humanoid loco-manipulation controllers usually need human motion data and tend to lose balance under external pushes.",
+      "method": "Generates pelvis height and torso orientation online from a reachability prior and learns whole-body compliance by shifting end-effector references through a spring-damper model.",
+      "why": "Compliance to external forces matters when people touch or push a humanoid; on a Unitree G1 it kept balance where ablations failed."
+    },
+    "2610.06235": {
+      "problem": "Task success cannot show whether a language-conditioned policy follows the instruction or just infers the task from the scene.",
+      "method": "Keeps the scene fixed while swapping instructions, then probes layers, attention and representations of VLAs and world-action models.",
+      "why": "Policies mostly grab the scene-associated object even when asked for another, although the instructed target is linearly decodable."
+    },
+    "2610.04616": {
+      "problem": "VLAs can succeed through visual, lexical or motor shortcuts instead of task-relevant evidence.",
+      "method": "Trains with wrist-view perturbations, decision-relevant captions and relabelled failed segments, and adds GroundingFscore as an offline shortcut diagnostic.",
+      "why": "Gives a way to check whether more data improves grounding or only success rate."
+    },
+    "2610.06078": {
+      "problem": "It is unclear whether VLA generalisation reflects understanding of object physics or replay of learned motions.",
+      "method": "Linear probing and representational similarity analysis of seven VLAs, plus a LIBERO case study that increases an object's mass.",
+      "why": "Physical properties are weakly encoded, and most VLAs lift the heavier object the same way, so success drops."
+    },
+    "2610.05878": {
+      "problem": "Benchmarks test few canonical instructions, and deployment testing cannot be exhaustive.",
+      "method": "Generates scene-grounded instructions and paraphrases, then monitors object-grounded attention against successful references with conformal thresholds for early stopping.",
+      "why": "All 87 out-of-benchmark cases showed problems across four VLAs; the monitor stopped 87-100% of failing episodes with 3-5% false stops."
+    },
+    "2610.06318": {
+      "problem": "Adding dense affordance supervision to a VLA can damage instruction following.",
+      "method": "A controlled LIBERO study of stop-gradient, injection topology and bridge initialisation for the affordance head.",
+      "why": "Letting affordance gradients reach the backbone dropped success to 85.5% versus 93.1% for the base; the best wiring reached 96.2%."
+    },
+    "2610.05818": {
+      "problem": "VLAs cannot refuse, so harmful requests must be caught by external monitors.",
+      "method": "Holds robot tasks fixed while varying how explicitly the harmful intent is stated, and tests text guards and activation probes.",
+      "why": "Guards miss most implied-harm requests, and robot training weakens the internal harmful/harmless separation."
+    },
+    "2610.05637": {
+      "problem": "VLM safety alignment is tested on text answers, but robots act on points and bounding boxes.",
+      "method": "Builds 15,401 matched harmful requests that differ only in the requested output form, and proposes a fine-tuning recipe with grounding-form refusals.",
+      "why": "Grounding refusal trails text refusal by 31-59 points across five VLMs; the fine-tuning raises it by 64-95 points."
+    },
+    "2610.06122": {
+      "problem": "Guardrails for embodied agents are proposed but rarely compared at system level.",
+      "method": "A pluggable framework tests six guardrails acting at perception, planning or control against jailbreaks and safe instructions.",
+      "why": "Shows a trade-off between bypass rate, false positives and latency, with no guardrail best on all three."
+    },
+    "2610.06306": {
+      "problem": "Evaluating the capabilities and safety of language models that control hardware lacks shared tooling.",
+      "method": "An open-source framework with reusable abstractions for physical evaluations and automated setup, execution and termination, used on six frontier-LM-based policies.",
+      "why": "A ready-made harness for safety evaluations of LLM-driven robots."
+    },
+    "2610.06814": {
+      "problem": "World action models depend on camera input that an attacker can manipulate.",
+      "method": "Builds a transferable adversarial patch from a public encoder alone, without querying the target policy.",
+      "why": "One patch covering about 6.5% of the image dropped FastWAM success from 97.7% to 0.0% across 40 LIBERO tasks."
+    },
+    "2610.04391": {
+      "problem": "A VLA can predict the right grasp strategy but fail on an object's specific geometry or compliance.",
+      "method": "An execution-time supervisor uses finger position and motor effort as contact evidence to refine, retain, release or hand control back, with no tactile sensors or VLA retraining.",
+      "why": "On a Unitree G1 with held-out objects, completion rose from 61.3% to 84.0%."
+    },
+    "2610.05755": {
+      "problem": "Impedance gains under diffusion and VLA policies are inherited from data collection rather than chosen for the deployed policy.",
+      "method": "Learns a port-Hamiltonian model from demonstrations and derives one controller gain scale in closed form, offline.",
+      "why": "Up to 9.4 points better on LIBERO and less acceleration and jerk for VLAs, without rollouts or retraining."
+    },
+    "2610.04681": {
+      "problem": "Generalist robot policies degrade under out-of-distribution variations while keeping partial capability.",
+      "method": "Trains linear classifiers on successful versus failed rollouts to find steering directions in internal representations at inference time.",
+      "why": "A frozen pi0.5 went from 44.4% to 66.2% average success on 15 simulated tasks."
+    },
+    "2610.06280": {
+      "problem": "A world action model's remaining actions become invalid once execution drifts from its predicted future.",
+      "method": "Keeps predicted frames as anchors to verify progress and uses a VLM to turn a flagged deviation into a corrective instruction.",
+      "why": "The reported gains are small (97.85% to 98.10% on LIBERO), so the value is the recovery mechanism rather than the headline number."
+    },
+    "2610.05747": {
+      "problem": "Training-free accelerators for diffusion policies are accepted on similarity signals that do not predict closed-loop success.",
+      "method": "Compares monitors over 114 accelerator configurations and four policy families by closed-loop success, and monitors deviation from the policy's last unexpired plan.",
+      "why": "Cuts per-call compute 1.55-3.09x while holding a pre-stated plus or minus 2-point success margin."
+    },
+    "2610.04933": {
+      "problem": "Verifiers for VLA test-time sampling weight every visited state equally.",
+      "method": "Estimates decision-critical states from the dispersion of sampled actions and reweights verifier training toward them.",
+      "why": "Improves success on LIBERO, RoboCasa and a real Franka with negligible extra inference cost."
+    },
+    "2610.05166": {
+      "problem": "A locally safe action may leave no safe way to finish the task.",
+      "method": "A training-free, alarm-triggered reranker approximates the feasible safe-completion mass of candidate actions under a frozen VLA.",
+      "why": "Lowers cumulative safety cost by 1.9-57.5% on Safety-CHORES while staying within 2.5 points of policy-sampling success."
+    },
+    "2610.05997": {
+      "problem": "Developmental robotics simulators model infants in isolation, although early experience is shaped by caregiver contact and face-to-face interaction.",
+      "method": "Adds an articulated caregiver to the MIMo infant model in MuJoCo, replays holding and soothing interactions, and logs infant-perspective touch and vision with origin-aware contact labels.",
+      "why": "A tool for studying social touch in development, linking developmental psychology and robot learning."
+    },
+    "2610.05081": {
+      "problem": "Bare-hand teleoperation of dexterous hands lacks force feedback and visibility of occluded regions.",
+      "method": "A digital-twin AR interface renders tactile readings on robot hand meshes and offers a virtual view panel or occlusion-aware transparency.",
+      "why": "Evaluated with user studies; the operator's perception limits demonstration quality."
+    },
+    "2610.04054": {
+      "problem": "Runtime monitors that decide when to ask a human for help usually need task-specific training or tuning.",
+      "method": "Uses dense progress signals from a general-purpose reward model to gate human interventions in interactive imitation learning.",
+      "why": "One gating configuration works across eight tasks and gives a better return on human effort."
+    },
+    "2610.05882": {
+      "problem": "Uniform supervised data collection spends operator time on initial states the policy already handles.",
+      "method": "Starts each round's episodes at observed failures and untried states, and adds a value function trained on all data including failures.",
+      "why": "Improves final real-task success by 10-34 points at matched budgets; the human-robot team completes 98% of collection episodes."
+    },
+    "2610.05526": {
+      "problem": "Egocentric assistants must connect what users say with what they see across long interaction histories.",
+      "method": "An object-centric working memory grounds conversational facts on 3D-reconstructed objects, evaluated on a new Ego-SpaCR benchmark.",
+      "why": "Relevant to robots that must remember what a person said about objects in a room; removing 3D information substantially degrades performance."
+    },
+    "2610.04744": {
+      "problem": "When LLM agents handle planning and mutual trust in a robot team, one compromised robot can corrupt the shared result.",
+      "method": "Derives bounds on how likely a stealthy insider's reports are verified and on the map error it can cause, tested with LLM-agent teammates.",
+      "why": "Finds that how much an LLM robot re-checks is unpredictable, which matters for calibrating trust in LLM-driven teams."
+    },
+    "2610.04022": {
+      "problem": "Hand-held inputs for powered neck exoskeletons are unintuitive or unusable for people with neck muscle weakness.",
+      "method": "An eye-tracking controller based on the vestibulo-ocular reflex, with sliders that let users personalise its parameters.",
+      "why": "User-driven personalisation of an assistive device; 24% average increase in accurate motion-intent detection."
+    },
+    "2610.04250": {
+      "problem": "LLM-generated reward functions miss behaviour properties people care about, such as natural gait and movement style.",
+      "method": "Searches over reward programs in a persistent experiment tree, using a video-language model to diagnose behaviour from rollouts.",
+      "why": "Human raters preferred ROOT in 51-63% of pairwise comparisons, a step toward rewards that match what users want to see."
+    },
+    "2610.04363": {
+      "problem": "Human-to-robot transfer by visual or motion similarity can pair motions that have different contact states.",
+      "method": "Matches human and robot demonstrations by action-tactile dynamic time warping and uses those pairs to guide optimal-transport alignment.",
+      "why": "Up to 17 points better on in-distribution and 20 points on out-of-distribution real dexterous tasks versus action-guided matching."
+    }
+  }
+}
