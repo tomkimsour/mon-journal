@@ -1,12 +1,12 @@
 [site]
 title = "Robotics & AI Daily Briefing"
 subtitle = "New cs.RO and cs.AI papers, bucketed and summarized every arXiv announcement day"
-base_url = "https://YOUR-GITHUB-USER.github.io/arxiv-briefing"
+base_url = "https://tomkimsour.github.io/mon-journal"
 language = "en"
 feed_max_items = 60
 
 [arxiv]
-categories = ["cs.RO", "cs.AI"]
+categories = ["cs.RO", "cs.AI", "cs.CV"]
 
 # Each new paper goes to the bucket with the most keyword hits (title hits count double).
 # Keywords match whole words, case-insensitively, with an optional plural "s"/"es".
