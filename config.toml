@@ -1,0 +1,114 @@
+[site]
+title = "Robotics & AI Daily Briefing"
+subtitle = "New cs.RO and cs.AI papers, bucketed and summarized every arXiv announcement day"
+base_url = "https://YOUR-GITHUB-USER.github.io/arxiv-briefing"
+language = "en"
+feed_max_items = 60
+
+[arxiv]
+categories = ["cs.RO", "cs.AI"]
+
+# Each new paper goes to the bucket with the most keyword hits (title hits count double).
+# Keywords match whole words, case-insensitively, with an optional plural "s"/"es".
+# Papers matching no bucket are dropped from the briefing. Order breaks ties.
+
+[[buckets]]
+name = "Manipulation"
+emoji = "🦾"
+keywords = [
+  "manipulation", "grasp", "grasping", "dexterous", "bimanual", "gripper",
+  "pick-and-place", "pick and place", "in-hand", "contact-rich", "tactile",
+  "deformable object", "cloth folding", "robotic assembly", "peg-in-hole", "end-effector",
+]
+
+[[buckets]]
+name = "Legged & Humanoid"
+emoji = "🦿"
+keywords = [
+  "locomotion", "legged", "quadruped", "humanoid", "biped", "bipedal",
+  "whole-body", "gait", "loco-manipulation", "exoskeleton",
+]
+
+[[buckets]]
+name = "Navigation & SLAM"
+emoji = "🧭"
+keywords = [
+  "navigation", "slam", "robot localization", "visual localization", "lidar localization",
+  "semantic mapping", "odometry", "visual odometry", "path planning", "obstacle avoidance",
+  "autonomous exploration", "frontier exploration", "occupancy map", "lidar",
+  "place recognition", "social navigation", "mobile robot", "vision-and-language navigation",
+]
+
+[[buckets]]
+name = "Robot Learning"
+emoji = "🧠"
+keywords = [
+  "imitation learning", "behavior cloning", "vla", "vision-language-action",
+  "robot learning", "policy learning", "diffusion policy", "sim-to-real", "sim2real",
+  "learning from demonstration", "human demonstrations", "robot foundation model",
+  "robot policy", "world model", "reward learning",
+]
+
+[[buckets]]
+name = "Planning & Control"
+emoji = "🗺️"
+keywords = [
+  "motion planning", "task planning", "task and motion planning", "tamp",
+  "trajectory optimization", "model predictive control", "mpc", "optimal control",
+  "pddl", "symbolic planning", "planner", "reachability", "feedback control",
+]
+
+[[buckets]]
+name = "Multi-Robot & Swarms"
+emoji = "🐝"
+keywords = [
+  "multi-robot", "swarm", "fleet", "multi-agent path finding", "mapf",
+  "multi-robot task allocation", "formation control", "cooperative robots",
+]
+
+[[buckets]]
+name = "Human-Robot Interaction"
+emoji = "🤝"
+keywords = [
+  "human-robot interaction", "hri", "social robot", "assistive robot", "shared autonomy",
+  "human-robot collaboration", "co-worker", "gesture recognition", "human intent prediction",
+  "explainable robot",
+]
+
+[[buckets]]
+name = "Perception & 3D"
+emoji = "👁️"
+keywords = [
+  "point cloud", "scene understanding", "6d pose", "pose estimation", "object detection",
+  "semantic segmentation", "depth estimation", "gaussian splatting", "3dgs", "nerf",
+  "scene graph", "affordance", "open-vocabulary", "3d reconstruction",
+]
+
+[[buckets]]
+name = "Embodied AI & VLMs"
+emoji = "🤖"
+keywords = [
+  "embodied agent", "embodied ai", "embodied reasoning", "llm-based planning", "llm planner",
+  "language-conditioned", "vision-language model", "vlm", "grounded reasoning",
+  "spatial reasoning", "instruction following",
+]
+
+[[buckets]]
+name = "Safety & Verification"
+emoji = "🛡️"
+keywords = [
+  "safety filter", "safe control", "safe reinforcement learning", "safety-critical",
+  "control barrier function", "cbf", "formal verification", "runtime monitoring",
+  "failure detection", "failure recovery", "collision avoidance", "shielding",
+  "safe navigation", "safety constraint",
+]
+
+[[buckets]]
+name = "Systems & Software"
+emoji = "⚙️"
+keywords = [
+  "ros", "ros 2", "ros2", "middleware", "real-time control", "embedded system",
+  "edge deployment", "digital twin", "robot simulator", "physics simulator",
+  "simulation framework", "benchmark suite", "software architecture", "hardware design",
+  "open-source platform", "robotic platform",
+]
