@@ -1,0 +1,283 @@
+{
+  "date": "2026-10-07",
+  "headline": "Today's most useful results come from better controls and readouts, not bigger models: a scripted retreat matches a learned VLA corrector, reading logits beats a fine-tuned emotion model, and robots that read human actions help about as well as robots that are told what to do.",
+  "thesis": "Several papers today show that how something is measured or read out changes the conclusion more than the model does: a paired placebo shrinks the value of a learned VLA corrector, a logit readout turns 'VLMs fail at fine-grained emotion' into 'VLMs beat the fine-tuned model', and a compact policy matches systems 40-160x larger once its visual encoder is controlled. On the HRI side, assistance is increasingly triggered by what the person does (an action's outcome, a hand pose, a push on a carried load) rather than by an explicit instruction, while LLM-driven robots become easier to supervise when their plans are exposed as typed, structured commitments. In manipulation, contact feedback is being added to vision-first policies through the cheapest available channel, and a growing runtime layer decides how much of a frozen policy's action chunk to trust. World models keep showing the same gap: video that looks right while actions, hidden objects or unstable modes are wrong. For a team building interactive robots, the common thread is to test the specific property you rely on (the human cue, the contact event, the occluded object) with a control condition, before adding learned machinery.",
+  "clusters": [
+    {
+      "title": "Controls and readout choices, not model size, are deciding today's headline comparisons",
+      "why": "Robot-learning and perception results are usually reported as one success rate against learned baselines. Today, a same-seed placebo shows many 'rescues' by a learned VLA corrector are run-to-run variance and a scripted retreat performs comparably; a 48.9M-parameter policy matches much larger systems once the visual representation is held fixed; OCBench reproduces behaviour-cloning folklore in controlled settings; reading emotion answers from logits reverses a benchmark's verdict; and the 8-bit vs 4-bit comparison for LLM agents flips sign with prompt and scoring policy. In practice: add a same-seed re-run and the simplest scripted alternative to every internal evaluation before adopting a learned add-on, and state your scoring rule.",
+      "paper_ids": ["2610.06921", "2610.08183", "2610.07056", "2610.08162", "2610.07781"],
+      "confidence": "high"
+    },
+    {
+      "title": "Assistance is triggered by what the person does, not what they say: action outcomes, hand poses and pushes become commands",
+      "why": "Most collaborative robots wait for a spoken or typed instruction. The event-driven assistant infers the next helpful step from before/after snapshots of a human action and performs comparably to variants given instructions; GENESIS-Handover matches the observed human hand pose against generated task-specific grasp hypotheses; the payload-carrying quadruped treats a person's push on the load as a trajectory command; and the proposed spoken-dialogue benchmark puts interruptions, clarification requests and nods into the test set. Teams building assistive or social robots should evaluate how the robot interprets implicit cues, ideally with participants, not only how well it follows explicit commands.",
+      "paper_ids": ["2610.08344", "2610.08003", "2610.08637", "2610.08733"],
+      "confidence": "medium"
+    },
+    {
+      "title": "LLM-driven robots become supervisable when plans are exposed as typed, structured commitments",
+      "why": "Free-text LLM planning makes it hard for a person to see what the robot intends or to step in. MRPilot shows plans and execution state as structured commitments in mixed reality and, in a 20-person study, lowered workload and raised trust and perceived control compared with a chat interface using the same planner; OntoPlan grounds plans in an ontology and asks follow-up questions instead of committing to infeasible instructions; SharedKV-BT restricts LLM decisions to typed candidates at behaviour-tree nodes, with stage gating that prevents out-of-order actions; HygieneRoboBench makes user priorities an explicit planning input. If an LLM sits in your task layer, expose its decisions as structured objects that a user or a behaviour tree can inspect and veto.",
+      "paper_ids": ["2610.07477", "2610.07649", "2610.07327", "2610.08642"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Contact feedback is added to vision-first policies through the cheapest available channel: motor current, numeric overlays, human touch",
+      "why": "The usual assumption is that contact-aware manipulation needs a tactile skin, an F/T sensor or tactile simulation. MIM-VLA encodes gripper current and position already reported by the motor, TacZero overlays three-axis tactile numbers on images for an untrained VLM, ReDex lets a human physically correct individual fingers to collect force-informed data, PEARS has a VLM read tactile history to set force bounds, and ROMA decides which interaction and modality to use to gather missing evidence. Before buying new sensors, check what your grippers already report and feed it to the policy.",
+      "paper_ids": ["2610.08425", "2610.07621", "2610.07525", "2610.08784", "2610.06955"],
+      "confidence": "high"
+    },
+    {
+      "title": "World models that look right fail where control needs them: actions, hidden objects, 3D geometry and unstable modes",
+      "why": "Video world models are increasingly proposed as simulators and planners and are judged mostly on visual quality. AutodidactWAM finds plausible generated video paired with mis-targeted actions on a new humanoid; a V-JEPA 2 probe loses a moving hidden object within 0.3 s; the physics exam's best model scores 57.76/100; DepthWorld shows RGB-only rollouts do not compose into consistent 3D; and a JEPA analysis proves next-step prediction can collapse the unstable modes a controller must stabilise. If you use a world model for policy evaluation or planning, test the property your controller depends on (action accuracy, object permanence under occlusion, metric depth) directly.",
+      "paper_ids": ["2610.08119", "2610.07355", "2610.08791", "2610.08780", "2610.07540"],
+      "confidence": "high"
+    },
+    {
+      "title": "A runtime layer around frozen chunked policies decides how much to commit, when to adapt and which policy to run",
+      "why": "Action-chunking VLAs are usually deployed with a fixed execution prefix and a single policy. CA3C commits only while imagined futures agree, SALT uses the unexecuted part of the previous chunk as test-time self-supervision under visual disruptions, StairVLA reuses partially denoised trajectories with a fast refiner, PACE tracks demonstration progress to avoid stage confusion, and SWAP routes between several VLAs step by step, all without retraining the base policy. This is where a deployment team can improve behaviour today, but pair it with the placebo controls from the first cluster.",
+      "paper_ids": ["2610.07949", "2610.07946", "2610.07756", "2610.07917", "2610.06926"],
+      "confidence": "high"
+    }
+  ],
+  "insights": [
+    "Run the boring control before adding learned recovery. On frozen π0.5, 43.2% of failed episodes succeeded on a plain same-seed re-run, and a fixed-time trigger with a scripted return to an earlier joint configuration produced a net gain with no detected difference from the learned corrector (2610.06921). The quantized-agent study shows the same fragility on the language side: one scoring policy turned a +28.3 point advantage into -15.0 (2610.07781). Add a same-seed re-run and a scripted retreat to your evaluation scripts, and report results per task rather than averaged.",
+    "For social-perception modules, change how you read the model before you fine-tune one. Asking a VLM one yes/no question per emotion category and using the probability, not the generated text, put all eleven tested open-weight models above expert agreement on the five most reliable categories (2610.08162), and a psychology-derived probe shows VLMs shift from surface object matching to relational matching with capability, model scale, and fewer, noise-free objects per scene (2610.07646). The replication on real photographs was weaker and mixed, so validate any affect estimator on real faces from the age groups and cultures you deploy to before trusting it.",
+    "Robots with a wheeled base and lift need their own transfer pipeline from human data. Retargeting that assumes legs fails for mobile-base humanoids, and a responsibility allocator that splits walking into base motion and torso bending into lift-plus-arm motion is one practical alternative (2610.08381). MobileVISTA adds that centimetre-scale base pose errors break manipulation policies, most on platforms whose camera rides the actuated chain (2610.07511). If you collect teleop or human-video demonstrations, augment over base pose and log the base/lift/arm split explicitly.",
+    "Wire contact signals you already have into the policy now. Gripper current and position improved choosing the higher-resistance object from 48.8% to 75.0% with no extra sensor (2610.08425), and simply showing tactile numbers to an untrained VLM raised peg insertion from 10/20 to 15/20 (2610.07621). For robots that hand objects to people, this is a cheap route to gentler, more predictable grasps."
+  ],
+  "must_read": [
+    {
+      "id": "2610.08162",
+      "why": "Emotion recognition feeds therapy tools and social robots; this paper shows a benchmark's 'VLMs are not good enough, fine-tune a dedicated model' conclusion came from the readout protocol, which changes what an HRI team should build.",
+      "key_idea": "Keep the images, taxonomy and expert ratings, but ask an off-the-shelf VLM one binary question per emotion category and read the graded yes-probability from the logits instead of letting it generate an answer.",
+      "evidence": "On EmoNet-Face-HQ (40 categories, generated portraits), experts agree at κw = 0.468 on the five most reliable categories. Generatively, no interval among eleven open-weight VLMs lies entirely above that anchor; under verification all eleven clear it (κw = 0.507-0.586), and three significantly beat the fine-tuned EIF model (κw = 0.551 Small, 0.534 Large). Thresholding the same probabilities to yes/no drops performance to κw = 0.254-0.423.",
+      "caveat": "Main results are on synthetic portraits; the replication on real photographs (FACES) is weaker and mixed (six of ten models gain, one gets worse). The abstract gives no breakdown by age or culture of the faces, which matters for a diverse user population."
+    },
+    {
+      "id": "2610.08003",
+      "why": "Handovers are among the most frequent physical interactions a service robot has with people, and many objects can be used in more than one way, so the right handover pose depends on what the person intends.",
+      "key_idea": "Use VLM image generation to produce several task-specific hand-object interaction hypotheses, then match them in real time to the observed human hand pose to infer which handover configuration the person expects.",
+      "evidence": "The interaction proposal module is evaluated on its own, then the full system is deployed on a mobile manipulator. In a user study with 12 participants across five task-object pairs, 83.3% perceived it as having better task understanding than the previous state of the art.",
+      "caveat": "Small study (12 participants, five task-object pairs) measuring perceived task understanding, not handover success rate, timing or comfort; the abstract reports no latency or failure cases for the generative step."
+    },
+    {
+      "id": "2610.07477",
+      "why": "As LLMs start dispatching robot teams, people need to see and fix what the planner decided; this is one of the few papers today with a controlled user study on trust and workload.",
+      "key_idea": "Represent LLM-generated multi-robot plans and execution states as structured commitments shown in synchronised situated and overview mixed-reality views, organised into Forming, Reviewing, Following and Repairing stages of supervision.",
+      "evidence": "Designed from a formative study with 12 non-expert users; in a within-subjects study with 20 participants in a VR-simulated home, it reduced workload and increased situational awareness, transparency, trust and perceived control compared with a conversational interface using the same LLM planner and robot capabilities.",
+      "caveat": "Robots and home were simulated in VR; the abstract reports no task success or effect sizes, and does not show whether higher trust was calibrated to actual plan correctness."
+    },
+    {
+      "id": "2610.06921",
+      "why": "Anyone planning to add a learned recovery module to a VLA should read this first: it sets out what evidence is needed to show the module helps beyond run-to-run variation.",
+      "key_idea": "Evaluate runtime interventions with paired same-seed rollouts, a same-seed base-policy re-run as a placebo, and a simple scripted retreat as a baseline.",
+      "evidence": "Across 3,888 paired episodes on frozen π0.5 and four RoboTwin tasks, the full pipeline raises success by +13.5 pp on one task (95% interval [+9.4, +17.7]) with no detectable gain on the other three. 43.2% of failed base episodes succeed on a plain re-run versus 63.5% after correction. A fixed-time trigger plus scripted return produces a net gain with no detected difference from the learned pipeline.",
+      "caveat": "Simulation only (RoboTwin) and a single policy (π0.5); the prespecified equivalence criterion between scripted retreat and learned correction was not met consistently, so 'equivalent' is not established."
+    },
+    {
+      "id": "2610.08381",
+      "why": "Directly relevant to mobile-base humanoids with a wheeled base, vertical lift and two arms, which most human-to-humanoid retargeting work ignores because it assumes legs.",
+      "key_idea": "Allocate reconstructed human motion to base, lift and arm responsibilities before robot-specific realisation (walking becomes base motion, torso bending becomes coordinated lift and arm motion), then convert to 50 Hz commands with stationary-base detection, deadband and slew-rate filtering and playback scaling.",
+      "evidence": "References are evaluated with human-derived task-space comparisons, policy-free simulation replay, and a qualitative execution on a physical robot.",
+      "caveat": "Physical validation is qualitative only; no quantitative real-robot metrics and no policy trained on the retargeted data are reported."
+    }
+  ],
+  "summaries": {
+    "2610.06921": {
+      "problem": "Learned recovery modules for frozen VLAs are claimed to help, but rescues can just be run-to-run variance.",
+      "method": "Paired same-seed rollouts with a placebo re-run and a scripted retreat baseline across 3,888 episodes on π0.5.",
+      "why": "A gain appeared on one of four tasks and a scripted retreat performed comparably, so simple baselines should come before learned correctors."
+    },
+    "2610.07056": {
+      "problem": "Behaviour-cloning 'mysteries', such as improving while overfitting and failing without action chunking, are anecdotal and hard to study.",
+      "method": "OCBench uses GPU-accelerated environments with scripted policies that mimic properties of human demonstrations, reproducing these effects under control.",
+      "why": "Gives a controlled place to test folk wisdom about chunking and overfitting before building it into training recipes."
+    },
+    "2610.08183": {
+      "problem": "Policy comparisons change architecture, scale and pretrained priors at once, so gains cannot be attributed.",
+      "method": "A 48.9M-parameter policy (no VLM, no video prior) varies one visual-extractor property at a time; it reaches 97.0% on LIBERO, matching systems 40.9-163.6x larger.",
+      "why": "Suggests spending onboard compute on a pretrained, task-adapted, compressed visual encoder (48 tokens per view beat all patch tokens) before scaling the model."
+    },
+    "2610.08162": {
+      "problem": "A fine-grained emotion benchmark concluded VLMs need a dedicated fine-tuned model.",
+      "method": "Same images and ratings, but answers are read as per-category yes-probabilities from logits instead of generated text.",
+      "why": "Off-the-shelf VLMs then exceed expert agreement and three beat the fine-tuned model, which changes how a social robot's affect module should be built."
+    },
+    "2610.07781": {
+      "problem": "Robustness of quantized LLM agents to tool failures is usually judged with one prompt and one scoring rule.",
+      "method": "Compares 8-bit and 4-bit Llama-3.1-8B and Qwen2.5-7B on twenty tool-use tasks, five prompts and several scoring policies.",
+      "why": "The sign of the difference flips with prompt and scoring, so decisions about quantizing an on-robot LLM need matched tasks and stated scoring."
+    },
+    "2610.08344": {
+      "problem": "Collaborative assistance usually waits for a user instruction, unlike human partners who infer the next useful step.",
+      "method": "An event monitor captures before/after snapshots of human-object interactions and a frozen VLM decides whether and how to help with action primitives.",
+      "why": "Proactive help without spoken commands performed comparably to instructed variants on three real tabletop tasks with no task-specific training."
+    },
+    "2610.08003": {
+      "problem": "Task-oriented handover methods model affordances but not the specific hand pose a person will use for a given task.",
+      "method": "VLM-generated hand-object hypotheses are matched in real time to the observed human hand pose to select the handover configuration.",
+      "why": "Handles objects with several uses on a mobile manipulator, and 83.3% of 12 study participants perceived better task understanding."
+    },
+    "2610.08637": {
+      "problem": "A quadruped carrying an unrestrained load must tell a person's intentional push on the load from ordinary payload motion.",
+      "method": "A compliant load-carrying policy is paired with a causal force estimator trained with estimator-in-the-loop data aggregation from onboard measurements.",
+      "why": "Lets people steer a load-carrying robot by touching the load, without extra force sensors."
+    },
+    "2610.08733": {
+      "problem": "LLM-based robot dialogue ignores speech phenomena such as interruptions, clarification requests, nods and time pressure.",
+      "method": "Proposes an extensible benchmark for spoken HRI dialogue built on the Retico real-time framework.",
+      "why": "Gives social-robot teams a shared test target for turn-taking and embodied signals, though no results are reported yet."
+    },
+    "2610.07477": {
+      "problem": "LLM-directed multi-robot teams are hard for people to inspect and correct.",
+      "method": "Mixed-reality interface showing plans and execution as structured commitments across forming, reviewing, following and repairing stages.",
+      "why": "In a 20-person VR study it reduced workload and raised situational awareness, trust and perceived control compared with a chat interface."
+    },
+    "2610.07649": {
+      "problem": "LLM task planners degrade on long-horizon tasks in large environments and burn tokens on text scene descriptions.",
+      "method": "Ontology-grounded scene representation plus an agentic planner that retrieves relevant facts and formalises goals; 0.89 vs 0.27 success across 150 tasks with about 5.6x fewer tokens.",
+      "why": "It asks follow-up questions on ambiguous or infeasible instructions instead of committing to invalid plans, which users can see and correct."
+    },
+    "2610.07327": {
+      "problem": "Autoregressive LLM decisions are slow and do not model decision dependencies or verify execution.",
+      "method": "Each active behaviour-tree node exposes typed candidates scored in parallel with a shared KV cache; manipulation closed-loop success rose from 0% to 60%.",
+      "why": "Likely fits ROS 2 stacks that already use behaviour trees, with stage gating that blocks out-of-order actions."
+    },
+    "2610.08642": {
+      "problem": "Household planners ignore contamination spread through grippers and shared surfaces and the user's own priorities.",
+      "method": "Benchmark of 624 instances plus Hygiene-NSP, which combines LLM grounding, contact-history reconstruction and CP-SAT, reaching 94.4% safe resolution.",
+      "why": "Shows safe task completion is not the same as the best plan under a user's priorities, a relevant distinction for home and care robots."
+    },
+    "2610.08425": {
+      "problem": "VLAs infer grasps from vision and do not represent how the object responds after contact.",
+      "method": "Encodes gripper current, position, velocity and validity into a 128-dimensional token that conditions SmolVLA's gripper pathway.",
+      "why": "Raised selecting the higher-resistance object from 48.8% to 75.0% using signals the gripper already reports, with no F/T sensor."
+    },
+    "2610.07621": {
+      "problem": "Contact-rich manipulation usually needs tactile models or learned tactile controllers.",
+      "method": "Gives an untrained general-purpose VLM camera images, robot state and three-axis tactile values overlaid on images, and lets it command end-effector targets.",
+      "why": "Peg insertion went from 10/20 to 15/20 with tactile input, a cheap baseline before training tactile policies."
+    },
+    "2610.07525": {
+      "problem": "Sim-trained dexterous policies fail on real contact timing and force while keeping useful finger coordination.",
+      "method": "A human physically corrects selected fingers under compliant control while the frozen base policy drives the rest, and the rollouts train a force-conditioned policy.",
+      "why": "Object flipping rose from 14% to 86% and screwdriver rotation progress from 26.0% to 95.3%, with physical human correction as the data channel."
+    },
+    "2610.08784": {
+      "problem": "RL post-training of pretrained policies under distribution shift needs many slow or destructive real interactions.",
+      "method": "A VLM diagnoses failures from visual outcome and tactile history to set force bounds for a hybrid force-position controller, while diffusion steering adjusts the frozen policy's latent noise.",
+      "why": "Reached 95% on whiteboard erasing and 90% on pipette aspiration in the real world, and needed up to 53.2% fewer episodes in simulation."
+    },
+    "2610.06955": {
+      "problem": "Multi-sensory robot systems fuse whatever sensors provide instead of actively acquiring missing evidence.",
+      "method": "An LLM selects target objects, interactions and modalities (vision, audio, tactile, force), trained on ROMI-2K with nearly 2,000 real objects.",
+      "why": "Treats 'what should I touch or listen to next' as part of perception, useful when object properties cannot be seen."
+    },
+    "2610.08119": {
+      "problem": "A LoRA-adapted world-action model on a new humanoid renders plausible video while its actions are mis-targeted (about 17%, 10%, 7% stage success).",
+      "method": "Recovers actions from the generated video with a hand-pose estimator and IK, and uses them as preferred targets to fine-tune only action layers.",
+      "why": "The recovered-action gate reached about 75%, 47% and 42%; plain Flow-DPO scored 0% despite perfect validation preference accuracy, a warning about proxy metrics."
+    },
+    "2610.07355": {
+      "problem": "It is unclear what video world models retain about objects they can no longer see.",
+      "method": "Hides objects from a frozen V-JEPA 2 predictor and probes its predictions against the encoder's representation.",
+      "why": "On rendered scenes the predictor loses a moving hidden object within 0.3 s, so check object permanence before trusting a world model around occlusions."
+    },
+    "2610.08791": {
+      "problem": "Video world models can be visually convincing but physically wrong, and evaluations rely on model judges or reference videos.",
+      "method": "40 measurement-based tasks across mechanics, optics, fluids, thermal, electromagnetism and surface tension, applied to eight models and 1,280 videos.",
+      "why": "The best model scores 57.76/100, a useful reference when someone proposes a video model as a simulator."
+    },
+    "2610.08780": {
+      "problem": "RGB-only video world models produce frames that do not compose into a consistent 3D world.",
+      "method": "Builds DROID-3D with metric depth and recalibrated extrinsics, and trains a world model that predicts multi-view RGB and depth jointly.",
+      "why": "Depth supervision improved RGB prediction by 1.48 dB PSNR and gives metric depth for geometric checks in policy evaluation."
+    },
+    "2610.07540": {
+      "problem": "JEPA world models trained with next-step prediction can discard the unstable modes a controller must stabilise.",
+      "method": "Adds an inverse-dynamics (action reconstruction) loss, with a proof for linear systems and experiments on CartPole, Walker2D and PointMaze.",
+      "why": "For balancing robots, a learned representation may silently drop the state that matters; an inverse-dynamics loss is a cheap safeguard."
+    },
+    "2610.07949": {
+      "problem": "Chunked policies execute a fixed prefix, assuming the trustworthy horizon is the same in every state.",
+      "method": "A world model imagines consequences of several candidate chunks and Bayesian change-point inference sets how much to commit.",
+      "why": "Up to 71.8% relative reduction in failure rate without retraining the base policy."
+    },
+    "2610.07946": {
+      "problem": "VLAs face visual disruptions mid-task without knowing their type or timing.",
+      "method": "Uses the unexecuted leftover of the previous action chunk as self-supervision for gated test-time adaptation.",
+      "why": "LIBERO-10 success under corruptions rose from 43.9% to 53.2% (SmolVLA) and real-robot progress from 0.49 to 0.61."
+    },
+    "2610.07756": {
+      "problem": "Diffusion and flow action heads treat all denoising steps alike and are expensive to run every chunk.",
+      "method": "A high-level VLA produces a reusable partially denoised trajectory and a lightweight refiner adds local corrections at higher frequency.",
+      "why": "Cut amortised latency from 115.0 ms to 44.2 ms per chunk while LIBERO success went from 96.5% to 97.8%."
+    },
+    "2610.07917": {
+      "problem": "Demonstration-conditioned policies confuse stages when similar states recur or execution speed differs from the demo.",
+      "method": "An episode-local fast-weight memory aligns the demonstration prompt with realised execution progress.",
+      "why": "Two-step block routing rose from 33.3% to 73.3%, relevant to long, repetitive household sequences."
+    },
+    "2610.06926": {
+      "problem": "A single VLA performs unevenly across task states and environments.",
+      "method": "An offline-RL routing critic selects which of several VLAs to run at each step.",
+      "why": "Up to 33% absolute real-world success gain and 28.3% shorter successful trajectories on DROID tasks."
+    },
+    "2610.08381": {
+      "problem": "Human-to-humanoid retargeting assumes legs and fails for robots with a wheeled base, vertical lift and two arms.",
+      "method": "Assigns human motion to base, lift and arm responsibilities, then adapts it to 50 Hz commands with filtering and retiming.",
+      "why": "A direct path from human video to mobile-base humanoids, though validated only qualitatively on hardware."
+    },
+    "2610.07511": {
+      "problem": "Policies trained from one robot pose break with centimetre-scale base pose changes at deployment.",
+      "method": "Augments egocentric views and retargets actions to compensate for base pose, without extra demos or a generative model.",
+      "why": "Largest gains on humanoids whose camera rides the actuated chain; tested in simulation and on a real Galaxea R1 Pro."
+    },
+    "2610.08726": {
+      "problem": "Raw egocentric human trajectories are poor supervision for robots because of the embodiment gap.",
+      "method": "Pretrains a VLA on human and robot data through a shared language-based action chain-of-thought describing motion intent.",
+      "why": "Reached 80.1% mean real-world task progress, 2.3x alternative action representations."
+    },
+    "2610.07474": {
+      "problem": "Crowd navigation uncertainty is usually isotropic and breaks under shifts in pedestrian behaviour.",
+      "method": "Adaptive ellipsoidal conformal prediction feeds a CVaR signal that regulates the safety penalty in Lagrangian PPO.",
+      "why": "Out of distribution it raised success by 5.68-7.44 pp and cut collisions by 5.44-6.64 pp, running CPU-only on a physical robot."
+    },
+    "2610.06929": {
+      "problem": "Physical HRI experiments need IRB approval and willing participants, and are hard to repeat.",
+      "method": "A phantom shoulder device renders ball-and-socket, scapular and protraction/retraction motion as a repeatable physical partner for a Franka arm.",
+      "why": "A way to test assistive physical-interaction algorithms before running studies with people."
+    },
+    "2610.07646": {
+      "problem": "Benchmarks show VLMs fail at abstract reasoning but not why.",
+      "method": "Uses the Relational Match-to-Sample paradigm from developmental psychology plus mechanistic analysis across frontier and open models.",
+      "why": "Finds an early surface-feature circuit competing with a late relational circuit, a useful lens when VLMs interpret social scenes."
+    },
+    "2610.07117": {
+      "problem": "There is no large benchmark for interactions between robots.",
+      "method": "A dataset of humanoid robots performing interactions modelled on human social behaviours, with egocentric and exocentric event and RGB views (6.5M frames).",
+      "why": "Provides event-camera data for recognising social interaction behaviours at 120 fps."
+    },
+    "2610.07599": {
+      "problem": "Robust optimisation in a world model's latent space lacks a meaningful notion of disturbance.",
+      "method": "Models latent disturbances as conformally calibrated perturbations of the learned dynamics and optimises against them game-theoretically.",
+      "why": "On a Franka it reduced failures by 70% in safety filtering and 54% in sampling-based policy steering."
+    },
+    "2610.08765": {
+      "problem": "CBF safety filters assume a dynamics model, and abrupt unmeasured changes break the certificate.",
+      "method": "Ranks a bank of candidate dynamics by recent prediction error and enforces the CBF against all models near the best.",
+      "why": "Banks of up to 250,000 models run in the loop, with hardware demos adapting to wind, payload release and changing friction."
+    },
+    "2610.07882": {
+      "problem": "Field logs end at human intervention, so the failure a runtime alarm must predict is never observed.",
+      "method": "Annotates the moment the human judged driving unsafe and trains a survival-based hazard head with CUSUM alarms.",
+      "why": "Detected 85 of 142 events versus 26 for the best baseline at ten false alarms per hour, using human judgement as supervision."
+    },
+    "2610.08737": {
+      "problem": "Humanoid hardware cost and complexity limit education and research use.",
+      "method": "Open-source humanoid that uses a commodity smartphone for sensing, compute and interaction, with 13 low-cost actuators.",
+      "why": "Supports human following, conversation and telepresence on a cheap platform suited to low-cost HRI prototyping."
+    }
+  }
+}
