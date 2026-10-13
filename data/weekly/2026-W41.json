@@ -1,0 +1,48 @@
+{
+  "week": "2026-W41",
+  "headline": "This week the useful robot work happened around the policy, not inside it: runtime layers on frozen VLAs, controls that deflate learned add-ons, and HRI tests showing that robots still miss what people actually say, point at and mean.",
+  "summary": "Every day this week had a cluster about improving a frozen policy from outside (supervisors, trust gates, chunk-commitment rules, verified self-revision), and by Thursday the pattern was mature enough that a paired placebo study showed a scripted retreat can match a learned corrector. A second thread ran Tuesday, Thursday and Friday: VLAs reach high benchmark success while ignoring a swapped target, a synonym, a negation or a pointing gesture, which is the failure a robot talking to people of different ages and cultures will hit first. Human demonstrations were judged by what they fail to record (contacts, timing, pose accuracy) and transferred best through shared latent or contact-event representations. World models kept looking right while being wrong where a controller needs them, and the fixes favoured compact, control-relevant prediction targets and failure-aware training data. On the HRI side, social behaviour was treated as a set of planned channels (noise, gesture, face, speed), assistance was triggered by implicit human actions, and one cross-dataset study warned that cues validated at one site can reverse meaning at another.",
+  "trends": [
+    {
+      "title": "Frozen policies are improved by a runtime layer, and the layer has to beat a scripted control to count",
+      "body": "On Tuesday seven papers fixed frozen policies at execution time (contact supervisors, impedance retuning, steering), Wednesday added chunk-commitment and policy-routing layers, Thursday required every self-revision to pass verification before adoption, and Friday wrapped VLAs with failure triggers, evidence gates and bounded residuals. Wednesday's paired placebo study is the counterweight: many learned rescues were run-to-run variance and a fixed-time scripted retreat performed comparably. Teams adding a runtime layer should report it against a same-seed re-run and the simplest scripted alternative.",
+      "paper_ids": ["2610.04391", "2610.07949", "2610.09228", "2610.12185", "2610.12123", "2610.06921"]
+    },
+    {
+      "title": "Instruction following, not motor skill, is where VLAs fail people",
+      "body": "Tuesday's grounding-gap study showed policies pick the scene-associated object even when asked for another visible one, Thursday measured a 100% versus 2% swing between 'stove' and 'hot plate' on pi0.5 and found directional words move outcomes more than meaning, and Friday added pointing, handling, short intent-style commands and negations as further failure points. For robots serving users with different vocabularies and ways of expressing intent, instruction-swap, paraphrase, negation and gesture tests belong in the acceptance suite alongside task success.",
+      "paper_ids": ["2610.06235", "2610.10526", "2610.10178", "2610.12157", "2610.11952", "2610.10635"]
+    },
+    {
+      "title": "Measurement choices changed the conclusions more than model size did",
+      "body": "Wednesday's headline comparisons flipped with a placebo control, a logit readout of VLM emotion answers and a fixed visual encoder. Thursday showed world models scoring verified failures as success-like, and a VLM screening pipeline changing labels on 16-37% of clips across runs at temperature 0. Friday's world-model papers judged prediction by action relevance and latency rather than video quality. Before adopting a learned module or a model's judgement of a person, re-run it for stability and check it against a control.",
+      "paper_ids": ["2610.06921", "2610.08162", "2610.09134", "2610.09217", "2610.08119", "2610.12285"]
+    },
+    {
+      "title": "Human demonstrations transfer through contacts and shared latents, and their gaps are now measured",
+      "body": "On Thursday six papers measured what robot-free capture misses (contacts recorded by exoskeleton geometry, tactile data absent from video, pose error, human timing that overshoots actuators), and on Friday the gains came from mapping human data into shared motion latents or contact events, including a humanoid generalist trained on a pool that is 93.2% human frames. Tuesday's partner-dancing humanoid learned from ordinary video. Log contact and timing explicitly when collecting human data, and validate pose accuracy before scaling collection.",
+      "paper_ids": ["2610.08870", "2610.09696", "2610.12435", "2610.11945", "2610.05324"]
+    },
+    {
+      "title": "HRI quality is being measured channel by channel, and cues do not travel between sites",
+      "body": "Tuesday treated locomotion noise, gesture, facial expression and speed as planned social outputs, Wednesday triggered assistance from human actions and hand poses and showed structured plan displays raising trust in a 20-person study, Thursday found user-initiated feedback reflects perceived safety better than system-initiated prompts, and Friday showed approach cues transferring in one direction only, with head pitch reversing its meaning across datasets. None of the week's social papers reported evaluations across age groups or cultures, which remains the gap for a team deploying to diverse populations.",
+      "paper_ids": ["2610.03828", "2610.05964", "2610.08003", "2610.07477", "2610.09891", "2610.12245"]
+    }
+  ],
+  "top_papers": [
+    {"id": "2610.06921", "why": "The evaluation template for any learned recovery module: paired same-seed re-runs and a scripted baseline, which will still matter long after the specific corrector is forgotten."},
+    {"id": "2610.06235", "why": "Shows VLAs act on what the scene suggests rather than what the person asked, while the instructed target is still decodable inside the model; the basic test every language-driven robot should pass."},
+    {"id": "2610.10526", "why": "Quantifies how much word choice alone costs a VLA and offers a retraining-free rewrite layer, directly relevant to users with different vocabularies."},
+    {"id": "2610.12245", "why": "One of the few HRI papers measuring whether social cues transfer between robots and datasets, with a cue that reverses meaning; a warning for multi-site, multi-culture deployment."},
+    {"id": "2610.07477", "why": "A controlled 20-person study showing that exposing LLM plans as structured commitments lowers workload and raises trust compared with chat, a design pattern for supervisable robots."},
+    {"id": "2610.09134", "why": "Shows released world models are optimistic about failures and gives a counterfactual-failure data recipe, important for anyone using world models to evaluate policies."},
+    {"id": "2610.10810", "why": "Turns long-horizon brittleness into a testable diagnosis (displaced scene state at skill seams) with a scene-restore fix that applies to any chained skill stack."},
+    {"id": "2610.12157", "why": "Shows large VLMs still fail on what a person points at or handles and that explicit hand-object evidence closes much of the gap, central to assistive robots."}
+  ],
+  "next_week": [
+    "Build a small instruction test set on your own robot with swapped targets, synonyms, negations, pointing and speaker-relative phrasing, ideally collected from people of different ages and language backgrounds, and track it separately from task success.",
+    "For any runtime layer or recovery module under evaluation, add a same-seed re-run and a scripted retreat baseline before comparing against the learned version.",
+    "Watch for HRI evaluations that report results per age group or cultural background; none appeared this week, and that is the evidence the team most needs.",
+    "Watch whether memory for long-horizon manipulation moves from longer context toward explicit, revisable records that a person's interventions can update."
+  ]
+}
