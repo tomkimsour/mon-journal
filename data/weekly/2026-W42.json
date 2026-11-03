@@ -1,0 +1,47 @@
+{
+  "week": "2026-W42",
+  "headline": "A one-day week (only Monday's listing was published) in which the strongest work built structure around frozen policies, while a real-robot benchmark showed that spatial language from people is still where VLAs break.",
+  "summary": "Monday 2026-10-12 was the only snapshot this week, so every trend below rests on a single listing and should be read as a signal rather than a confirmed pattern. It still continued the previous week's main thread: policies were improved from outside through revisable memory, failure monitors judged by the intervention they enable, and small adaptation modules on frozen weights. World-model ideas moved into training, so policies get supervision from predicted futures without paying for generation at deployment. Human demonstrations transferred as contacts, wrist-centred hand structure and latent actions rather than raw joint angles. For a team building robots that interact with people of different ages and cultures, the most relevant results were Spa-Bench, which shows VLAs losing spatial referents out of distribution, and JitterVLA, which gives a cheap way to check motion smoothness near people before a user study.",
+  "trends": [
+    {
+      "title": "Manipulation memory is becoming an evidence log with revisable conclusions, not a longer frame buffer",
+      "body": "On Monday four papers separated stored evidence from derived task state: REMM withdraws completed conditions when a disturbance invalidates them, GAMMA verifies every memory line against detector evidence, a dual-stream design splits progress from selective frame retrieval, and MeMoREval found frames and scene graphs beat generated captions. This follows the previous week's runtime-layer trend and is the piece most directly affected by people moving objects or undoing steps.",
+      "paper_ids": ["2610.12710", "2610.12793", "2610.13262", "2610.12561"]
+    },
+    {
+      "title": "Failure monitors are judged by the intervention they enable, and robots gather missing evidence themselves",
+      "body": "Monday's RESCUE showed good detection scores do not imply lower intervention cost, with an ideal detector tolerating only 2.0-3.3% false alarms under stop-and-reset. Fly-by-Code wrote diagnostic probe programs when feedback was ambiguous, BT-Agent and EndoRSI turned structured failure feedback into the next revision, and Robot-WATCHDOG detected semantic failures without failure labels. Choose a monitor together with the recovery action you actually have.",
+      "paper_ids": ["2610.13516", "2610.12549", "2610.13862", "2610.13376", "2610.13403"]
+    },
+    {
+      "title": "Future prediction moved to training time, so policies benefit from world models without running them on the robot",
+      "body": "Five Monday papers used predicted futures to shape a policy and then dropped or shrank that prediction at inference: FDM conditions prediction on action features so it is skipped at deployment, IG-VLA cut per-chunk latency from 1081 ms to 169.5 ms with a gist token, Evo-World supervised with optical flow, SmolWAM ran at 57 ms per chunk, and LeWAM planned in a JEPA latent space. For on-robot compute this looks like the cheaper path to most of the benefit.",
+      "paper_ids": ["2610.13117", "2610.02626", "2610.12936", "2610.13740", "2610.12818"]
+    },
+    {
+      "title": "Spatial language and motion quality, not motor skill, are where VLAs fall short around people",
+      "body": "Monday's Spa-Bench found VLA success falling from 67.5-73.3% to 40.7-52.0% on unseen spatial configurations while motions stayed in distribution, S-Space located the weakness in viewpoint transformation, and SpatialASM trained perspective-taking explicitly. JitterVLA showed that irregular command arrival makes motion jerky even when actions are reasonable. Both fit the previous week's finding that instruction following, not skill, is where VLAs fail people.",
+      "paper_ids": ["2610.12696", "2610.13527", "2610.13832", "2610.13628"]
+    },
+    {
+      "title": "Human demonstrations transfer as contacts, wrist-centred hand structure and latent actions",
+      "body": "On Monday PanTact recorded whole-body contact goals for a G1, VICAR kept contact poses as high-priority retargeting terms, Human2Dex raised two-hand success from 26.3% with raw human data to 85.8% through a shared wrist-centric representation, and LAPT-Scale learned latent actions from 23.3K hours of egocentric video. This repeats the previous week's contact-based transfer trend, so record contacts and timing explicitly when collecting human data.",
+      "paper_ids": ["2610.12558", "2610.13079", "2610.13119", "2610.13732"]
+    }
+  ],
+  "top_papers": [
+    {"id": "2610.12696", "why": "Isolates spatial grounding from motor skill on a real arm, the failure a robot taking relational or speaker-relative instructions from people will hit first."},
+    {"id": "2610.13628", "why": "A replay benchmark that isolates the controller's effect on jerk near people, a cheap screening step before any human-centred study with a VLA-driven arm."},
+    {"id": "2610.13516", "why": "Changes how runtime monitors should be selected and thresholded: by the cost of acting on their alarms, not by detection accuracy."},
+    {"id": "2610.12710", "why": "A concrete supervisory pattern for recovering after a person disturbs a task, without retraining the executor, that maps onto behaviour trees."},
+    {"id": "2610.13117", "why": "The clearest recipe of the week for getting world-model supervision at training time without generating futures on the robot."},
+    {"id": "2610.13119", "why": "One wrist-centric human corpus served two different dexterous hands, a practical answer to per-hand data collection."},
+    {"id": "2610.13945", "why": "A phone scan to digital twin to fine-tuned pi0.5 pipeline that took pickup from 0% to 62.5% in a target scene, a path to per-home personalization."},
+    {"id": "2610.12650", "why": "A psychology-grounded Stroop probe showing systematic salience biases in VLM perception that a human-facing robot inherits."}
+  ],
+  "next_week": [
+    "Add a spatial-language test set (relational, ordinal, speaker-relative phrasing) on your own robot and log whether a rephrased direct instruction fixes each failure.",
+    "Before running a user study with a VLA-driven arm, replay identical command streams through your controller options and compare jerk.",
+    "Prototype an evidence log plus revisable task state in the behaviour-tree layer and test it with a person deliberately undoing steps."
+  ]
+}
