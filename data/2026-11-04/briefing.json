@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-04",
+  "headline": "Robot-free human demonstrations are now credible training data, so the bottleneck is moving to the runtime safety and evaluation layers around the policy.",
+  "thesis": "Of 142 matched papers, the data result is the one to plan around: a handheld gripper with no robot data reached 78% average success over ten tasks, and synthetic robot video built from human clips lifted success on unseen tasks from 2% to 60%. The same batch shows the surrounding layers are being rebuilt: safety filters that carry explicit guarantees, reflex paths that act within 10 ms, and evaluation harnesses that run several times faster. For a team shipping ROS 2 robots, the practical step is to design data collection and runtime safety as one pipeline rather than two separate projects.",
+  "clusters": [
+    {
+      "title": "Robot-free human demonstrations are becoming a primary data source for manipulation VLAs",
+      "why": "Teams have assumed teleoperated robot demonstrations are the only route to reliable policies, and that human data needs a costly embodiment bridge. AIRoA-0 is trained on 16,151 hours of handheld demonstrations with no robot data at any stage, and averages 78% over ten tasks against 27% for the strongest of four VLA baselines. RoboTryOn converts human videos into robot videos and lifts success on unseen tasks from 2% to 60% without real demonstrations of those tasks. H2RB transfers human demonstrations through a decoupled action tokenizer, lifting object transfer from 8.0 to 51.8. Practical change: match the capture gripper to the robot's fingers and camera set, since a top camera added 13 points in the UMI study even when only about half the data included it.",
+      "paper_ids": ["2611.03815", "2611.03779", "2611.05163", "2611.04391", "2611.04522"],
+      "confidence": "high"
+    },
+    {
+      "title": "Learned policies are getting runtime safety layers with explicit guarantees, not only penalties",
+      "why": "Learned controllers have usually been made safer with reward penalties or after-the-fact filters without guarantees. Three papers attach guarantees to the layer that executes. BH-CBF is recursively feasible under control bounds and filters a MARL policy at run time, cutting median travel time 14% against human drivers with no collisions in recorded roundabout traffic. Caging VLN for legged robots combines a VLA planner with barrier-constrained trajectory generation that has collision-avoidance guarantees under stated assumptions. An online GPU Hamilton-Jacobi solver computes a 3D reachable tube at 112 Hz inside the control loop. Treat these as runtime layers with explicit assumptions, and check which assumptions the team's sensing actually satisfies.",
+      "paper_ids": ["2611.04957", "2611.04972", "2611.04096"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Benchmark runtime and fairness are becoming the bottleneck for VLA research",
+      "why": "Evaluation has been treated as overhead, with slow simulators and per-benchmark scripts. RoboScope Kit reports 500 RoboTwin Easy episodes taking 359.7 minutes on one GPU, with the GPU averaging 14.3% utilisation, and runs 4.45x faster than the official evaluator on LIBERO-Long at equivalent success. LoopQ finds that plain RTN, AWQ and GPTQ match VLA-specific quantisation methods at 4 bits, and that nominal LIBERO hides losses of 1.5 to 4.3 points under paired perturbations. Fix evaluation throughput before running ablation sweeps, and add a perturbation suite beside the nominal one.",
+      "paper_ids": ["2611.03850", "2611.05093"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Humanoid whole-body control is adding object and reflex models, not only tracking accuracy",
+      "why": "Humanoid controllers have been trained without the manipulated object in the scene and judged by tracking error. HLO-AMP trains the low-level controller with the object present so the carry wrench is absorbed at its source, and generalises across object masses on a Unitree G1. ReflexArc adds a withdrawal path that sends a pose to the motors within 10 ms, below the 50 Hz policy cycle, and cuts the first force peak by 34.1% against an otherwise identical reflex delayed by 20 ms. Latent foresight scores proposed command sequences before execution and reports 89.7% on ten SIMPLE tasks against 73.7% for Psi-Zero. A humanoid team should measure contact impulse and dropped objects, not only tracking error.",
+      "paper_ids": ["2611.05113", "2611.04839", "2611.04424"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Human-facing channels are judged by what people infer, not by what the system sends",
+      "why": "HRI designs usually assume an explicit message is received as intended. A preregistered study (N=114) found people resolved underspecified alerts almost as reliably as fully specified ones, and sooner, when a pragmatic planner chose what to say. A discreet in-ear plus head-tilt channel worked in 39 of 40 turns, yet non-wearers held divergent views about fairness and teamwork. The same swarm code, deployed on three platforms, produced different perceived purpose and emotional response depending on physical form. Test a social robot's messages for interpretation by the person who does not hold the device, and for emotional response separately from task success.",
+      "paper_ids": ["2611.04692", "2611.03976", "2611.05244"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "Data is no longer the only gate for manipulation. AIRoA-0 shows a handheld gripper with wrist cameras can carry a bimanual system to 78% average success without robot data, and RoboTryOn shows synthetic robot video from human clips reaches 60% on unseen tasks. Try matching the capture gripper to the robot's fingers and camera set, and log which tasks were learned from human-only data. Stop assuming teleoperation is the only way to reach a new task.",
+    "Safety and evaluation are moving into the runtime and the benchmark. Three papers attach guarantees or runtime filters to learned policies, and the evaluation papers show the nominal suite hides losses: LoopQ reports 1.5 to 4.3 points lost under perturbation, and RoboScope reports 359.7 minutes for a single 500-episode run. Try adding a perturbation suite and timing the evaluation before the next ablation sweep. Stop reading a clean nominal benchmark as evidence of robustness.",
+    "For the HRI reader, 2611.03976 and 2611.05244 approach the same gap from opposite sides. A pragmatic alert is understood almost as well as a complete one, while a swarm that executes correctly can still read as threatening to observers. Try including an observer condition, not only the operator, in the next user study. Stop using task success as a proxy for how the interaction feels to the people around the robot."
+  ],
+  "must_read": [
+    {
+      "id": "2611.03815",
+      "why": "It is the largest robot-free data result in today's batch, with a direct comparison against four VLA baselines.",
+      "key_idea": "A handheld gripper with wrist cameras only, trained on handheld data with a stage predictor and continuous action decoding, transfers across several embodiments.",
+      "evidence": "Trained on 16,151 hours of handheld demonstrations; averages 78% success over ten tasks against 27% for the strongest of four post-trained VLA baselines; runs on bimanual Franka, TX-G2, OpenArm and UR.",
+      "caveat": "The abstract reports one ten-task evaluation and does not give trial counts or success criteria; the claim that no robot data was used at any stage is the authors' statement."
+    },
+    {
+      "id": "2611.04166",
+      "why": "It undermines a common monitoring assumption: that reading a reasoning VLA's rationale tells you whether its action is safe.",
+      "key_idea": "Visual perturbations can change the physical action while the generated rationale stays word-for-word identical, along a direction nearly orthogonal to text-loss gradients.",
+      "evidence": "In 154 obstacle-annotated Alpamayo driving scenes, TNAS-guided attacks induce a new collision under an identical rationale in 52.6% of scenes under full-image perturbation, against 4.55% for unguided action attacks.",
+      "caveat": "These are adversarial perturbations on two models (Alpamayo and InstructVLA); the abstract does not show deployment conditions, and the monitoring implication is the authors' argument."
+    },
+    {
+      "id": "2611.04692",
+      "why": "It is a direct HRI test of how a robot can speak to one person without the rest of the room hearing.",
+      "key_idea": "In-ear audio with deliberate head-tilt responses works as a private channel inside a shared game.",
+      "evidence": "Twenty pairs (40 participants) played a card game with a Wizard-of-Oz screen agent; the channel worked as intended in 39 of 40 channel-mediated turns, and wearers reported low pressure in both conditions with no significant difference.",
+      "caveat": "The agent is screen-based rather than a physical robot, the setting is one card game, and the non-wearers' fairness concerns came from retrospective interviews."
+    },
+    {
+      "id": "2611.04957",
+      "why": "It is a safety filter that keeps its guarantee under control bounds and works on a learned multi-agent policy.",
+      "key_idea": "Check safety along a backup horizon until all vehicles stop, rather than only one step ahead.",
+      "evidence": "On real-world roundabout and intersection maps, the filter avoided all collisions of unsafe MARL policies; in recorded roundabout traffic with 1264 human-driven vehicles over 115 km, safeguarded policies cut median travel time 14% against the human drivers with no collisions.",
+      "caveat": "The 14% figure is for the paper's recorded traffic setting and policies, and the guarantee holds only under the paper's modelling assumptions."
+    }
+  ],
+  "summaries": {
+    "2611.03815": {
+      "problem": "Bimanual VLAs usually depend on robot teleoperation data, which is slow to collect.",
+      "method": "Trains on 16,151 hours of handheld YUBI demonstrations using wrist cameras only, with stage prediction and continuous action decoding.",
+      "why": "It shows robot-free data can carry a deployed-scale system, and the dataset release lets a team test the recipe on its own hardware."
+    },
+    "2611.03779": {
+      "problem": "Handheld UMIs either lack contact-force cues, lack grip strength, or need external base stations.",
+      "method": "A battery-powered handheld with soft angled fingers that deform visibly under load, matched to the robot's gripper; 99.7 hours over 53 objects.",
+      "why": "Matching the finger to the robot gripper and adding a top camera, which raised success by 13 points, are concrete capture-rig decisions."
+    },
+    "2611.05163": {
+      "problem": "Human videos lack the robot's appearance, and retargeting poses leaves action gaps for high-DoF robots.",
+      "method": "RoboTryOn converts human videos into robot videos, translating keyframes autoregressively and labelling actions with an inverse dynamics model that uses depth.",
+      "why": "Success on unseen tasks rises from 2% to 60% without real demonstrations of those tasks, at about a third of the teleoperation cost."
+    },
+    "2611.04391": {
+      "problem": "Human demonstrations are cheap but embody a different body, and VLAs pretrained on robot data transfer them poorly.",
+      "method": "H2RB aligns human and robot observations in a shared geometry and uses a decoupled-decoder tokenizer so action latents are shared without one mapping.",
+      "why": "Object transfer improves from 8.0 to 51.8 in the authors' real-world tests, where co-training baselines failed to transfer skills."
+    },
+    "2611.04522": {
+      "problem": "Latent action representations learned from human video carry scene-specific noise.",
+      "method": "AIT extracts explicit action intents and aligns human and robot domains in a shared intent space before decoding robot actions.",
+      "why": "It offers a cleaner interface for transferring human video knowledge, though the abstract gives no headline figures."
+    },
+    "2611.04957": {
+      "problem": "MARL for connected vehicles has no safety guarantee, and CBFs can become infeasible under control bounds.",
+      "method": "BH-CBF evaluates safety along a backup horizon with exact geometry, as a decentralised filter used in pre-training, at run time and in the fine-tuning loop.",
+      "why": "It shows how to attach guarantees to a learned multi-agent policy without collisions in the reported maps."
+    },
+    "2611.04972": {
+      "problem": "Legged VLN models interpret commands well but lack physical grounding and explicit safety assurance.",
+      "method": "A high-level VLA planner with a low-level layer using an SDF, a Bezier-parameterised MPPI planner and discrete exponential barrier constraints.",
+      "why": "The modular design suits a team that swaps VLM or VLA backbones across legged platforms."
+    },
+    "2611.04096": {
+      "problem": "Hamilton-Jacobi reachability is computed offline and scales poorly with state dimension.",
+      "method": "A CUDA WENO5 and TVD-RK3 level-set solver that runs in the control loop: 112 Hz for a 3D BRT on an RTX 4000 Ada, 66 Hz on a Jetson AGX Thor.",
+      "why": "It makes a deterministic safety layer practical on robot-class hardware, which matters when the policy itself is a black box."
+    },
+    "2611.03850": {
+      "problem": "Each benchmark brings its own evaluator, and 500 RoboTwin Easy episodes take 359.7 minutes on one GPU.",
+      "method": "Wraps each policy once and each benchmark once in an adapter, and schedules simulator workers and policy replicas as separate pools.",
+      "why": "It reports 4.45x faster evaluation than the official StarVLA evaluator on LIBERO-Long with equivalent success."
+    },
+    "2611.05093": {
+      "problem": "VLA quantisation papers are hard to compare because their setups differ.",
+      "method": "A closed-loop benchmark comparing RTN, AWQ, GPTQ, ActQuant and QuantVLA on the same checkpoints and engines, over more than 180,000 episodes.",
+      "why": "Plain RTN and AWQ match VLA-specific methods at 4 bits, and LIBERO hides 1.5 to 4.3 point losses under perturbation."
+    },
+    "2611.05113": {
+      "problem": "Humanoid loco-manipulation trains whole-body controllers without the carried object in the scene.",
+      "method": "Trains the low-level controller as an object-aware motion prior on retargeted MoCap, then a high-level policy anchored to the low level's training envelope.",
+      "why": "The same deployed policy generalises across object masses and dimensions on a G1, which is evidence for putting payload dynamics into low-level training."
+    },
+    "2611.04839": {
+      "problem": "A plausible command sequence can still drop a held object or leave an interaction incomplete.",
+      "method": "Action-conditioned latent foresight scores proposed command prefixes by predicted endpoint progress and temporal consistency before execution.",
+      "why": "It adds a pre-execution check to loco-manipulation plans, reporting 85.7% on seven real-robot tasks under standard conditions."
+    },
+    "2611.04424": {
+      "problem": "A 50 Hz policy cycle can suppress a protective withdrawal as if it were tracking error.",
+      "method": "A tactile reflex pathway solves a withdrawal pose and sends it to the motors within 10 ms, integrated bottom-up with learned whole-body control.",
+      "why": "The 34.1% lower first force peak against a 20 ms delayed reflex quantifies what policy-cycle latency costs in contact."
+    },
+    "2611.04692": {
+      "problem": "Social robots sometimes need to exchange information with one person without bystanders observing it.",
+      "method": "In-ear audio with deliberate rightward head-tilt responses, tested in a Wizard-of-Oz card game with 40 participants.",
+      "why": "It shows the channel is feasible and surfaces awareness and fairness issues for non-wearers."
+    },
+    "2611.03976": {
+      "problem": "Assistive alerts over-explain, spending attention on what users already know.",
+      "method": "A pragmatic planner reasons over the listener's knowledge and is compared with a fully specified baseline in a preregistered study with N=114.",
+      "why": "People resolved underspecified alerts almost as reliably and sooner, which supports shorter robot messages in time-critical tasks."
+    },
+    "2611.05244": {
+      "problem": "The reality gap for swarms is known, but the perceptual gap to human observers is less examined.",
+      "method": "Runs the same decentralised coordination code on tabletop, aerial and human-scale platforms during live performances, with audience surveys.",
+      "why": "Physical form changed perceived purpose and comfort independently of technical success, so swarm design has to account for how motion reads to people."
+    },
+    "2611.05155": {
+      "problem": "A VLM in the control loop limits how reactive a VLA can be.",
+      "method": "ARP runs a VLM asynchronously to update semantic memory while a lightweight vision-action expert acts at high frequency, trained on staleness and delay.",
+      "why": "It reports the VLM can run at 10x lower than nominal frequency with no significant performance loss."
+    },
+    "2611.04368": {
+      "problem": "Fine-tuning a generalist VLA on few demonstrations can reduce robustness to appearance and object shifts.",
+      "method": "RAFT trains low-rank adapters on task-relevant reasoning annotations, freezes them, then fine-tunes the policy on action demonstrations.",
+      "why": "It reports 75.0% out-of-distribution success on a DROID robot against 27.9% for plain fine-tuning."
+    },
+    "2611.04166": {
+      "problem": "The rationale of a reasoning VLA is assumed to show whether its action is safe.",
+      "method": "A text-neutral action-subspace diagnostic finds an action-sensitive direction nearly orthogonal to text-loss gradients, and visual perturbations exploit it.",
+      "why": "A safety monitor has to verify the predicted action channel directly rather than read the rationale."
+    },
+    "2611.04392": {
+      "problem": "Autoregressive VLA decoding is too slow on embedded flight hardware.",
+      "method": "Aero-VPA uses a latent predictor trained without pixel reconstruction, two-step flow matching for actions, and an uncertainty fallback.",
+      "why": "Its closed-loop PX4 results show behaviour cloning copied the last command, and a runtime shield raised one policy's success from 21.1% to 52.2%."
+    },
+    "2611.04974": {
+      "problem": "Generating a working RL policy needs expert MDP design and simulator code.",
+      "method": "LLMs act as designers that construct the RL pipeline before deployment, including MDP formulation and simulator implementation, under a dependency-aware framework.",
+      "why": "It moves LLM use from runtime decisions to pre-deployment design, which is easier to review."
+    }
+  }
+}

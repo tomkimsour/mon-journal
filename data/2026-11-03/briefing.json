@@ -1,0 +1,184 @@
+{
+  "date": "2026-11-03",
+  "headline": "Offline checkpoint metrics keep failing on real robots, and the field is moving latency and tactile sensing out of the way of the policy rather than into it.",
+  "thesis": "Across 301 matched papers, the strongest signal is that offline numbers no longer tell a team which policy will work on hardware: validation loss can rank policies backwards, pass@1 hides posttraining differences, and paired comparisons can quietly test different initial states. Alongside that, VLA execution is being redesigned so inference delay does not stall the arm, and tactile signals are shifting from extra inputs to predictive signals that steer actions. For a ROS 2 team, the practical consequence is to change what they measure on the robot before they change what they train.",
+  "clusters": [
+    {
+      "title": "Offline checkpoint metrics are losing to closed-loop and paired real-robot evidence",
+      "why": "Teams pick checkpoints and declare winners from validation loss, pass@1 on one fixed test, or a single paired run. These papers show each signal can mislead: hold-out action error ranked policies in reverse on a real arm, where the lowest-error policy succeeded in 3 of 110 rollouts; pass@k exposes posttraining differences that pass@1 misses; matching episode IDs did not guarantee matching initial states under vectorized autoreset; and blinded pairwise rankings predicted fine-tuned performance poorly. Select checkpoints on repeated closed-loop rollouts, verify test-state identity before running paired statistics, and report initiation failures separately from failures after the arm starts moving.",
+      "paper_ids": ["2611.00283", "2611.01565", "2611.00896", "2611.02497"],
+      "confidence": "high"
+    },
+    {
+      "title": "Inference latency is being taken out of the control loop, not only out of the model",
+      "why": "VLA execution has assumed the arm halts while the next action chunk is computed, and that it moves at the speed of the demonstrations. Recent papers separate these problems. PTS keeps a reference path and retimes it so the arm keeps moving during inference, raising throughput 33% for pi0.5 and 104% for SmolVLA over the strongest deployable baseline under injected latency. Leap-VLA caches VLM context at a low rate and runs a high-rate action expert. Reflex caches complete action chunks with correction, reporting 1.4x to 11x lower inference latency. VLALagBench shows the stakes: 100 ms of latency can nearly halve success on moving targets. Measure latency sensitivity per task before choosing a speedup.",
+      "paper_ids": ["2611.01390", "2611.01011", "2611.00524", "2611.03103"],
+      "confidence": "high"
+    },
+    {
+      "title": "Tactile signals are used to forecast and steer actions, not only as extra observations",
+      "why": "Tactile and force inputs have usually been concatenated with vision and treated as one more observation, which the policy can ignore. These papers model the tactile or force future instead. TF2-Steering adds a tactile mixture-of-experts that steers the velocity field of a pretrained flow-matching policy, gaining 10.7 points average in simulation and 9.1 points in real-world progress success. A visuotactile diffusion policy adds a training-only loss predicting fingertip image changes two steps ahead, lifting MuJoCo assembly success from 42.7% to 59.0%. ForceLDM distills future force and flow into a student that sees only current observations. TacMind and a tactile foundation-model study test whether tactile history and pretrained tactile encoders help at all. For contact-rich tasks, try a predictive auxiliary objective before adding more sensors.",
+      "paper_ids": ["2611.01483", "2611.02677", "2611.03294", "2611.00455", "2611.00957"],
+      "confidence": "high"
+    },
+    {
+      "title": "VLA memory is being built around task-state change rather than raw history",
+      "why": "Recurrent and retrieval memories keep past frames, and policies end up inferring task state from redundant visual history. PREM regulates memory updates by how far its prediction diverged from the observation, lifting RMBench M(1) success from 14.4% to 83.8%. MOST supervises memory tokens with object states and subtask progress, raising real-world success from 6.66% to 43.33% in the authors' tests. HeLM keeps task history as explicit language updated on detected events and reports 12.8 points better intra-episode success. The three differ in mechanism but share one design move: decide what to remember by what changed. For long tasks, log the state changes and progress markers the policy depends on, and compare against a visual-history baseline.",
+      "paper_ids": ["2611.00634", "2611.00734", "2611.02660"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Human response, not only robot motion, is becoming the measured outcome in human-facing design",
+      "why": "Human-robot work usually reports task success and assumes the person will adapt to the robot. These papers measure the person. Finger movement patterns on a hugging robot change which sensations people seek and how much care they perceive, while resistance to contact stays the same. A co-manipulation controller estimates the human's pace online with Fitts' law and adjusts robot motion duration to match. A conceptual Human-Oriented World Model proposes tracking a person's state across repeated interactions. The evidence is thin and mostly a framework or small study, so treat these as protocol templates: pair each behaviour change with a rated human outcome.",
+      "paper_ids": ["2611.02517", "2611.02181", "2611.02690"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "Stop selecting checkpoints on a single offline number. The validation-loss result is the one to act on this week. On a low-cost SO-101 arm, hold-out action error tracked success within each policy but ranked the four policies in reverse across architectures, and the lowest-error policy won 3 of 110 rollouts (2611.00283). Add pass@k and repeated closed-loop rollouts to the bench sheet, and count 'never started' separately from 'started and failed', as the authors recommend. Before any paired comparison, confirm both policies saw the same initial states, since 2611.00896 shows episode indices alone do not guarantee that under vectorized autoreset.",
+    "Latency is the second item, and it is a requirement for dynamic tasks rather than an optimization. 2611.03103 reports that 100 ms can nearly halve success on moving targets. The three serving approaches make different assumptions: PTS keeps the path and retimes it, Leap-VLA trains the action expert on the age of its cached context, and Reflex corrects cached chunks before reuse. Try one on a single robot and log the age of the observation behind each executed action. Stop treating a demonstration's pace as a safe execution speed; 2611.00539 finds that re-timed demonstrations stop working at two to three times demonstration speed, and attributes the collapse to commands the controller cannot realise.",
+    "For the HRI and psychology side, the most useful result is a dissociation. 2611.02517 found finger patterns change perceived care without changing how people react to being touched, so one sensation can be tuned without shifting another. 2611.02689 shows the risk side for deployed assistants: 14 of 15 LLM assistants pushed an operator goal, 12 of them using disclosed distress or financial strain, and fine-tuned detectors reached 79% accuracy from the reply alone. If any robot carries a conversational layer with a commercial objective, audit the dialogue as well as the actions."
+  ],
+  "must_read": [
+    {
+      "id": "2611.00283",
+      "why": "It tests the metric most teams use to choose checkpoints, on real hardware, across 930 bench rollouts.",
+      "key_idea": "Held-out action error tracks success within a policy but not across policies, so it cannot rank architectures.",
+      "evidence": "Within each policy, Spearman rho runs from -0.23 to -0.88; across policies rho is +0.90 at 200 demonstrations; the lowest hold-out error policy succeeded in 3 of 110 rollouts; the arm never leaving its rest pose ended 96% of Diffusion Policy rollouts trained on untrimmed demonstrations.",
+      "caveat": "One pick-and-place task on an SO-101 arm with four policies; the cross-policy ranking comes from this setup and should not be generalised to other tasks or hardware without a test."
+    },
+    {
+      "id": "2611.03103",
+      "why": "It answers when inference latency matters, which decides whether asynchronous serving is worth the engineering effort.",
+      "key_idea": "Latency damage is task-dependent and concentrates on moving targets.",
+      "evidence": "A 100 ms inference latency can nearly halve task success on moving targets, and sensitivity varies substantially across tasks, object speeds, synchronous and asynchronous modes, and policies.",
+      "caveat": "The abstract does not name the robot platform or say whether runs are simulated or physical; check the paper before quoting the 100 ms figure to a hardware team."
+    },
+    {
+      "id": "2611.01483",
+      "why": "It shows tactile correction layered onto a pretrained vision policy, which avoids retraining the whole backbone.",
+      "key_idea": "Learn a residual on the flow-matching velocity field, with tactile forecasts and real-time feedback routed through a mixture of experts.",
+      "evidence": "Across six simulated and six real-world manipulation tasks, it beats the strongest evaluated baseline by 10.7 percentage points in average simulation success and 9.1 points in average real-world progress success.",
+      "caveat": "The abstract does not name the baselines, and the real-world metric is progress success rather than full task success."
+    },
+    {
+      "id": "2611.02517",
+      "why": "It is a direct HRI measurement with a clear design variable, and the closest thing in this batch to psychology-grounded robot design.",
+      "key_idea": "Finger movement pattern shifts the sensations users seek and the care they perceive, but not their resistance to contact.",
+      "evidence": "Repetitive and asynchronous finger movements tended to enhance the sensations users sought, simultaneous movement of all fingers with gentle hugging evoked more care, and no differences appeared in resistance to robot-initiated contact.",
+      "caveat": "The abstract reports tendencies ('tended to') and gives no sample size, scales or effect sizes, so treat the result as a hypothesis to confirm in a larger study."
+    }
+  ],
+  "summaries": {
+    "2611.00283": {
+      "problem": "Validation loss is the usual checkpoint signal, but nobody checks whether it predicts success on the robot.",
+      "method": "Scores 82 checkpoints and 700 intermediate checkpoints against 930 bench rollouts across four imitation policies on an SO-101 arm.",
+      "why": "It shows the offline signal can rank policies backwards, so bench evaluation has to pick the winner."
+    },
+    "2611.01565": {
+      "problem": "Validation loss and mean success miss whether a pretrained policy can still reach success under repeated sampling.",
+      "method": "Uses closed-loop pass@k, the chance at least one of k rollouts from the same start succeeds, and proposes an offline checkpoint criterion built on it.",
+      "why": "Checkpoints with equal pass@1 can differ as starting points for posttraining, so selection should include large-k behaviour."
+    },
+    "2611.00896": {
+      "problem": "Paired policy comparisons assume matching episode IDs mean matching initial states.",
+      "method": "Defines invariants, provenance logging and a checker for test-state identity, tested on a LeRobot LIBERO harness with emulated controllers.",
+      "why": "Anyone comparing two checkpoints on one bench should verify initial-state identity before trusting a paired statistical test."
+    },
+    "2611.02497": {
+      "problem": "Physical policy evaluation is hard to reproduce because hardware, sites and tasks vary.",
+      "method": "Distributed blinded pairwise trials at 124 sites (5,699 comparisons) plus a fine-tuning track on 20 tasks.",
+      "why": "Open-track rankings predicted fine-tuned performance poorly, so one leaderboard does not say which policy to adapt."
+    },
+    "2611.01390": {
+      "problem": "Deployed VLAs halt while the next chunk is inferred and move at demonstration speed.",
+      "method": "Path-preserving Time Scaling, a training-free layer that retimes a fixed reference path and re-enters it at the progress consumed during inference.",
+      "why": "It raises throughput on frozen policies without retraining, so it can be tested on an existing stack."
+    },
+    "2611.01011": {
+      "problem": "Re-encoding the full observation through a VLM at every control step caps reactivity at the VLM's rate.",
+      "method": "Runs the VLM at low frequency as a cached semantic anchor and a flow-matching action expert at high rate, trained on sampled cache ages.",
+      "why": "It gives a concrete staleness-aware training recipe, reporting 95.2% average over four LIBERO suites at a 1 s refresh."
+    },
+    "2611.00524": {
+      "problem": "Robot policy serving is limited by repeated backbone inference.",
+      "method": "Reflex caches complete action chunks and corrects reuse with action-aware similarity, residual correction and adaptive refresh.",
+      "why": "It reports 1.4x to 11x lower latency and 2.0x to 2.2x throughput on real robots with comparable success, relevant to multi-robot serving."
+    },
+    "2611.03103": {
+      "problem": "How much VLA inference latency hurts task success is poorly characterised.",
+      "method": "A benchmark that varies task type, object speed, synchronous or asynchronous execution, and policy.",
+      "why": "A 100 ms delay can nearly halve success on moving targets, so latency budgets should be set per task."
+    },
+    "2611.01483": {
+      "problem": "Vision-dominant policies ignore tactile signals, and adding them can degrade pretrained capability.",
+      "method": "Learned residual steering of a flow-matching action expert's velocity field, driven by a tactile mixture-of-experts over forecasts and feedback, trained in three stages.",
+      "why": "It offers a way to add tactile correction to a pretrained vision policy without retraining the full backbone."
+    },
+    "2611.02677": {
+      "problem": "Fingertip touch matters most as contact changes, but policies underuse it during insertion.",
+      "method": "A visuotactile diffusion policy with a training-only auxiliary loss that predicts fingertip image changes two steps ahead.",
+      "why": "It lifts MuJoCo assembly success from 42.7% to 59.0% at no inference-time cost."
+    },
+    "2611.03294": {
+      "problem": "Force and tactile signals are used as auxiliary inputs and are unavailable at deployment when future sensing is missing.",
+      "method": "A teacher with privileged future force and optical flow is distilled into a student that sees only current observations, with progressive noise injection.",
+      "why": "It targets the anticipation gap a real arm has at deployment, tested on five real contact-rich tasks."
+    },
+    "2611.00455": {
+      "problem": "Tactile manipulation studies use task-specific settings, so their contributions are hard to compare.",
+      "method": "TacMind, a simulated benchmark of 128 tasks, plus an action-conditioned latent world model over tactile history that refines candidate actions.",
+      "why": "It gives a shared testbed for asking whether tactile history beats instantaneous tactile input."
+    },
+    "2611.00957": {
+      "problem": "It is unclear how pretrained tactile foundation models should be used in end-to-end imitation learning.",
+      "method": "Integrates several tactile foundation models into Diffusion Policy and tests encoder fine-tuning and task-specific mid-training over more than 5,000 real rollouts.",
+      "why": "The rollout count gives its empirical guidance on adaptation strategies more weight than a simulation-only comparison."
+    },
+    "2611.00634": {
+      "problem": "Recurrent visual memory in VLAs depends on what the state represents and how it is updated.",
+      "method": "PREM uses the discrepancy between consecutive predictions and observations to regulate memory updates at each spatial location, built on pi0.5.",
+      "why": "It reports 14.4% to 83.8% on RMBench M(1) and 9.63% to 20.74% on DOMINO, with a 7.7 ms mean overhead."
+    },
+    "2611.00734": {
+      "problem": "Long-horizon mobile manipulation needs memory of what changed and what is done, not just more frames.",
+      "method": "MOST compresses multi-view observations into temporal tokens supervised with object states and subtask progress, and adds the RoboCasa-Long benchmark.",
+      "why": "Real-world success rose from 6.66% to 43.33% in the authors' tests, enough to justify a check on your own mobile base."
+    },
+    "2611.02660": {
+      "problem": "Markovian VLAs fail on tasks that need working memory.",
+      "method": "HeLM keeps task-relevant history as explicit language, updated on detected events, across 10 real tasks with 56 variants.",
+      "why": "It reports 12.8 points better intra-episode success and up to 4.5x less memory than a keyframe baseline, and language memory is likely easier to audit than latent state."
+    },
+    "2611.02517": {
+      "problem": "Hugging robots are meant to convey care, but which touch patterns matter is unclear.",
+      "method": "A user study comparing the presence and pattern of finger movements, synchronous and asynchronous motion, and gentle hugging.",
+      "why": "It suggests finger design is a lever for perceived care that operates separately from contact resistance."
+    },
+    "2611.02181": {
+      "problem": "Co-manipulation planners ignore that the human's pace changes as they adapt.",
+      "method": "Stochastic optimal control with a Fitts'-law temporal constraint, with recursive least squares estimating the human's parameters online.",
+      "why": "It shows a route to matching robot motion duration to a person's pace, though the authors state human studies are still needed."
+    },
+    "2611.02690": {
+      "problem": "Robots that support people over repeated interaction lack a model of the person's evolving state.",
+      "method": "A conceptual framework linking state estimation, personalised dynamics and support actions, illustrated with hypothetical scenarios.",
+      "why": "It sets out a research agenda for longitudinal HRI evaluation, with no empirical result yet."
+    },
+    "2611.02689": {
+      "problem": "LLM assistants can exploit a disclosed customer vulnerability to push an operator's goal.",
+      "method": "GAP probing across 15 LLMs, 619,600 labelled replies, and tests of detectors trained and evaluated on dialogue.",
+      "why": "It matters for any robot with a sales or service dialogue layer; detection from the reply alone reached 79% accuracy."
+    },
+    "2611.03168": {
+      "problem": "Real-robot policy evaluations rarely release labelled failure-heavy data.",
+      "method": "Releases 3,718 labelled episodes from seven policies on 12 tasks on SO-101 arms, 73% of them failures, with three camera views and a reward-model format.",
+      "why": "Teams can study failure modes or train reward models without spending new robot time."
+    },
+    "2611.00539": {
+      "problem": "Demonstrations re-timed to run faster stop working at two to three times demonstration speed.",
+      "method": "Merges consecutive commands greedily while each sum stays within the controller's per-period displacement limit.",
+      "why": "The share of unrealisable command pairs predicts where a retrained policy collapses, which gives a check to run before speeding up data."
+    }
+  }
+}
