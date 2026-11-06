@@ -1,0 +1,206 @@
+{
+  "date": "2026-11-06",
+  "headline": "Social and safety behaviour is being learned into robot policies, with training-only signals doing much of the work while evaluation lags behind.",
+  "thesis": "Today's papers share one shift: the signals that make robots social, safe and cheap to run are increasingly used during training and dropped at deployment. Humanoid papers make partner motion and intent explicit inputs, while VLA papers move foresight and alignment into losses or branches that are removed at inference. The same pattern shows up in runtime monitoring, where failure-mode prediction with bounds replaces a single failure score. The weak link is evaluation: criteria that shift slightly, and self-reported success, can make a result look stronger than the robot's real behaviour. For a team shipping humanoids, the practical work is to instrument intent, latency and held-out verifiers together.",
+  "clusters": [
+    {
+      "title": "Humanoid social behaviour is learned from partner motion and gated by intent, not scripted",
+      "why": "Humanoids have mostly been trained as solitary agents that ignore what a human partner does next. Social Humanoid conditions whole-body motion on the partner's motion and anticipates occluded partners, while AffectiveVLA suppresses motion when intent confidence is low. The navigation work reaches a similar place by using a world model to score candidate moves during training. For a G1-class team, the concrete change is to log partner motion and intent confidence as first-class signals and to define a no-go state for when the classifier is unsure.",
+      "paper_ids": ["2611.08407", "2611.07712", "2611.07730"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Benchmark success can reflect the verifier, so validation must vary what training held fixed",
+      "why": "Many learned-controller and self-improving-agent results are scored against the criteria or conditions used in training. Criteria Exposure experiments find that a coding agent's gain under the benchmark's own verifier disappears when the criteria change slightly, and the stunt-controller work finds that a looser heading score ranked the worst setting as the best. RoboARCade reports agents claiming success on 24% to 39% of attempted subtasks, so self-reported completion is not a reliable test signal. Teams should hold out verifier variants and physical parameters from training and report those held-out numbers beside the in-distribution ones.",
+      "paper_ids": ["2611.08318", "2611.07516", "2611.08209"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Training-only auxiliary losses and branches are replacing inference-time machinery in robot policies",
+      "why": "Several recent policies keep prediction or alignment components only during training and remove them at deployment, so the inference path stays the size of the policy. La-JEPA predicts future features jointly with actions in training and generates only actions at inference, SLA uses its 3D teacher only during training, and NegWAM discards its rider branch at inference. The navigation work also removes its world models at deployment. The cost of foresight therefore sits in the training objective, and a team can test this by adding a training-only loss to an existing policy and measuring inference latency before and after.",
+      "paper_ids": ["2611.08156", "2611.08373", "2611.08111", "2611.07730"],
+      "confidence": "high"
+    },
+    {
+      "title": "Tactile work is moving to shear-level signals, both in simulation and on cheap distributed sensors",
+      "why": "Tactile simulators have mostly modelled contact geometry, while the tangential motion that drives slip and in-hand adjustment has been costly to simulate with soft-body physics. TactileLab renders a tactile flow field from rigid-body dynamics, and VisionSIM models the raw measurement failure modes of each sensor type. On hardware, a distributed piezoelectric array reached F1 scores of 0.9796, 0.9846 and 0.9903 with 16, 24 and 32 sensors, at about 101 ms end-to-end latency. Sensor count and temporal window are therefore parameters to tune on the device, not fixed design choices.",
+      "paper_ids": ["2611.07881", "2611.08368", "2611.07779"],
+      "confidence": "medium"
+    },
+    {
+      "title": "VLA inference cost is being cut at the token level and on the network link, without retraining",
+      "why": "VLA deployment cost has usually been treated as a model-size problem, which pushes teams toward bigger hardware. T3R removes 85% of scene-camera tokens without training and essentially matches the unpruned success rate on LIBERO-Spatial. For remote policies, a zero-rate kinematic context saves 23.9% bit rate over a matched history-conditioned codec and lifts OpenVLA-OFT success from 22.8% to 43.1% at 6 kbps. Teams running cloud-hosted policies should budget camera bitrate and token count before buying more compute.",
+      "paper_ids": ["2611.08413", "2611.07411", "2611.08449"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Runtime monitors for VLAs are moving from one failure score to failure-mode prediction with bounds",
+      "why": "A single failure score tells an operator that something went wrong but not which response to take. VLA-Tug predicts the failure mode and reports missed-detection and false-alarm bounds that hold in up to 86% of runs under unseen-task shift, against at most 21% for baselines. Action-conditioned monitoring for driving compares the expected action with the realized motion, reaching 83.0% accuracy against 74.5% for a video-only baseline. Monitor outputs should map each failure mode to a steer or stop response, and the bounds should be checked under the shifts the robot will actually meet.",
+      "paper_ids": ["2611.08425", "2611.07540", "2611.08462"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "The most useful near-term change for a humanoid team is to make social signals explicit inputs and hard gates. Social Humanoid conditions on partner motion through a shared token space and anticipates occluded partners, and AffectiveVLA raises intent macro-F1 from 0.75 to 0.90 while holding motion when confidence is low. Try an intent gate on your own hardware and measure how often it suppresses correct motion before adding more interaction data. The evidence here is from a Unitree G1 with a 1,300-episode VR teleoperation dataset, and the abstracts do not report how many on-robot trials were run.",
+    "Training-only components are where the cost of foresight now sits. La-JEPA, SLA, NegWAM and the navigation work all drop their predictors, teachers or branches at inference. La-JEPA reports state-of-the-art results among policies without embodied pretraining on RoboTwin 2.0 and LIBERO-Plus, and comparable average success to pi0.5 on four real-robot tasks. Most of that evidence is simulation, and the authors corrected the LIBERO-Plus instructions themselves, so treat the numbers as a hypothesis for your own robot and benchmark them on your own tasks.",
+    "Evaluation design is the weak point. Criteria Exposure shows gains that vanish when the verifier shifts slightly, and RoboARCade's agents overclaim success on 24% to 39% of subtasks. Stop reporting a single in-distribution success rate. Hold out one verifier variant and one physical parameter, then report the drop. The abstracts' evidence comes from controlled simulation experiments, so the size of this effect on a real robot is unknown.",
+    "Human judgement of robot motion is worth collecting as a signal. The navigation work reports that naive observers rate its motion as more human-like, and the cyclist study converts crowd safety ratings into per-feature values, such as +0.97 rating points for physical lane separation. Its inter-annotator agreement is alpha 0.4695, which means the labels are noisy. Collect ratings from several annotators and report agreement alongside every result."
+  ],
+  "must_read": [
+    {
+      "id": "2611.08407",
+      "why": "It is the clearest HRI paper today: it addresses physical coordination with a human partner rather than solitary humanoid motion, on a 29-DoF Unitree G1.",
+      "key_idea": "A high-level policy generates reactive humanoid motion from a shared tokenized representation of both partners, anticipating the partner when occluded, and a low-level tracker executes it on the robot.",
+      "evidence": "The abstract reports a 260-hour human-humanoid interaction benchmark built from five motion-capture datasets, and states coordinated, human-aligned behaviour in simulation and the real world. It gives no success rate or human rating numbers.",
+      "caveat": "The two-phase retargeting morphs one partner to preserve contact, so the benchmark's human motion is altered; the abstract does not say how much this changes contact realism."
+    },
+    {
+      "id": "2611.07712",
+      "why": "It puts intent recognition and safe-stop logic on a real humanoid for social touch such as handshakes, fist bumps and hugs, where a wrong motion has direct physical consequences.",
+      "key_idea": "A lightweight RGB intent model converts the interaction into a language prompt for the VLA, and low-confidence predictions suppress motion, with a voice-triggered latched safe-stop during contact.",
+      "evidence": "About 1,300 VR teleoperation episodes were used to fine-tune four VLAs. Intent gating raised GR00T's macro-F1 from 0.75 to 0.90, and the intent model's p95 inference latency is 6.27 ms.",
+      "caveat": "The abstract does not state how many on-robot trials were run or report any measure of contact comfort or safe-stop reliability."
+    },
+    {
+      "id": "2611.08425",
+      "why": "A runtime monitor that predicts the failure mode and comes with calibrated bounds is directly usable for an on-robot safety layer, and it releases a labelled dataset.",
+      "key_idea": "A lightweight probe over the VLA backbone's latent layers, trained on the pre-failure segment of trajectories, predicts both the failure and its mode, so the system can choose a corrective action.",
+      "evidence": "Early detection improves by up to 30% at matched false-positive rates over the strongest learned baseline. Under unseen-task shift, the bounds remain valid in up to 86% of runs versus at most 21% for baselines, and top-3 failure-mode accuracy on unseen tasks is up to 44% above a majority baseline.",
+      "caveat": "The bounds are not guaranteed: they fail in the remaining runs under shift. The abstract does not name the VLA backbone used."
+    },
+    {
+      "id": "2611.08156",
+      "why": "It shows that a compact policy with no embodied pretraining can compete with a large VLA, which changes the cost of a first baseline for a control team.",
+      "key_idea": "The policy transformer is trained from scratch in the feature space of a frozen V-JEPA 2.1 encoder, learning to predict future features with actions during training and generating only actions at inference.",
+      "evidence": "The abstract reports state-of-the-art results among policies without embodied pretraining on clean and randomized RoboTwin 2.0 and on LIBERO-Plus with correct instructions, and average success on four real-robot tasks comparable to pi0.5.",
+      "caveat": "Four real-robot tasks is a small set, the 'far fewer parameters' claim gives no count, and the authors corrected the LIBERO-Plus instructions themselves, so their numbers are not directly comparable to the released evaluator."
+    }
+  ],
+  "summaries": {
+    "2611.08407": {
+      "problem": "Humanoids are trained as solitary agents, so they cannot coordinate physically with a human partner.",
+      "method": "A hierarchical policy generates reactive and anticipatory motion over a shared token space, tracked on a 29-DoF G1, and is trained on a 260-hour interaction benchmark.",
+      "why": "Partner-aware motion is a prerequisite for physical HRI on humanoids, and the benchmark lets other teams test it."
+    },
+    "2611.07712": {
+      "problem": "Social touch requires the robot to read intent and to stop safely when contact goes wrong.",
+      "method": "An RGB intent classifier gates VLA motion, contact uses per-interaction arm compliance, and a voice-triggered safe-stop latches.",
+      "why": "Intent gating raised macro-F1 from 0.75 to 0.90 on hardware, a pattern worth testing for any contact-rich social task."
+    },
+    "2611.07730": {
+      "problem": "Navigation near pedestrians needs foresight, but running a world model at every step is too slow to deploy.",
+      "method": "World models score candidate actions during training, and their preferences are distilled into a single-pass policy that runs without them.",
+      "why": "It is a concrete training-time foresight pattern for human-aware navigation, and naive observers rate its motion as more human-like."
+    },
+    "2611.08318": {
+      "problem": "Self-improving agents are scored against benchmark criteria that can go beyond the language instruction.",
+      "method": "Controlled experiments compare agents with and without exposure to the criteria, then perturb the criteria slightly while keeping the instructions.",
+      "why": "Benchmark gains can be verifier overfitting, so reported scores should use instruction-faithful criteria."
+    },
+    "2611.07516": {
+      "problem": "Learned stunt controllers are validated under the same conditions and objective used to train them.",
+      "method": "Varies physical parameters that training fixed, uses a simulation-to-real-to-simulation loop to choose safe zones for real trials, and checks which indicators transfer.",
+      "why": "Kinematic indicators match between simulation and reality while force and roll do not, which says which simulator outputs can be trusted for deployment."
+    },
+    "2611.08209": {
+      "problem": "There is no shared benchmark that separates agents on long-horizon, precise robot control through language models.",
+      "method": "A MuJoCo benchmark with three embodiments and widened initial conditions, with agents attached through swappable interfaces.",
+      "why": "Agents claim success on 24% to 39% of subtasks they fail, so self-reported completion should not gate deployment decisions."
+    },
+    "2611.08156": {
+      "problem": "Policies built on generation backbones are large and slow for control tasks.",
+      "method": "A compact policy trained from scratch in V-JEPA 2.1 feature space, predicting future features only during training.",
+      "why": "It gives a smaller baseline to test against before committing to a large VLA."
+    },
+    "2611.08373": {
+      "problem": "VLA visual features come from 2D pretraining, so spatial understanding is added only during task fine-tuning.",
+      "method": "Continual pretraining from pi0.5 aligns intermediate visual features with a frozen 3D model, using depth and calibration where available, and these auxiliary parts are used only in training.",
+      "why": "Because the spatial teacher is training-only, a team could add the alignment to an existing VLA without changing its deployed inputs."
+    },
+    "2611.08111": {
+      "problem": "World-action driving models imitate expert trajectories and leave nearby unsafe trajectories under-constrained.",
+      "method": "Negative trajectories close to the expert act as repulsive anchors, encoded through a rider branch that is discarded at inference.",
+      "why": "Near-miss negatives are a general fix for imitation-trained policies whose failures sit close to expert behaviour."
+    },
+    "2611.07779": {
+      "problem": "Early object recognition during grasping must finish within a strict real-time budget.",
+      "method": "A flexible piezoelectric array with 16 to 32 sensors feeds a 2D-CNN on spatiotemporal heatmaps, deployed on an embedded edge platform.",
+      "why": "It reports concrete latency and energy numbers, about 101 ms and 63.8 microjoules per inference, which help size a tactile skin for a gripper."
+    },
+    "2611.07881": {
+      "problem": "Shear-sensitive tactile simulation with soft-body physics is too costly for large-scale reinforcement learning.",
+      "method": "TactileLab simulates dense tangential flow with rigid-body dynamics and maps real tactile streams into simulation for transfer.",
+      "why": "It offers a route to shear-aware sim-to-real for in-hand manipulation without soft-body simulation costs."
+    },
+    "2611.08368": {
+      "problem": "Simulators idealize LiDAR, event, SPAD, time-of-flight and thermal sensors, which hides their failure modes.",
+      "method": "VisionSIM models the raw physical measurement for each modality, including LiDAR pileup, event refractory drops and thermal history effects, on identical scenes.",
+      "why": "A team can test a perception stack against the failures its real sensors will show before field trials."
+    },
+    "2611.08413": {
+      "problem": "VLA inference cost grows with many visual tokens across several cameras, and background tokens distract the policy under shift.",
+      "method": "Training-free segmentation-guided token pruning, followed by saliency-guided attention biasing toward action-critical regions.",
+      "why": "Removing 85% of scene-camera tokens with essentially no success loss on LIBERO-Spatial is cheap to test on an existing policy."
+    },
+    "2611.07411": {
+      "problem": "Remote VLA policies are limited by camera uplink bit rate, which is spent on content the receiver could predict, such as the robot's own motion.",
+      "method": "A zero-rate context built from joint states, the robot model and camera calibration warps the previous reconstruction to condition a learned video codec.",
+      "why": "It saves 23.9% bit rate over a matched codec and lifts OpenVLA-OFT success from 22.8% to 43.1% at 6 kbps, which matters for any cloud-hosted policy."
+    },
+    "2611.08449": {
+      "problem": "Autoregressive VLMs emit visual plans one coordinate token at a time, which is slow for richer predictions.",
+      "method": "VFlash predicts a whole primitive in one forward pass with a lightweight drafter and accepts structurally valid outputs without exact token matching.",
+      "why": "A preliminary 25x speedup for 3D motion forecasting suggests richer predicted trajectories may fit a control budget, though it is a single-rollout measurement."
+    },
+    "2611.08425": {
+      "problem": "VLA failures under distribution shift can damage equipment or endanger people, and existing monitors are late or uncalibrated.",
+      "method": "A probe on backbone latents, trained on the pre-failure segment, predicts the failure mode with bounded missed-detection and false-alarm rates.",
+      "why": "A failure-mode output lets a monitor steer rather than only stop, and the released 3,180-episode dataset is a usable starting point."
+    },
+    "2611.08462": {
+      "problem": "Recovering a VLA from failures usually needs many corrective interactions, and the fixes rarely generalize.",
+      "method": "Abduction infers the intent behind a few corrective demonstrations and encodes it as spatial costs that steer the policy away from undesirable actions.",
+      "why": "A few-demonstration correction path fits a team that collects teleoperation data after each deployment failure."
+    },
+    "2611.07540": {
+      "problem": "Visual unusualness alone does not tell whether an autonomous vehicle's action is wrong for the scene.",
+      "method": "A VLM predicts the scene-required action from an outcome-hidden video window, and a monitor compares it with the realized ego-motion.",
+      "why": "Action-conditioned monitoring reaches 83.0% accuracy against 74.5% for video-only, with anomaly recall 0.773 against 0.536."
+    },
+    "2611.08039": {
+      "problem": "VLMs need a whole-body interface before they can operate a humanoid.",
+      "method": "HITCH maps points the VLM selects in its image to 3D and turns commands for pelvis, torso, hands, walking and gaze into whole-body motion with a learned tracker.",
+      "why": "A fine-tuned VLM completes 51% of SIMPLE episodes without task-specific trajectories, and accurate scene measurement and command execution both raise success."
+    },
+    "2611.08295": {
+      "problem": "Rehabilitation robots prescribe kinematic trajectories rather than targeting the neuromotor activations thought to support recovery.",
+      "method": "A transformer with flow matching maps surface EMG to prescribed contact force trajectories, tested on 16 healthy participants.",
+      "why": "It is a proof of concept for activation-targeted prescriptions, with under 8% prediction error on held-out users, though it has not been validated clinically."
+    },
+    "2611.08441": {
+      "problem": "Cyclist safety ratings do not scale to continuous monitoring along a route.",
+      "method": "Handlebar cameras feed a VLM that extracts traffic attributes, which an explainable boosting machine combines with map and kinematic data to predict crowd safety ratings.",
+      "why": "Per-feature attributions express infrastructure changes in rating points, and the inter-annotator agreement of alpha 0.4695 is a caution for any perceived-safety label."
+    },
+    "2611.07493": {
+      "problem": "Open-vocabulary object search rarely says when a target is absent, and existing systems reach at most 9% specificity.",
+      "method": "Fast caption-based candidate retrieval followed by visual verification, run entirely on board a physical robot with one consumer GPU.",
+      "why": "Reliable absence detection matters for assistive-care robots that should not navigate to objects that are not there."
+    },
+    "2611.07679": {
+      "problem": "Humanoid locomotion gaits are jerky and energy-hungry when trained without a smoothness objective.",
+      "method": "PhySA keeps a sparse VLM aesthetic reward and a separate physics correction channel, which are independently removable.",
+      "why": "It shows VLM aesthetic scores correlate positively with joint acceleration (r=+0.66), so a VLM reward can push the policy in the wrong physical direction."
+    },
+    "2611.08398": {
+      "problem": "Haptic displays usually control one cue, such as stiffness or temperature, and rarely both together.",
+      "method": "A particle-jamming and heated-or-cooled water display that changes stiffness and temperature, with closed-loop temperature control holding a 0.2 °C error.",
+      "why": "Affective haptics and medical simulation need joint softness and temperature cues, which is the human-facing use case here."
+    },
+    "2611.08458": {
+      "problem": "Dexterous visual policies need many demonstrations to learn both perception and control.",
+      "method": "RL rollouts are distilled into a flow-matching action decoder, which is frozen while a visual interface learns to map images to its latent context.",
+      "why": "Surpassing full-data baselines with 10x fewer demonstrations on door lifting makes this a practical option for low-data teams."
+    }
+  }
+}
