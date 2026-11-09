@@ -1,0 +1,181 @@
+{
+  "date": "2026-11-09",
+  "headline": "The human side of robot learning is the bottleneck today: simulated people misjudge methods, home agents over-act, and stated traits predict little.",
+  "thesis": "Today's papers point at the same weak link: the human in the loop is modelled, labelled or reported in ways that do not match real people. Q-OIL and Goodhart in the Planner show that simulated interventions and synthetic preference labels change which methods look good and how far a planner can be pushed before the task fails. HomeLoop and Relic show that home and companion agents fail by acting too much and by remembering without governance, and the self-report and tone studies suggest that what a model says about itself or how it sounds is a weak guide to what it will do. On the capability side, agentic harnesses around general models now beat specialist VLAs on public benchmarks, which makes the evaluation question more urgent, not less.",
+  "clusters": [
+    {
+      "title": "Synthetic human models misjudge both intervention learning and preference-based planning",
+      "why": "Simulation studies have assumed simple human intervention and labelling models. Q-OIL finds that real people intervene when progress stalls and that their corrections are often suboptimal, and its progress-based intervention model ranks algorithms closer to real users. Goodhart in the Planner finds that synthetic labels are exploited more than human labels on plate-slide, and that drawer-open with human labels succeeds in 0 of 20 runs. For a team, this means checking method rankings against recorded operator behaviour before trusting a simulator leaderboard.",
+      "paper_ids": ["2611.08576", "2611.09670"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Home and companion agents fail by over-acting, and their memory needs governance rules rather than more recall",
+      "why": "HomeLoop finds that VLM-driven home agents over-react: failed episodes with prohibited interventions outnumber those with missed required ones by more than two to one, and models often shut off the stove before investigating the alarm. Relic makes the same point from the memory side by separating what an agent may remember and say from what researchers can review. For a home deployment, prohibited actions should count as failures in every test, and remembered facts should carry the subject's own confirmation.",
+      "paper_ids": ["2611.08914", "2611.08504"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Stated style and self-reports do not reliably predict social-agent behaviour, so audit source as well as content",
+      "why": "In LLM Werewolf, politeness and linguistic range changed no trust measure after correction for multiple comparisons, so tone is a weak lever in this setting. Vision-language models often report an injected concept as something they saw, and subliminal learning carries a hidden animal or facial preference through unrelated number data. For a robot that explains its choices, the team should check what the model claims it perceived and where its traits came from, not only how it sounds.",
+      "paper_ids": ["2611.09768", "2611.09014", "2611.08538"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Agentic harnesses around general models now beat specialist VLAs on public benchmarks",
+      "why": "Specialist VLA and WAM policies have been the default for manipulation. AMP1 reaches 85.6% zero-shot on RoboLab-120 against 49.2% and 42.9% for leading VLA and WAM policies, and a computer-use agent design placed first, second, third and sixth in four ECCV workshop competitions after only the software changed. A2-MEAS keeps a VLA but adds agent-written correction codes, reaching 0.6411 Q-score on all 100 BEHAVIOR 2026 public tasks. A team should treat an agentic harness as a serious baseline and measure it on its own failure rate, not on benchmark rank.",
+      "paper_ids": ["2611.09892", "2611.09847", "2611.09124"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Haptic percepts vary per person, so rendering needs a per-user calibration",
+      "why": "Electrotactile and referred-thermal percepts differed widely across 24 participants, yet both kept electrode-specific structure, so a per-user forward model can be fitted and inverted to choose stimulation for a target percept. The demonstrations include haptic-guided teleoperation and interpersonal haptic communication. A team building haptic feedback could store a per-operator calibration alongside teleoperation settings rather than rely on one global mapping.",
+      "paper_ids": ["2611.09708"],
+      "confidence": "low"
+    }
+  ],
+  "insights": [
+    "Fix the human-feedback model before tuning the policy. Q-OIL's intervention logs show that people step in when progress stalls and then correct suboptimally, which a generic simulated expert does not reproduce. Goodhart in the Planner shows the cost of ignoring this: the harder the planner searches against a learned preference scorer, the more true return it loses, with human-label drawer-open falling to 0 of 20 runs. Try the progress-based intervention model in your own sim benchmark, and check any preference-trained planner against task success on held-out real trials.",
+    "For home and companion agents, the test to add is over-action. HomeLoop's results show that a success-only score hides the failure that matters at home: models act on prohibited objects such as the stove before they know the cause of an alarm. Relic offers a design pattern for the memory side, keeping what the agent may say separate from what researchers can review, and its pilot of two people is explicitly too small to support claims about usability. Score prohibited interventions as hard failures and keep memory writes tied to user confirmation.",
+    "Treat agentic harnesses as a candidate baseline, and judge them on failure rate. AMP1's real-world result of 104 of 108 successful trials is strong, but the abstract does not report cost, latency or safety checks for a general model that commands the arm directly. Run the harness against your current VLA on the same task suite, with the same hardware, and log latency per decision and every unsafe attempt, then decide which parts of the stack should stay specialist."
+  ],
+  "must_read": [
+    {
+      "id": "2611.09708",
+      "why": "It puts the person, not the robot, at the centre of the loop: per-user perceptual maps drive haptic teleoperation and remote touch, which is directly relevant to human-facing deployment.",
+      "key_idea": "Perceived locations of electrotactile and referred-thermal stimuli differ across people, but keep electrode-specific structure, so a per-user forward model can be fitted and inverted to select stimulation for a target percept.",
+      "evidence": "A 36-channel electrotactile array with capacitive touch sensing, in 24 participants; personalised models are demonstrated in haptic-guided teleoperation, visual-to-haptic substitution, interpersonal haptic communication and VR.",
+      "caveat": "The demonstrations are qualitative. The abstract gives no calibration error, no comparison against a fixed non-personalised mapping, and no calibration time per user."
+    },
+    {
+      "id": "2611.08914",
+      "why": "A home robot that reacts to a smoke alarm by cutting the stove is the failure a deployment team is most likely to meet first, and this benchmark measures it directly.",
+      "key_idea": "The same alert can have different causes, so the benchmark scores both required and prohibited interventions with temporal-logic checks on outcome and action path, and gives every action a cost.",
+      "evidence": "20 tasks in five families, six open-weight and proprietary VLMs, a best family-balanced score of 61.9%, and failed episodes with prohibited interventions outnumbering missed required ones by more than two to one.",
+      "caveat": "Results are in an Isaac Sim benchmark. The abstract does not report tests in real homes, and the 2,100 furnished layouts are announced for release rather than evaluated."
+    },
+    {
+      "id": "2611.08504",
+      "why": "It treats memory for a long-running companion as a governed system rather than a retrieval store, which bears on any embodied companion that remembers users across sessions.",
+      "key_idea": "Relic separates what the system can observe, what researchers can review, what the agent remembers and what it can say, and Gumi stores memory around subject-confirmed wording, corrections and recall limits.",
+      "evidence": "An architecture, object model, researcher workbench and proposed evaluation framework, with an exploratory pilot of two participants (the author as P1 and one external participant as P2) using weekly self-reports and interviews.",
+      "caveat": "The pilot is two people with descriptive observations only. The paper explicitly makes no claims about clinical efficacy, usability or deployment safety, and adoption across live paths is partial."
+    },
+    {
+      "id": "2611.09670",
+      "why": "A team that trains a planner on human preference labels can see its reward model score well while task success falls; this paper quantifies that loss and gives a fix to test.",
+      "key_idea": "Harder sampling-based search (MPPI) moves the planner away from its proposal distribution and exploits errors in the preference scorer. A chi-squared-regularised MPPI, with temperature set from the scorer's error spread, is the safest fix tested.",
+      "evidence": "True return drops by up to 76% under harder search; drawer-open with human labels succeeds in 0 of 20 runs against 10 of 10 for the cloned policy; held-out label accuracy stays at 0.75-0.97; the fix keeps 86-94% of the cloned policy's return on plate-slide and drawer-open.",
+      "caveat": "Tests are on HalfCheetah, Hopper and two Meta-World tasks. The fix is calibrated from 100 proposal pairs ranked by true return (an oracle), which a robot team may not have. Abstract-only reading."
+    },
+    {
+      "id": "2611.09892",
+      "why": "It claims a general model commanding the manipulator can beat VLA and WAM specialists zero-shot. If that holds on your tasks, it changes what to train first.",
+      "key_idea": "Agentic manipulation policies: a generalist AI model issues arm actions directly and adapts as the task unfolds, with one harness across single-arm, bimanual and mobile setups, and an optional memory store carried across episodes.",
+      "evidence": "85.6% zero-shot on RoboLab-120 against 49.2% and 42.9% for leading VLA and WAM policies; 104 of 108 successful real-world trials across twelve tasks and three robot instances; cross-episode memory lowers the failure rate 4.6x on RoboDojo bimanual tasks.",
+      "caveat": "The headline numbers are on benchmark suites (RoboLab-120, CaP-Gym, RoboDojo). The abstract does not report latency, cost per task, or how the generalist's actions are checked for safety on hardware."
+    }
+  ],
+  "summaries": {
+    "2611.09708": {
+      "problem": "Wearable haptic perceived locations vary widely across users and diverge from actuator locations.",
+      "method": "A 36-channel electrotactile array with touch sensing registers stimuli and percepts in one body frame, then fits per-user forward models and inverts them to select patterns for a target percept.",
+      "why": "Per-user haptic maps would let teleoperation feedback target the operator's own perception rather than a generic mapping."
+    },
+    "2611.08914": {
+      "problem": "Home agents must tell apart alarms with different causes, and VLM-driven agents may act too much.",
+      "method": "An Isaac Sim benchmark with 20 tasks, networked devices, faulty sensors and a temporal-logic runtime monitor with per-action costs.",
+      "why": "Scoring prohibited interventions as failures exposes over-reaction that a success-only home test would miss."
+    },
+    "2611.08504": {
+      "problem": "Long-running companions need memory, but recall can become intrusion, clinical overreach or opacity.",
+      "method": "Relic separates observation, researcher review, agent memory and agent speech, and Gumi stores memory around subject-confirmed wording with explicit recall limits.",
+      "why": "The governance split is a reusable pattern for any companion that remembers users across sessions."
+    },
+    "2611.09670": {
+      "problem": "Planners that search against a learned preference reward can exploit the reward's errors.",
+      "method": "Measures true return as MPPI search gets harder, and tests a chi-squared-regularised MPPI with temperature calibrated from scorer error.",
+      "why": "A preference-trained planner should be checked against true task return, because held-out label accuracy stayed high while task success dropped."
+    },
+    "2611.09892": {
+      "problem": "Specialist VLA and WAM policies need task-specific training, and their zero-shot success on new tasks is limited.",
+      "method": "A generalist model drives the arm directly through one harness across arm types, with an optional persistent memory across episodes.",
+      "why": "If the zero-shot gap holds on your tasks, a general agent harness becomes a serious candidate baseline before more demonstrations are collected."
+    },
+    "2611.08576": {
+      "problem": "Simulated human-in-the-loop models do not match how real people intervene.",
+      "method": "Analyses human intervention data, adds a progress-based intervention model, and proposes Q-OIL, which adds optimistic bonuses to intervention transitions with decoupled critics.",
+      "why": "A benchmark built on the progress-based model ranks algorithms closer to real users, which matters before anything is tested on hardware."
+    },
+    "2611.09768": {
+      "problem": "Teams may assume that polite or simpler phrasing changes how other agents trust a speaker.",
+      "method": "Rewrites only the realisation of utterances in LURK Werewolf and replays 30 games from checkpoints against re-sampled controls.",
+      "why": "After correction, stated style moved no trust measure, so tone is a weak lever for social-agent behaviour in this setting."
+    },
+    "2611.09847": {
+      "problem": "Embodied tasks are usually handled with specialised perception and control stacks.",
+      "method": "Renders the embodied environment as a screen that a computer-use agent operates with screenshots and keyboard and mouse actions.",
+      "why": "A single agent design, with only the software changed, placed in four ECCV embodied competitions, which suggests the interface may be the transferable part."
+    },
+    "2611.09124": {
+      "problem": "Sustained autonomy needs cheap correction and recovery after failures.",
+      "method": "A2-MEAS uses learned correction codes with MetaBrain supervision, and the A2-WLA action model adds motion-aware history and a latent world model.",
+      "why": "A history-conditioned adapter raised post-failure completion at two filter-handling steps from 14% to 94% and from 8% to 82%, which is the recovery number to ask for in a household task."
+    },
+    "2611.08863": {
+      "problem": "mmWave radar can sense humans when cameras fail, but compact arrays give decimetre-level joint errors.",
+      "method": "Derives a Cramér-Rao-type error floor over bandwidth, aperture, SNR, frame count and visibility, and uses existing methods as probes of that floor.",
+      "why": "Mean per-joint error falls from about 97 to 65 mm with a second viewpoint, which suggests observation design can matter more than estimator capacity for assistive sensing."
+    },
+    "2611.09524": {
+      "problem": "Sparse radar point clouds lose information for human mesh recovery.",
+      "method": "Distils DINOv3 descriptors into radar voxels through calibrated RGB-radar geometry, with vertex and joint losses.",
+      "why": "It transfers visual body-part semantics into a privacy-preserving, illumination-robust sensor, though the abstract reports only comparisons on M4Human."
+    },
+    "2611.09041": {
+      "problem": "Language-guided person following needs a grounded target, not only a good action policy.",
+      "method": "Adds auxiliary grounding tasks and Q-identity, a target-conditioned compression of history, trained on a quadruped person-tracking set of 126 episodes.",
+      "why": "It is directly relevant to a mobile base that must follow a named person, and reports 77.9% average success on EVT-Bench."
+    },
+    "2611.09074": {
+      "problem": "Lip sync needs real-time speed and emotion control, including for stylised characters.",
+      "method": "Distils a video-to-motion model into LivePortrait's implicit motion space and adds an expressive control gate for emotion.",
+      "why": "Explicit emotion control is a useful building block for expressive faces on social agents, though the abstract covers avatars and characters, not robots."
+    },
+    "2611.09692": {
+      "problem": "Text-to-pose models often drop hands or model rotations in Euclidean space.",
+      "method": "Riemannian flow matching on the SMPL-H rotation manifold with a part-tokenised diffusion transformer and 21.6M trainable parameters.",
+      "why": "Hand articulation and rotation-aware generation may matter for gesture generation on social robots, though this is a human-motion model, not a controller."
+    },
+    "2611.09014": {
+      "problem": "VLMs must keep what they see separate from what is injected or internally generated.",
+      "method": "Varies image and injected concept independently, and asks each trial for what is seen, whether a thought was injected, and what it is.",
+      "why": "Only Gemma-3-27B reliably identified injected concepts (35% vs 3% for steering alone), so self-report audits should check the reported source as well as the content."
+    },
+    "2611.08538": {
+      "problem": "Hidden preferences may pass between models through training data unrelated to the preference.",
+      "method": "Teacher VLMs are finetuned to prefer an animal or facial attribute, and students are trained on their number outputs for a geometric-shape task.",
+      "why": "Biased students chose the target up to about 10 percentage points more often than control students, a warning for data reuse in VLM fine-tuning."
+    },
+    "2611.09036": {
+      "problem": "Creative tool use has little real-world human data at scale.",
+      "method": "An ego-exo dataset with synchronised egocentric and eight exocentric cameras, annotated for hands, tools and deformable interactions.",
+      "why": "A candidate source of human demonstrations for teaching robots improvised tool use, with a benchmark for policy learning included."
+    },
+    "2611.08857": {
+      "problem": "Humanoid RL locomotion typically tracks base velocity, which is hard to measure onboard.",
+      "method": "Rewards commanded acceleration from IMU-only signals, with the XQC off-policy algorithm and left-right symmetry augmentation.",
+      "why": "In simulation it learns to walk on the Unitree G1 and Booster T1 within 14 minutes of samples, a faster path to humanoid locomotion."
+    },
+    "2611.08664": {
+      "problem": "Humanoid cart pushing couples arm forces with balance, and payload changes alter the dynamics.",
+      "method": "Two-stage RL with a force latent and a state latent inferred from onboard observations, without external force sensors.",
+      "why": "It transfers to a physical Unitree G1 and pushes a cart carrying up to 30 kg at 0.5 m/s with no payload-specific adjustment, relevant to humanoids in human workplaces."
+    },
+    "2611.09376": {
+      "problem": "Robots fail on paraphrased instructions because of gaps in lexical grounding.",
+      "method": "A language model edits 65 token-embedding rows of a pi0.5 policy using budgeted simulator feedback, with no gradient updates or new demonstrations.",
+      "why": "Success rose from 86.3% to 92.0% on 765 held-out paraphrases, and the authors say the evidence supports lexical repair rather than new robot capabilities."
+    }
+  }
+}

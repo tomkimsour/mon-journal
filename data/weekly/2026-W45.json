@@ -1,0 +1,46 @@
+{
+  "week": "2026-W45",
+  "headline": "The week's recurring lesson was that scores can mislead: offline metrics, in-distribution verifiers and nominal benchmarks all rank policies differently from the robot.",
+  "summary": "Across 2 to 6 November, the papers kept returning to the gap between what a team measures and what the robot or the person experiences. Checkpoint selection by validation loss or pass@1 was shown to rank policies backwards on hardware (2 and 3 November), and verifier-tied benchmark gains were shown to vanish when criteria shifted slightly (6 November). In parallel, latency, tactile and reflex work moved signals into the control loop, and human-facing studies showed that perceived safety, workload and care can move independently of physical or task metrics. Human data was judged by embodiment match rather than volume, and runtime monitors and safety filters began to carry explicit bounds or guarantees. For a ROS 2 team, the consistent response is to test on the robot in closed loop, hold out a verifier or stimulus variant, and record the human-side outcome beside task success.",
+  "trends": [
+    {
+      "title": "Offline and in-distribution scores keep misranking policies, so select checkpoints on closed-loop evidence",
+      "body": "The signal showed up on 2 November, when offline metrics tracked real-robot success in only five of 67 cases (2610.40828), and again on 3 November, when the lowest hold-out error policy won 3 of 110 rollouts (2611.00283). On 5 November a rollout-free checkpoint ranking (2611.05838) was offered as a cheaper filter, and on 6 November verifier-tied gains disappeared under small criteria changes (2611.08318). The common advice is to rank on repeated closed-loop rollouts and to hold out a verifier variant.",
+      "paper_ids": ["2610.40828", "2611.00283", "2611.05838", "2611.08318"]
+    },
+    {
+      "title": "Latency, tactile and reflex signals are being moved into the control loop rather than added as extra inputs",
+      "body": "On 3 November, path-preserving retiming (2611.01390), cached semantic anchors (2611.01011) and a tactile forecasting loss (2611.02677) all changed when the arm moves or what it predicts, and 100 ms of latency was reported to nearly halve success on moving targets (2611.03103). On 4 November a tactile reflex path acting within 10 ms cut the first force peak by 34.1% against a 20 ms delayed reflex (2611.04424). On 5 November the work turned to profiling the target board before optimizing (2611.06710), and on 6 November to cutting remote camera bit rate (2611.07411).",
+      "paper_ids": ["2611.03103", "2611.01390", "2611.02677", "2611.04424", "2611.06710", "2611.07411"]
+    },
+    {
+      "title": "Human-facing studies measure the person's experience, which can move independently of the robot's physical outcome",
+      "body": "The exosuit study on 2 November found perceived weight followed initial experience rather than muscle-load reduction (2610.41679), and the dog-navigation pilot found a legible manoeuvre was more stressful when executed with stops (2610.40921). On 3 November finger patterns changed perceived care without changing resistance to contact (2611.02517), and on 4 November a pragmatic alert was understood almost as well as a complete one (2611.03976). On 5 November operator workload and perceived safety diverged from speed in an ROV study (2611.06689), and a persona study found models and people disagree on robot presence in streets (2611.05954). On 6 November a humanoid policy made partner motion an explicit input (2611.08407).",
+      "paper_ids": ["2610.41679", "2610.40921", "2611.02517", "2611.03976", "2611.06689", "2611.05954", "2611.08407"]
+    },
+    {
+      "title": "Human data helps when its embodiment matches the robot, not simply when it is larger",
+      "body": "Robot-free handheld demonstrations reached 78% average success over ten tasks on 4 November (2611.03815), and human-video-to-robot-video conversion lifted unseen-task success from 2% to 60% (2611.05163). On 5 November the egocentric scaling study reported a log-linear relation between hours and simulated robot success (2611.06817), and the tactile study found that a single physical cue, marker flow, carried most of the gain (2611.06673). On 2 November, action-free videos of new tasks more than doubled out-of-distribution success (2610.40748).",
+      "paper_ids": ["2610.40748", "2611.03815", "2611.05163", "2611.06817", "2611.06673"]
+    },
+    {
+      "title": "Runtime monitors and safety filters are gaining explicit bounds, and they must be checked under the shifts a robot will meet",
+      "body": "On 2 November a risk gate reduced distracted-tracking collisions by 3.96 points (2610.41275). On 4 November a backup-horizon safety filter kept its guarantee under control bounds and cut median travel time 14% against recorded human drivers with no collisions (2611.04957), and a GPU reachability solver ran at 112 Hz inside the control loop (2611.04096). On 6 November a VLA failure-mode monitor reported bounds that held in up to 86% of unseen-task runs against at most 21% for baselines (2611.08425), and action-conditioned monitoring reached 83.0% accuracy against 74.5% for video-only (2611.07540).",
+      "paper_ids": ["2610.41275", "2611.04957", "2611.04096", "2611.08425", "2611.07540"]
+    }
+  ],
+  "top_papers": [
+    {"id": "2610.41609", "why": "The first systematic test of whether a VLA moves when no task is given, and a concrete safety check for any robot that works near people."},
+    {"id": "2611.00283", "why": "A real-hardware ablation showing that the most common checkpoint signal can rank architectures backwards; it will shape bench-evaluation practice for months."},
+    {"id": "2611.03815", "why": "The largest robot-free data result of the week, with a direct comparison against VLA baselines and a dataset release that makes the recipe testable."},
+    {"id": "2611.06453", "why": "Stop-versus-proceed failure-boundary profiles expose choices that aggregate driving scores hide, and the warehouse case makes them relevant beyond driving."},
+    {"id": "2611.05954", "why": "A direct comparison of model and human judgments of robot presence in public space, which bears on whether model panels can stand in for people."},
+    {"id": "2611.08407", "why": "Partner-aware humanoid motion on a Unitree G1, with a 260-hour interaction benchmark that other HRI teams can reuse."},
+    {"id": "2611.08425", "why": "A runtime monitor that predicts failure mode and reports bounds that hold under unseen-task shift, which is directly usable for an on-robot safety layer."}
+  ],
+  "next_week": [
+    "Repeat the no-task and empty-instruction tests on the robot's own VLA checkpoint before the next human-facing demo.",
+    "Log per-policy initial-state identity before any paired comparison, as the paired-test checker paper recommends.",
+    "Collect operator workload and perceived-safety ratings on the same stimuli as the task metrics, starting with teleoperation sessions."
+  ]
+}
