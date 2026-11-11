@@ -1,0 +1,196 @@
+{
+  "date": "2026-11-11",
+  "headline": "Robot results are increasingly being checked against shortcuts, and the human-facing papers today show that social cues are still where current models fall short.",
+  "thesis": "Several papers today test whether a robot's apparent competence comes from the capability it is supposed to show. A kNN retrieval baseline reaches 91.7% on LIBERO, a memory VLA stops early when a wrist fidget is inserted, and the same policies barely change when room light drops 11.5x, because the cameras auto-expose. In the human-facing work, a humanoid negotiator that updates its affect model online gets higher concession rates from 66 participants, and a social robot with emotion-conditioned gestures is preferred by 60 participants, while a child-centric benchmark shows VLMs collapsing on behavioral and interpersonal cues. On the safety side, the common move is to take the decision out of the model: a lease-style gate on each action, a code-driven workflow instead of an LLM choosing each step, and a barrier steering the latent before a path-space filter. For a team building robots that interact with people of different ages and cultures, the practical message is to evaluate with humans and with shortcut-breaking controls, not with the headline benchmark number alone.",
+  "clusters": [
+    {
+      "title": "Benchmark success is being explained by shortcuts, not by the capability the benchmark names",
+      "why": "The usual reading is that high LIBERO or RoboMME scores reflect generalizing policies. Today's papers show that nearest-neighbour retrieval of demonstration action chunks reaches 91.7% on LIBERO with no policy training, that a memory VLA counts a null pause as progress because memory is indexed by clock time, and that room lux is almost unrelated to what the camera sees. For a robotics team, this means reporting camera exposure, image statistics against training data, and a retrieval or time-only baseline next to any new policy number.",
+      "paper_ids": ["2611.13160", "2611.14488", "2611.13810"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Social robots are being validated with real participants, and the failures sit in nonverbal cues",
+      "why": "Earlier HRI work often evaluated social behavior with scripted or single-cue models. This week's papers test with people in the loop: a continual affect model on a humanoid is tested with 66 negotiators, a rhythmic-semantic gesture generator on the Haru robot with a 60-participant online study, and a child-centric benchmark finds that VLMs read context well but fall down on behavioral and interpersonal cues. A team building interaction robots should expect the perception layer to need personalization and should budget for participant studies, not only offline accuracy.",
+      "paper_ids": ["2611.14247", "2611.13472", "2611.13213"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Safety for LLM-driven robots is moving out of the policy and into explicit gates",
+      "why": "The default has been to put safety instructions in the prompt and trust the model's plan. The papers here place checks outside the planner: LEASH adds task, action and commit gates that review each irreversible operation in visual context, ReTrace turns logged agent runs into a workflow where code rather than an LLM picks the next step (93.8% completion against 96.8% for the agent, at 24% lower cost), and LBS steers the generator's latent first and applies a path-space CBF only to residual violations. Teams deploying agentic robots should plan for a gate layer with its own evaluation rather than relying on model alignment.",
+      "paper_ids": ["2611.14115", "2611.14492", "2611.13227"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Human video is becoming a supervision source by dropping or re-mapping action labels",
+      "why": "Robot demonstrations are expensive, so the field has been trying to reuse human video. Ego Guidance keeps action-free egocentric video as an auxiliary prediction signal next to a VLM policy, DexSeed expands human hand-object sequences into robot rollouts that fine-tune a dexterous VLA, and the Ego2Robot survey organizes four paradigms for doing this. For a team with human demonstration footage, the useful question is which paradigm preserves the grasp or the intent, not whether to use the footage at all.",
+      "paper_ids": ["2611.13685", "2611.14092", "2611.13610"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Shared autonomy can keep operator workload down when disturbances exceed the autonomous pipeline",
+      "why": "The common split is teleoperation or autonomy. This construction-robot paper switches between VR teleoperation, semi-autonomous shared control and rule-based autonomy. Autonomy gave the best results under calibrated nominal conditions, while semi-autonomous control kept working when disturbances exceeded the autonomous correction, and it substantially reduced subjective operator workload compared with full teleoperation. This is a single system on one dual-arm platform, so treat it as a design pattern to test rather than a settled result.",
+      "paper_ids": ["2611.14062"],
+      "confidence": "low"
+    }
+  ],
+  "insights": [
+    "Before trusting a new manipulation number, check whether a shortcut reproduces it. The retrieval result on LIBERO (91.7% with no training, and the smallest drop under LIBERO-Plus perturbations among the evaluated policies) suggests that many current VLA scores measure how well the backbone supports nearest-neighbour lookup in demonstration space. The authors also propose Local Action Consistency as an offline metric that tracks retrieval success and can guide training of the retrieval key. Try it on your own demonstration set before changing the policy architecture, and stop reporting success rate without a retrieval baseline.",
+    "Memory and perception modules are where deployment bugs will hide. The memory-VLA paper shows success falling from 47 to 16 of 50 on one counting task when a null pause is inserted, and the lux paper shows that four imitation policies scored 20/40 in normal light and 19/40 in low light, with image brightness only 3% lower on the front camera. Both point at the sensing and memory interface rather than the policy weights. For a human-facing robot, that means logging camera exposure and white balance on every trial, and indexing any memory by events or task progress rather than by elapsed time.",
+    "For social robots, the strongest human-facing signal this week is personalization under live feedback. The affect model that updates during negotiation achieved significantly higher individual utility and elicited higher concession rates than a fixed baseline across 66 participants, but participant utility and Nash distance did not change significantly, so the benefit is not a clean win for both sides. Try the differential-feedback idea on a real interaction loop with a mixed-culture participant pool, and check whether the arousal estimates shift across groups before you assume the same calibration transfers."
+  ],
+  "must_read": [
+    {
+      "id": "2611.14247",
+      "why": "The only paper today that puts a humanoid robot in a live, within-subject study with 66 participants and an affect model that keeps learning during the interaction. It is directly on the team's HRI objective.",
+      "key_idea": "Changes in the participant's valence and arousal are converted into direction and intensity signals that adjust the agent's target utility, while CLIFER updates in the background during the negotiation.",
+      "evidence": "Counterbalanced within-subject study with 66 participants and a humanoid robot. The CL-enabled agent achieved significantly higher individual utility and elicited higher participant concession rates than the FaceChannel baseline. The CL condition yielded significantly higher mean arousal estimates. Participant utility and Nash distance did not change significantly.",
+      "caveat": "The result is for a single negotiation task with one robot. The abstract does not report per-group or cross-cultural breakdowns, and the utility gain is for the agent, not the human."
+    },
+    {
+      "id": "2611.13472",
+      "why": "It addresses the gap between beat-like rhythm and meaningful iconic gestures, which matters for any social robot that speaks, and it was tested on a deployed social robot rather than only in simulation.",
+      "key_idea": "Iconic gesture timing and intensity are predicted from the text, and the remaining spans are filled with beats whose intensity depends on the robot's emotional state.",
+      "evidence": "Trained on BEAT2 and deployed on the Haru social robot. An online user study with 60 participants reported stronger speech-gesture alignment and a preference over baseline methods.",
+      "caveat": "The study was online rather than face to face, and the abstract gives no effect sizes. Only the Haru platform is reported."
+    },
+    {
+      "id": "2611.14488",
+      "why": "It isolates a concrete failure mode that will appear when a memory-augmented policy meets real pauses, retries or operator interventions. The fix it suggests is cheap to test.",
+      "key_idea": "Time-sampled memory treats elapsed time as progress, so a null event looks like work; indexing memory by events removes most of that error without retraining.",
+      "evidence": "On RoboMME counting tasks, success falls from 47 to 16 of 50 on one task and from 44 to 10 on the other when a null pause is inserted. Event-indexed memory recovers half or more of the loss without retraining.",
+      "caveat": "All results are on RoboMME simulation tasks, and the abstract reads as a diagnosis more than a deployment test. The claim that training with injected pauses impairs counting comes from the same benchmark."
+    },
+    {
+      "id": "2611.14115",
+      "why": "Gives the team a reference for how much an agentic LLM controller can harm the physical world, and a gate design that can be bolted onto an existing planner.",
+      "key_idea": "Each task, each action and each irreversible commit goes through a gate that reviews it in its visual context, with a shared safety policy across the planner and gates, using a decision model.",
+      "evidence": "RoboRisk covers 92 simulated tasks and 13 physical-robot tasks in five categories and runs every task in closed loop. The abstract reports that the six foundation models generally show high harm rates, and that the harness reduces harm across all six while largely preserving task completion and adding little time and token overhead.",
+      "caveat": "The abstract does not give harm-rate numbers, and the physical-robot task count is small. The model names in the evaluation are as reported by the paper, and the gate depends on a decision model whose own failure modes are not analyzed in the abstract."
+    },
+    {
+      "id": "2611.13213",
+      "why": "It is the first child-centric benchmark in this batch, and it targets the age and culture dimension of the team's objective. Its failure analysis is the most specific guide to where VLMs fail on social reasoning.",
+      "key_idea": "A compositional schema builds atomic interaction cues into four levels: contextual, behavioral, interpersonal and open-ended. Errors are traced to poor consequence grounding and temporal sensitivity.",
+      "evidence": "Clips of about 12 seconds, manually annotated and curated for diversity across settings, cultural contexts and developmental stages. Analysis of state-of-the-art VLMs reveals a stark performance collapse, with strong contextual recognition but substantial gaps on behavioral and interpersonal cues.",
+      "caveat": "The abstract gives no numeric scores, so the size of the collapse cannot be checked from it. This is a benchmark and analysis paper, with no robot in the loop."
+    }
+  ],
+  "summaries": {
+    "2611.14247": {
+      "problem": "Generic facial-affect models degrade across individuals and contexts, which weakens an agent that negotiates with humans.",
+      "method": "CLIFER personalizes valence-arousal perception in real time, and differential feedback turns affect changes into adjustments of the agent's target utility, with the update running in the background.",
+      "why": "A humanoid with an affect model that adapts during the interaction is the kind of HRI component the team would need for culturally varied users."
+    },
+    "2611.13472": {
+      "problem": "Data-driven co-speech gesture systems produce either rhythmic beats or meaningful iconic gestures, but not both.",
+      "method": "Lightweight models predict iconic timing and intensity from text, and emotion-conditioned beats fill the remaining spans.",
+      "why": "Combining both gesture types on a deployed social robot is directly relevant to speech-driven HRI, although the study was online."
+    },
+    "2611.13213": {
+      "problem": "Child social interaction is under-evaluated in multimodal video understanding, and coarse evaluation schemas hide where models fail.",
+      "method": "A child-centric benchmark with a four-level compositional schema from contextual to open-ended social reasoning, plus domain adaptation trials.",
+      "why": "It shows that VLMs cannot yet read the nonverbal cues a child-facing robot would need, which argues for targeted evaluation before deployment."
+    },
+    "2611.14488": {
+      "problem": "Memory-augmented VLA policies may count elapsed time as task progress.",
+      "method": "Null pauses are inserted into RoboMME counting tasks, and the memory design is compared across released variants.",
+      "why": "A cheap diagnostic for a failure that will appear in any real interaction with interruptions or pauses."
+    },
+    "2611.13160": {
+      "problem": "It is unclear how much VLA performance on LIBERO requires generalization beyond the training demonstrations.",
+      "method": "Nearest-neighbour retrieval of demonstration action chunks is evaluated across nine public VLAs, with a Local Action Consistency metric.",
+      "why": "A retrieval baseline is a cheap sanity check for any manipulation policy the team is planning to adopt."
+    },
+    "2611.13810": {
+      "problem": "Real-robot benchmarks record room illuminance, which may not describe what the camera sees.",
+      "method": "Four imitation policies are run at about 520 lux and about 45 lux, with camera image statistics compared between conditions.",
+      "why": "It argues for logging camera settings and image statistics in any human-facing evaluation, since lighting can change without a success-rate change."
+    },
+    "2611.14115": {
+      "problem": "Foundation models that control robots pose safety risks, and comprehensive safety evaluation is missing.",
+      "method": "RoboRisk benchmark across five categories, plus the LEASH gate harness with task, action and commit gates.",
+      "why": "It gives a template for a safety layer that can be integrated into an existing agentic stack."
+    },
+    "2611.14062": {
+      "problem": "Teleoperation and autonomy are usually treated as separate modes in hazardous construction work.",
+      "method": "VR-guided teleoperation, semi-autonomous shared control and rule-based autonomy are linked by explicit role allocation and command-priority rules.",
+      "why": "Operator workload is the constraint that matters for a human-supervised robot, and the paper measures it."
+    },
+    "2611.13669": {
+      "problem": "Reasoning about people's plans from their actions has been a long-standing challenge for embodied AI.",
+      "method": "GenEA couples a multilevel state-space of body and object interactions with a generative model that gives a joint distribution over goals and plans.",
+      "why": "It proposes a model of human action intent that could guide a robot's expectations of a person, which is at the core of HRI."
+    },
+    "2611.13685": {
+      "problem": "Robot policies need action labels that egocentric human video does not have.",
+      "method": "SPAR is a Mixture-of-Transformers design in which future visual prediction provides learning signals alongside action prediction.",
+      "why": "Action-free human video can add useful signal, which lowers the demonstration cost for a team with recorded footage."
+    },
+    "2611.14092": {
+      "problem": "Dexterous VLA training needs robot demonstrations, which are costly to collect with teleoperation.",
+      "method": "DexSeed expands human hand-object sequences into physically executable rollouts, pairs successful ones with grasp descriptions and fine-tunes a VLA.",
+      "why": "It shows a path to dexterous data generation from human sequences, relevant if the team wants hand manipulation without teleoperation."
+    },
+    "2611.13610": {
+      "problem": "Egocentric human video offers scalable experience, but its use for robot control is fragmented.",
+      "method": "A survey that organizes Ego2Robot learning into four paradigms and traces what human-video information each one extracts.",
+      "why": "A map of the paradigms helps decide which one fits the team's footage and hardware."
+    },
+    "2611.14419": {
+      "problem": "LLM-generated world models may be executable but structurally different from the intended decision problem.",
+      "method": "Five LLMs generate partially observable stochastic games for 44 scenarios, with a cultural track that names the country.",
+      "why": "The cultural track shows that naming the country changes the generated structure for most LLMs, which matters for culturally varied deployments."
+    },
+    "2611.13370": {
+      "problem": "A humanoid must commit each motion chunk before hearing the music that the chunk accompanies.",
+      "method": "AHEADance uses forecasts of upcoming music to condition each chunk and trains continuation from its own committed chunks.",
+      "why": "Anticipatory motion from streamed audio is a useful pattern for any humanoid that must respond to a person's speech or rhythm in real time."
+    },
+    "2611.13204": {
+      "problem": "Rehabilitation robots track prescribed motions and ignore the user's instantaneous ground interaction.",
+      "method": "GRF-MPC integrates live ground reaction force and centre-of-pressure measurements into a human centroidal dynamics model.",
+      "why": "Physical assistance with a human in contact is a clear HRI setting, and the trial count gives a sense of the evidence base."
+    },
+    "2611.13769": {
+      "problem": "A monocular depth model used off the shelf over-estimates obstacle distance and causes collisions.",
+      "method": "A lightweight head on a frozen depth model predicts a log-depth correction and uncertainty, and the navigation stack consumes a one-sided safe-depth bound.",
+      "why": "Collisions dropped from 63% to 3% in simulation, which is a useful reference if the team considers camera-only navigation for people-facing robots."
+    },
+    "2611.14492": {
+      "problem": "Agents that run the same SOP call an LLM to choose every step, which adds latency and cost.",
+      "method": "ReTrace extracts the condition behind each step from logged agent runs and generates an executable workflow in which code selects the next step.",
+      "why": "It is a concrete pattern for replacing LLM step selection with a deterministic workflow where the process is fixed."
+    },
+    "2611.13227": {
+      "problem": "CBF safety filters act locally on generated samples and struggle when a constraint blocks a whole behavior mode.",
+      "method": "Latent Barrier Steering steers the behavior latent toward larger safety margin, then applies a path-space CBF QP only to residual violations.",
+      "why": "It shows that separating behavior selection from path certification is a workable split for a safe generative planner near people."
+    },
+    "2611.13997": {
+      "problem": "LVLMs are aligned to universal privacy but not to privacy that the user specifies in context.",
+      "method": "SPY-Bench evaluates inference-time personalized privacy on 32,700 samples across 67 categories and 24 scenarios, and a Noise Contrastive Alignment variant is proposed.",
+      "why": "A social robot that sees people in its camera feed needs user-specified privacy boundaries, and the benchmark shows most models do poorly on them."
+    },
+    "2611.14432": {
+      "problem": "Long-horizon household tasks need one policy that generalizes across many tasks.",
+      "method": "One VLA checkpoint for 100 tasks, built on a pi0.5 base, with longer training and a small coding-agent routing for 14 tasks.",
+      "why": "It is a reference for how far a single household policy has moved in a shared simulator benchmark."
+    },
+    "2611.13818": {
+      "problem": "Mobile manipulation in household tasks needs a policy that handles many tasks within an inference rate limit.",
+      "method": "A world action model is adapted with LoRA adapters, a progress estimator, and task-conditioned routing.",
+      "why": "The inference-rate constraint is a practical lesson for any household deployment that has to respond at a usable rate."
+    },
+    "2611.13596": {
+      "problem": "VLM judges are used for embodied tasks, but aggregate accuracy does not show whether they change verdicts for the right reason.",
+      "method": "GridWM-Judge evaluates judges on presentation stability, representation exchangeability and counterfactual discrimination in MiniGrid.",
+      "why": "If the team uses a VLM judge for evaluating interaction logs, the diagnostics show what to check beyond accuracy."
+    },
+    "2611.13929": {
+      "problem": "Carrying an object in one hand adds an asymmetric load that degrades humanoid velocity tracking.",
+      "method": "ReACT uses a wrench estimate to modulate actor features and a cross-load consistency objective during training.",
+      "why": "Carrying objects while walking near people is a common HRI task, and the real-world result is reported as 40 of 40 collision-free trials under unilateral loads."
+    }
+  }
+}
