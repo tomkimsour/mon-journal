@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-16",
+  "headline": "Robots trained with one partner, one sensor condition or one demo set break on the next one, and today's fixes randomize the hidden variable, gate unreliable perception, and mine the policy's own failures.",
+  "thesis": "The common thread today is what happens when a robot meets something its training did not show it. A self-play handover policy that succeeds 95% of the time with its own partner drops to 31% with unfamiliar ones, and an accessibility benchmark shows VLMs failing to change their path choices across user profiles. On the perception side, navigation and locomotion papers stop assuming the depth or image is right and build explicit fallback, revision and re-check steps. On the learning side, several groups generate post-training data from the states where a VLA or reasoning model fails, mostly in simulation, while controlled single-factor studies (perception noise, cross-view geometry, contact cues) explain why policies are brittle in the first place. For a team building robots that interact with people of different ages and cultures, the practical message is to treat the human partner as a distribution to randomize and test against, the same way perception noise already is.",
+  "clusters": [
+    {
+      "title": "Human-facing robot behavior is breaking on partners and users it was not trained with, and the fix is to randomize or condition on the hidden human variable",
+      "why": "Interaction policies are usually evaluated with the same partner model or user profile they were trained on. Today, a self-play humanoid handover drops from 95% to 31% success with unseen scripted partners until the giver's start time is randomized, VLAN shows VLMs failing to adapt obstacle relevance and safety criteria across user profiles including people with visual or mobility impairments, a dialogue benchmark annotates multi-turn requests across user personas, and a teleoperation study finds operators behave differently under different guidance strategies. A team should list the human-side variables (timing, mobility, phrasing, risk tolerance) its robot can't observe and randomize or condition on them explicitly in training and evaluation.",
+      "paper_ids": ["2611.18491", "2611.18346", "2611.17549", "2611.18496"],
+      "confidence": "medium"
+    },
+    {
+      "title": "VLA and robot-agent post-training is fed by data generated at the policy's own failure states in simulation",
+      "why": "The default way to improve a VLA has been to collect more teleoperated demonstrations. These papers instead locate where the current policy fails and generate supervision there: Agentic-Teacher has coding agents write demonstration generators starting from failed VLA states, ESI turns LLM corrections and handoffs into action-level supervision, PEAR trains a 27B reasoning model with RL in simulation without demonstrations and transfers it to a real dual-arm robot, and TouchTwin rebuilds human demonstrations in MuJoCo with measured touch so replays carry the right grip force. A team with a working sim should treat failure-state data generation as a standing pipeline, while noting that most reported gains are still in simulation.",
+      "paper_ids": ["2611.17394", "2611.18176", "2611.18562", "2611.17619"],
+      "confidence": "high"
+    },
+    {
+      "title": "Navigation and locomotion stacks now assume perception is wrong and build explicit fallback and correction around it",
+      "why": "Perceptive stacks usually treat depth or detections as ground truth once they are computed. PROOF predicts uncertainty on exteroceptive features and falls back to proprioceptive gaits under out-of-distribution input, ERA keeps a revisable occupancy map so predicted-depth errors are corrected by moving to new views, a diffusion relighting model runs in a background thread only when detection confidence drops, and an LLM spatial-prior study concludes that generated object placements need a geometric check. In practice this means adding a reliability signal and a defined degraded mode to each perception input rather than only improving the sensor model.",
+      "paper_ids": ["2611.18305", "2611.17730", "2611.17438", "2611.18123"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Semantic safety for language-driven manipulation is being turned into explicit, inspectable structures instead of prompt instructions",
+      "why": "LLM and VLM planners have mostly been trusted to infer scene-specific safety from the instruction. Today one paper stores reusable safety rules in a Constraint Space with a learned applicability selector and a separate Safety Inspector, another grounds VLM-identified object-pair hazards into continuous 3D risk fields that an obstacle-avoidance module respects, and a third has the VLM write an editable stage-wise cost program that an MPC executes and that is checked in a digital twin before real deployment. Teams using VLM planners should expect to maintain a safety artifact (rule set, risk map or cost program) that can be read, tested and versioned separately from the model.",
+      "paper_ids": ["2611.18026", "2611.17566", "2611.18298"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Visuomotor brittleness is being dissected one factor at a time with controlled, sometimes pre-registered experiments",
+      "why": "Representation and augmentation choices for imitation policies are usually compared on broad task suites with conflicting results. Today's studies fix everything but one factor: a predictive law shows trained policies discount noisy object positions using the robot's own state as an anchor, a replay study finds cross-view geometric anti-coupling costs 3.30 points of success while appearance mismatches cost little, an insertion study finds the best representation differs even between near-identical tasks but contact-centric cues help, and LASR measures whether world-model latents really encode action. The practical takeaway is to protect geometry and contact information in augmentation and representation choices, and to test perception changes closed-loop because offline sensitivity does not carry over.",
+      "paper_ids": ["2611.17658", "2611.17751", "2611.17631", "2611.17775"],
+      "confidence": "high"
+    },
+    {
+      "title": "Control recipes are being made portable across robot bodies by standardizing the interface the policy sees",
+      "why": "Locomotion recipes and planners are usually retuned per robot because actions and penalties live in native joint coordinates. A body-aligned virtual joint space lets one unmodified training recipe work on three humanoids with different leg-axis layouts, and PoliMop plans with rollouts of whatever control policy the robot already has, so the same planner covers quadrupeds, humanoids and wheeled robots. Teams with several platforms should consider putting a standard interface layer between policy and hardware before scaling training.",
+      "paper_ids": ["2611.18003", "2611.18110"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "Randomize the human, not only the scene. The handover paper shows a policy can look fluent while having learned a single rendezvous time, and a one-line rule that hides a random start delay from the receiver raises success with unseen partners from 31% to 80%. VLAN and the Talk to Act dataset push the same idea into navigation and dialogue through user profiles and personas. Before running a user study, audit which partner timings, mobility needs and phrasing styles your training ever covered.",
+    "Make degraded perception a mode with its own behavior. PROOF, ERA and the relighting work each define what the robot does when perception is unreliable: fall back to proprioception, keep moving to collect views that fix the map, or invoke an expensive model only on a confidence drop. ERA's map and exploration components raise VLFM's success from 10.8% to 61.7% under the same predicted depth, which suggests much of the gap is in how errors are handled, not in the depth itself.",
+    "Close-loop tests are not optional for perception changes. The proprioceptive-anchor study finds that the discount a policy applies to noisy readings in training does not carry over to deployment, where closed-loop sensitivity to an offset exceeded the predicted value in all 15 policies that passed its gates. Offline robustness metrics on perception noise should be treated as a lower bound on how much the robot will actually follow a bad reading.",
+    "An open-weight reasoning model driving a real arm without a harness is now a credible baseline. PEAR reports 60% success on a real dual-arm robot from sim-only RL and 57.4% on LIBERO-Pro new tasks where a fine-tuned π0.5 gets 0.75%. Teams evaluating VLAs for instruction variety should add such a robot-use agent as a comparison point, while checking latency on their own hardware since the abstract does not report it."
+  ],
+  "must_read": [
+    {
+      "id": "2611.18491",
+      "why": "Handover is one of the most common physical human-robot interactions, and this paper shows exactly how a policy that looks fluent fails with a new partner.",
+      "key_idea": "Under shared-reward self-play the learned giver always starts its offer immediately, so the receiver learns one rendezvous time; hiding a random start delay on the training partner forces the receiver to wait and react.",
+      "evidence": "Physics-based parcel handover with a Unitree G1 receiver: 95% and 90% success with its own partner across two seeds, 31% with unseen scripted partners; a one-second delay drops success from 95% to 6%; after 300 updates with hidden start-delay randomisation, unseen-partner success rises to 80% in both seeds against 35–41% for a budget-matched control, holds on eleven held-out partner conditions, and cuts high-force contact three- to five-fold.",
+      "caveat": "All partners are learned or scripted agents in simulation; no human givers or hardware trials are reported, and timing is only one of many ways real people differ."
+    },
+    {
+      "id": "2611.18346",
+      "why": "It is one of the few navigation benchmarks that treats who the robot is moving for, including people with visual or mobility impairments, as part of the task.",
+      "key_idea": "Traversability is user-conditioned: each trajectory carries embodiment-specific actions and obstacles labelled Passable, Bypass, HighRisk or Blocked, and metrics score accessibility alignment and collisions, not just goal reaching.",
+      "evidence": "1,000 scenes, 20K trajectories and 160K keyframes covering legged and wheeled robots and people with visual or mobility impairments; benchmarked VLMs often fail to adapt obstacle relevance, path selection and safety criteria across user profiles. Data and code are stated to be open-source.",
+      "caveat": "The abstract gives no per-model numbers, and it does not say whether scenes are real captures or synthetic, so sim-to-real relevance for an assistive robot is unclear."
+    },
+    {
+      "id": "2611.18562",
+      "why": "It gives a concrete recipe for getting an open-weight model to control a real robot from sim-only RL, and a striking robustness comparison with a demonstration-trained VLA on new tasks.",
+      "key_idea": "Treat robot control like computer use: a 27B reasoning model observes, reasons in a chain of thought, and outputs the next end-effector pose, trained with reinforcement learning in simulation and no demonstrations.",
+      "evidence": "On LIBERO, success rises from 1.6% to 74.4%; on a real dual-arm robot the trained model succeeds in 60% of trials against none for the base model; on LIBERO-Pro new tasks in a familiar scene it reaches 57.4% where π0.5 reaches 0.75%; no measurable degradation on nine reasoning, coding and vision benchmarks.",
+      "caveat": "The abstract does not report inference latency or control rate for a 27B model with chain-of-thought, and the real-robot result is a single platform with an unstated number of tasks."
+    },
+    {
+      "id": "2611.17658",
+      "why": "Most deployed manipulation policies consume noisy object poses, and this paper gives a formula that predicts how much the policy will trust them, plus a warning that the prediction fails in closed loop.",
+      "key_idea": "Because demonstrators steer toward the object, the robot's own state is a proprioceptive anchor for object position; the policy weights the noisy reading by α = V/(V + s²), where V is the anchor's error variance as learned by the policy.",
+      "evidence": "Measured once, V predicted ten held-out sensitivities across two robomimic tasks, two learners and four noise levels with mean absolute error 0.025 against 0.37 for classical errors-in-variables regression; closed-loop sensitivity exceeded α in all 15 policies that passed the registered gates; tests were registered before data collection.",
+      "caveat": "All results are in simulation with synthetic Gaussian noise; real perception errors are biased and correlated, and the author notes training noise predicts success as well as the measured α."
+    },
+    {
+      "id": "2611.17566",
+      "why": "For robots working around people at home or in care settings, it shows a practical way to turn a VLM's commonsense about hazardous object pairs into a geometric constraint a motion layer can enforce.",
+      "key_idea": "A VLM first decides whether the task should be refused because of non-recoverable hazards; otherwise it names object-pair relations to avoid, which are grounded with open-vocabulary segmentation and depth into continuous 3D risk fields used by obstacle avoidance.",
+      "evidence": "Evaluated on preventable hazards, tasks requiring rejection, and safe variants in simulation and the real world.",
+      "caveat": "The abstract reports no success, false-refusal or hazard-avoidance rates, so the trade-off between over-refusing and missing hazards cannot be judged from it."
+    }
+  ],
+  "summaries": {
+    "2611.18491": {
+      "problem": "Self-play handover policies look fluent but have only ever met their own training partner.",
+      "method": "Identify that the learned giver always starts at once, then randomize a hidden start delay on the training partner so the receiver must react to timing it cannot observe.",
+      "why": "Gives a cheap, testable recipe for making physical handover robust to partners who behave differently, a direct HRI concern."
+    },
+    "2611.18346": {
+      "problem": "Navigation benchmarks evaluate traversability for one fixed embodiment, ignoring that what is walkable depends on the user.",
+      "method": "A 1,000-scene benchmark with embodiment-specific actions and accessibility labels for robots and people with visual or mobility impairments, scored on safety and accessibility alignment.",
+      "why": "Useful for teams building guide or assistive robots that must adapt route choice to who they are accompanying."
+    },
+    "2611.17549": {
+      "problem": "Conversational HRI lacks datasets with multi-turn, ambiguous, context-dependent requests.",
+      "method": "Synthetic multi-turn dialogues across scenarios and user personas, with intent extraction framed as tool calling and benchmarked on models from 270M to 8B parameters.",
+      "why": "Suggests small, locally deployable models are a usable baseline for on-robot dialogue, though the data is synthetic."
+    },
+    "2611.18496": {
+      "problem": "Automated lab robots fail unexpectedly and need fast human recovery.",
+      "method": "Teleoperation of a UR3e with a 3D mouse, comparing coupled and decoupled control mappings and reference-path guidance in user trials.",
+      "why": "Shows that the input mapping and guidance design change operator speed and risk-taking, relevant to any teleop fallback."
+    },
+    "2611.17394": {
+      "problem": "Improving a pretrained VLA needs demonstrations that target its weaknesses, not just more successful runs.",
+      "method": "Coding agents analyse failed rollouts, write closed-loop code policies from the failure states, and the resulting demonstrations are noise-augmented and filtered by the base model's flow-matching loss.",
+      "why": "Turns failure analysis into a data pipeline; reported π0 gains are in simulation (LIBERO-10 79.4% to 87.8%)."
+    },
+    "2611.18176": {
+      "problem": "Pairing a pretrained LLM planner with a VLA does not produce coordinated behavior; the VLA can undo the LLM's corrections.",
+      "method": "A flywheel that jointly refines LLM prompts, the shared skill interface and VLA weights, using LLM corrections and handoffs as supervision.",
+      "why": "Treats the modular agent as the unit of post-training, a useful frame for teams that already split planning and control."
+    },
+    "2611.18562": {
+      "problem": "Strong robot-use agents have so far been proprietary models; open-weight models lag.",
+      "method": "Train a 27B open-weight reasoning model with robot-use RL in simulation, outputting end-effector poses directly, without demonstrations.",
+      "why": "Sim-only RL transferring to a real dual-arm robot and new tasks offers an alternative to demonstration-heavy VLA fine-tuning."
+    },
+    "2611.17619": {
+      "problem": "Vision-only real-to-sim replays of human demonstrations get grip force wrong because touch is unobserved.",
+      "method": "Rebuild human demonstrations in MuJoCo using an 880-taxel glove so recorded touch sets each finger's contact and closing force.",
+      "why": "Relevant for dexterous hands: vision-based replays grip at 1.55x the recorded force, touch-grounded ones at 0.99x."
+    },
+    "2611.18305": {
+      "problem": "Perceptive legged locomotion fails catastrophically under occlusion, reflections or lighting changes.",
+      "method": "Teacher-student training where the student predicts exteroceptive features with uncertainty and suppresses them out of distribution, falling back to proprioceptive behavior.",
+      "why": "A deployable pattern for quadrupeds that must keep walking when the depth camera is blinded, shown on a Go2 with a D435."
+    },
+    "2611.17730": {
+      "problem": "Mapping predicted depth as if it were sensor depth accumulates errors that end object search early.",
+      "method": "Revisable occupancy plus exploration from reachable viewpoints, so motion supplies views that correct the map, with multi-view target verification before stopping.",
+      "why": "Makes RGB-only object navigation practical; its components raise VLFM's success from 10.8% to 61.7% with predicted depth."
+    },
+    "2611.17438": {
+      "problem": "Detectors fail in low light, and enhancement models are too slow for control loops.",
+      "method": "Run a diffusion relighting model in a background thread, triggered only when detection confidence drops, decoupled from the low-latency control loop.",
+      "why": "An architecture pattern for using slow generative models in a robot stack; the closed-loop evidence is CARLA-only."
+    },
+    "2611.18123": {
+      "problem": "Object-goal navigation uses LLMs for room-object associations, but it is unclear if they can give spatial placement priors.",
+      "method": "Evaluate two open-weight LLMs' likelihoods and generated layouts against real CubiCasa5K and ScanNet rooms.",
+      "why": "Concludes LLM placements cut search area by less than a third of what real-layout priors achieve, so use real data when available."
+    },
+    "2611.18026": {
+      "problem": "Tabletop safety constraints depend on the scene and are rarely stated in the instruction.",
+      "method": "Store safety rules in an explicit Constraint Space, learn which apply to the current task and scene, and add a Safety Inspector that critiques plans and updates the rule set.",
+      "why": "Gives VLM planners a versionable safety layer that can be audited separately from the model."
+    },
+    "2611.17566": {
+      "problem": "Geometric collision checks miss semantic hazards between objects, such as liquids near electronics.",
+      "method": "A VLM decides whether to refuse the task, names hazardous object-pair relations, and these are grounded into 3D risk fields used by obstacle avoidance.",
+      "why": "Directly applicable to home and care robots where hazards are semantic, with real-world trials reported."
+    },
+    "2611.18298": {
+      "problem": "Connecting VLMs to MPC for contact-rich manipulation lacks a task representation both can use.",
+      "method": "The VLM writes an editable, stage-wise cost program from a cost library, refined on MPC rollouts in a real-to-sim digital twin before real deployment.",
+      "why": "Produces an inspectable objective rather than an opaque action stream, tested on four tabletop tasks."
+    },
+    "2611.17658": {
+      "problem": "Imitation policies trained on noisy object positions discount the reading, but by how much was unknown.",
+      "method": "Derive and pre-register a law where the robot's own state acts as an anchor, predicting the policy's weight on the reading.",
+      "why": "Predicts perception-noise sensitivity before rollout, but shows the training-time discount does not hold in closed loop."
+    },
+    "2611.17751": {
+      "problem": "Multi-view augmentation enforces cross-camera consistency without knowing which kinds matter.",
+      "method": "Simulation-state replay to change cross-view coupling while holding per-camera perturbations and trajectories fixed.",
+      "why": "Suggests relaxing appearance consistency but protecting cross-view geometry, especially the wrist view."
+    },
+    "2611.17631": {
+      "problem": "Which pretrained visual representation suits contact-rich policies remains contested.",
+      "method": "Compare foundation-model features with a contact-centric representation on two near-identical insertion tasks under controlled occlusion and tolerance changes, in sim and real.",
+      "why": "Shows representation choice is task-sensitive but contact cues help, pointing to contact perception as the bottleneck."
+    },
+    "2611.17775": {
+      "problem": "Latent-action world models may encode state or progress shortcuts instead of action.",
+      "method": "LASR, an offline metric of whether a latent predicts action-related targets beyond the current state and non-action alternatives.",
+      "why": "A check teams can run before trusting latent actions learned from unlabelled video."
+    },
+    "2611.18003": {
+      "problem": "Humanoid locomotion recipes do not transfer between robots with different joint layouts.",
+      "method": "A body-aligned virtual joint space for policy actions and observations, mapped deterministically to native joints above the existing control stack.",
+      "why": "One unmodified recipe trained stably on three humanoids and cut heading drift on a G1 by nearly six times."
+    },
+    "2611.18110": {
+      "problem": "Path planners ignore what a specific robot's control policy can actually traverse.",
+      "method": "Kinodynamic RRT that expands using physics-simulated rollouts of the robot's own policy, guided by a mass-point pre-plan.",
+      "why": "Drop-in planning across quadrupeds, humanoids and wheeled robots in simulation, with up to 63% less planning time from guidance."
+    },
+    "2611.18390": {
+      "problem": "Sampling-based MPC needs many rollouts and lacks guarantees under uncertainty and online safety constraints.",
+      "method": "Embed a contraction-certified tracking controller in each rollout and verify applied inputs with a quantile-tightened discrete-time CBF.",
+      "why": "Same tracking error as MPPI with 7 to 20 times fewer rollouts on a rover, and no safety violations in 200 simulated missions."
+    },
+    "2611.18365": {
+      "problem": "Hydraulic heavy machines have complex dynamics and are dangerous to experiment on.",
+      "method": "Sim-trained RL policies transferred to a 5-tonne John Deere skid-steer loader for two-wheel balancing maneuvers.",
+      "why": "Evidence that sim-to-real RL works on large hydraulic platforms, published in Science Robotics."
+    },
+    "2611.17598": {
+      "problem": "Humanoids cannot yet follow a language instruction over a long indoor-to-outdoor route.",
+      "method": "A data engine, an RGB-only navigation model, and an agentic workflow that splits instructions into sub-tasks, adapted with digital-twin data.",
+      "why": "A system-level reference for humanoid navigation, demonstrated on a single roughly hundred-metre mission."
+    },
+    "2611.17442": {
+      "problem": "VLN models ignore the time budget, though urgent missions require different exploration under different budgets.",
+      "method": "Budget-conditioned object search supervised by a room-level Bellman expert under partial observability instead of a privileged TSP expert.",
+      "why": "Shows that imitating routes optimal with full knowledge teaches worse exploration than partial-observability experts."
+    },
+    "2611.17900": {
+      "problem": "VLMs answer confidently when a question has several plausible referents in the image.",
+      "method": "A linear ambiguity classifier conditions activation steering plus prompting to elicit clarification or enumeration only when needed.",
+      "why": "Relevant for robots taking spoken requests: raises appropriately handled inputs from 59.0% to 77.0% on average."
+    },
+    "2611.18484": {
+      "problem": "AI remote patient monitoring is moving toward action, but embodied care systems remain prototypes.",
+      "method": "A scoping review of monitoring and care robotics, proposing supervised, interruptible, auditable agentic robots.",
+      "why": "Frames governance and human-oversight requirements that care-robot teams will face."
+    },
+    "2611.18372": {
+      "problem": "VLA design choices are scattered across many papers and hard to compare.",
+      "method": "A life-cycle survey of 88 works, analysing 22 models on inputs, architecture, action output, data, post-training and real-time execution.",
+      "why": "A reference for choosing a VLA, including evidence that some near-perfect benchmark models fail under small object or camera moves."
+    },
+    "2611.17831": {
+      "problem": "Video-language models built on predictive encoders answer dynamics questions at chance even when the encoder carries the information.",
+      "method": "Counterfactual supervision from pixel transformations that forces the language model to read speed, direction and order.",
+      "why": "Suggests robot video-understanding models can recover motion cues that standard caption training leaves unused."
+    },
+    "2611.17529": {
+      "problem": "Embedding-distance goal costs in world-model planning favor visually similar but unreachable states.",
+      "method": "A small residual adapter on frozen I-JEPA embeddings learned from the ordering of observations in a widening curriculum of planned trajectories.",
+      "why": "Improves planning success without retraining the encoder or world model, though only on toy 2D tasks."
+    },
+    "2611.17859": {
+      "problem": "Controlling robot collectives with per-robot commands scales poorly.",
+      "method": "Broadcast a single affine field controlling motion and size, with per-robot constraints enforced by CBFs in one QP.",
+      "why": "Lets a swarm shrink to pass corridors narrower than its natural size without pre-planned resizing."
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "week": "2026-W46",
+  "headline": "This week showed that both simulated humans and benchmark scores flatter robot methods, while the human-facing papers that tested with real people found the gaps sit in per-person differences and nonverbal cues.",
+  "summary": "The week had two snapshots, 9 and 11 November, and both returned to the gap between what a benchmark rewards and what a robot needs among people. On 9 November, simulated intervention and preference models were shown to rank methods differently from real users, and on 11 November a training-free retrieval baseline, clock-indexed memory and auto-exposed cameras explained results that looked like policy capability. General-model agent harnesses beat specialist VLAs on public suites, and the safety work responded by putting gates outside the model rather than in the prompt. Human-facing papers kept finding that people differ, in haptic percepts, affect and social cues, and that home and companion agents fail by over-acting or over-remembering. For a team building robots for people of different ages and cultures, the steady advice is to add shortcut baselines, score prohibited actions as failures, and budget for per-user calibration and participant studies.",
+  "trends": [
+    {
+      "title": "Simulated humans and headline benchmarks both overstate robot methods, so add real-user and shortcut baselines",
+      "body": "On 9 November, Q-OIL found that real people intervene when progress stalls and correct suboptimally, and Goodhart in the Planner showed planners exploiting synthetic preference labels, with human-label drawer-open succeeding in 0 of 20 runs. On 11 November, nearest-neighbour retrieval reached 91.7% on LIBERO without training, a memory VLA's counting success fell from 47 to 16 of 50 when a null pause was inserted, and policies barely changed between about 520 and 45 lux because the cameras auto-exposed. This continues last week's theme that offline and in-distribution scores misrank policies.",
+      "paper_ids": ["2611.08576", "2611.09670", "2611.13160", "2611.14488", "2611.13810"]
+    },
+    {
+      "title": "General-model agent harnesses now compete with specialist VLAs, and safety is moving into gates outside the model",
+      "body": "On 9 November, AMP1 reported 85.6% zero-shot on RoboLab-120 against 49.2% and 42.9% for leading VLA and WAM policies, a computer-use agent placed in four ECCV embodied competitions, and A2-MEAS added agent-written correction codes to a VLA. On 11 November the safety response appeared: LEASH puts task, action and commit gates around foundation-model controllers, and ReTrace replaces LLM step selection with code-driven workflows at 24% lower cost. Teams should benchmark an agent harness against their VLA and evaluate the gate layer as its own component.",
+      "paper_ids": ["2611.09892", "2611.09847", "2611.09124", "2611.14115", "2611.14492"]
+    },
+    {
+      "title": "Human-facing perception has to adapt per person, and current models fail on nonverbal and interpersonal cues",
+      "body": "On 9 November, electrotactile and thermal percepts varied widely across 24 participants, which motivated per-user forward models, and stated politeness changed no trust measure in LLM Werewolf after correction. On 11 November, a continually personalized affect model on a humanoid raised agent utility and participant concessions with 66 negotiators, emotion-conditioned gestures on Haru were preferred by 60 participants, and a child-centric benchmark found VLMs strong on context but weak on behavioral and interpersonal cues. The pattern argues for per-user calibration and for evaluation across ages and cultural contexts.",
+      "paper_ids": ["2611.09708", "2611.09768", "2611.14247", "2611.13472", "2611.13213"]
+    },
+    {
+      "title": "Home and companion agents fail by doing or remembering too much, so prohibited actions and privacy need their own tests",
+      "body": "On 9 November, HomeLoop found failed episodes with prohibited interventions outnumbering missed required ones by more than two to one, and Relic separated what a companion may remember and say from what researchers can review. On 11 November, SPY-Bench showed most LVLMs handle user-specified privacy poorly across 32,700 samples. For any robot in a home, success-only scoring hides the failures users will notice first.",
+      "paper_ids": ["2611.08914", "2611.08504", "2611.13997"]
+    },
+    {
+      "title": "Human video and human demonstrations keep gaining ground as supervision when their structure is preserved",
+      "body": "On 9 November, an ego-exo dataset of improvised tool use offered synchronised egocentric and exocentric views with hand and tool annotations. On 11 November, SPAR used action-free egocentric video as a future-prediction signal, DexSeed expanded human hand-object sequences into executable rollouts for a dexterous VLA, and the Ego2Robot survey organized the field into four paradigms. As in week 45, the question is which human signal (grasp, intent, contact) transfers to the robot, not the volume of footage.",
+      "paper_ids": ["2611.09036", "2611.13685", "2611.14092", "2611.13610"]
+    }
+  ],
+  "top_papers": [
+    {"id": "2611.13160", "why": "A training-free retrieval baseline at 91.7% on LIBERO is a sanity check every VLA comparison should now include."},
+    {"id": "2611.09892", "why": "The strongest claim this week that a general model driving the arm can beat specialist VLAs zero-shot, with 104 of 108 real-world trials; it changes what to try first."},
+    {"id": "2611.14247", "why": "A live 66-participant humanoid study with an affect model that keeps learning during interaction, directly on the team's HRI objective."},
+    {"id": "2611.13213", "why": "A child-centric social-interaction benchmark that spans cultural contexts and developmental stages and pinpoints where VLMs fail."},
+    {"id": "2611.08914", "why": "Scores prohibited interventions as failures for home agents and shows over-action is the dominant failure, a test any home robot should adopt."},
+    {"id": "2611.14488", "why": "Shows clock-indexed memory treats pauses as progress, a bug that will surface in any interaction with interruptions, with a cheap event-indexed fix."},
+    {"id": "2611.14115", "why": "A gate harness and closed-loop risk benchmark that can be added around an existing foundation-model controller."},
+    {"id": "2611.09708", "why": "Per-user haptic perception models for teleoperation and remote touch, a building block for interfaces that adapt to the person."}
+  ],
+  "next_week": [
+    "Run a nearest-neighbour retrieval baseline on the team's own demonstration set before the next VLA comparison.",
+    "Add prohibited-action counts and a null-pause test to the home-task evaluation suite.",
+    "Pilot per-user calibration (affect or haptic) with participants from at least two age groups before assuming a single global model."
+  ]
+}
