@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-18",
+  "headline": "Today's most useful papers measure what actually limits a deployed robot (the demo-collection rig, motor heat, the decision a world model drives, the stage where a VLA fails) instead of the proxy metric the field usually reports.",
+  "thesis": "Many of today's papers make the same move: they stop trusting the usual proxy and measure what actually limits deployment. On data, a study drawing on hundreds of thousands of hours shows that teleoperation latency, calibration and operator detours end up in the learned policy. Fast kinesthetic demos and a USD 557 hand-worn rig show that the collection interface sets the policy's ceiling. On world models, an independent audit and a decision-certificate method both show that one-step accuracy and visual plausibility do not predict whether a policy or plan built on the model works. VLA work is moving from one success rate to locating failures in a stage, a workspace region or a visual input. Legged deployments find that motor heat, not battery, ends sustained operation. For a team building robots that interact with people, the human-facing papers point the same way: graded risk around people, listening as well as looking in group conversation, and securing the configuration layer of LLM-driven social robots.",
+  "clusters": [
+    {
+      "title": "The demonstration-collection rig, not the policy architecture, is setting the ceiling on policy speed and quality",
+      "why": "Teams usually treat demonstrations as a fixed input and iterate on the policy. A study drawing on hundreds of thousands of hours of real-robot data shows that collection artifacts carry straight into the policy: policies keep about 90% of operator detour length, and inference-time miscalibration fails all 30 trials. ALOHA Lightning reaches near-human speed only after switching to kinesthetic teaching on a backdrivable arm, HandUMI shows the number of robot-free demos decides whether ACT succeeds at all, and HubEgo-100K builds for environment diversity rather than demo count. A controlled MetaWorld study adds that much of an apparent human-data recipe gain is reproduced by a random subset of the same size. Before scaling collection, audit workspace coverage, control latency, calibration alignment and operator motion quality.",
+      "paper_ids": ["2611.22388", "2611.21919", "2611.22146", "2611.21938", "2611.22302"],
+      "confidence": "high"
+    },
+    {
+      "title": "World models are being judged by the decisions they support, and one-step accuracy or visual plausibility turns out to be a poor proxy",
+      "why": "Learned simulators and video world models are usually validated by next-step error or perceptual quality. An audit of the Robotic World Model for ANYmal D finds all 18 fine-tuned copies predicted better than the released model yet 13 produced failing policies. CURE shows plausible videos can lead to high-regret plans and certifies decisions instead. EyeHeight finds six open video world models drift a 0.15 m floor camera toward human eye height, enough to shift navigation policy paths. JointGV shows a relational correction turns rollouts that trained no successful actor into 46 of 50 episodes. Evaluate a world model by closed-loop policy or plan outcome before trusting it for training or evaluation.",
+      "paper_ids": ["2611.23118", "2611.22561", "2611.21782", "2611.22543", "2611.22001"],
+      "confidence": "high"
+    },
+    {
+      "title": "VLA failures are being localized to a stage, a workspace region or a visual input instead of reported as one success rate",
+      "why": "VLA papers usually report aggregate success, which hides whether a failure came from misreading the instruction, a bad motion, or the scene. CoBoVLA's discrete-code split shows success of 91% when the instruction is encoded correctly versus 27.2% otherwise, InteractVLA exposes action chunks and camera reprojections so an agent can steer a failing call, VoxelSBFL builds workspace suspiciousness maps from 96,000 trajectories, and FailureGen synthesizes failure videos to train detectors. A team running VLAs should log enough (instruction encoding, TCP trajectories, failure intervals) to attribute each failure to a stage or region.",
+      "paper_ids": ["2611.22395", "2611.22584", "2611.22453", "2611.22367"],
+      "confidence": "high"
+    },
+    {
+      "title": "Motor heat, not battery or policy skill, is the binding limit on sustained legged operation",
+      "why": "Locomotion work optimizes speed and robustness while hardware endurance is assumed to be a battery question. On a Go2, a learned baseline with a 5 kg payload hits thermal shutdown after 19 minutes while a thermally aware policy runs 174 minutes until the battery is empty. A G1 racing team reports that thermal margin set the pace in every event and used torque penalties, heat plates and temperature-based speed limits. Teams planning long deployments should model per-joint heat and put it into the training reward, not only add a temperature cutoff.",
+      "paper_ids": ["2611.22231", "2611.22445"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Robots working near or on people are moving from binary keep-out zones to graded, human-specific safety responses",
+      "why": "Robot safety near people is usually a binary obstacle or a fixed force limit. ALERT adds human perception and proactive avoidance to pretrained humanoid motion trackers without breaking reference tracking. CRA scores each person or object on kinetic, potential, contact-severity and thermal risk, for example a person carrying something hot, and feeds a continuous safety filter. A haptic-probing controller first classifies whether tissue is muscle or bone-backed and then sets the admissible contact pressure on three human subjects. For HRI teams, the person's state and what they carry should change the safety margin, though two of these are sim-only or small-sample.",
+      "paper_ids": ["2611.22258", "2611.22080", "2611.22195"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Social perception in group interaction improves when the robot listens as well as looks",
+      "why": "Gaze and attention estimation for robots is mostly treated as a geometry problem from the camera. Nunchi adds who is speaking and what is said, beats the strongest prior method by 4.8 points on a multi-party benchmark, and finds that extra visual cues do not help while conversational cues do. An event-camera lip-region tracker gives stable mouth localization for HRI in poor light, and GGR shows human gaze is more useful as a prior for where to look than as a sequence to imitate. Robots in group settings, such as families or classrooms, should fuse speaker and transcript signals into attention estimation.",
+      "paper_ids": ["2611.23115", "2611.23111", "2611.23209"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "Fix the data rig before buying more data. The Maniformer study's numbers (43-53% faster task completion with parallel body-part control, active-search demos taking arm selection from 50% to 100%, around 90% of detour length kept by the policy) and HandUMI's 0/20 at 101 demos versus 12/20 at 562 both say that interface and coverage decide results. Measure operator latency, calibration drift and effective workspace on your teleop setup this week, and keep a calibration-matched subset of every dataset.",
+    "Stop accepting a world model on its prediction loss. The RWM audit (30% pruning keeps 90% of skill one step ahead but 39% at 2 s, ensemble uncertainty covering 4.6% of outcomes at one sigma) and CURE (regret 0.06 on trusted decisions versus 0.38 on others) both say the check must be the downstream decision. If you use a world model for policy evaluation, validate it by ranking known-good and known-bad policies, and for low-mounted cameras check that it keeps camera height.",
+    "VLMs used as robot perception lose detail and depth before reasoning starts. CueClash finds frontier models answer 3-D relations from the picture plane (an 18 to 37 point shortcut gap), and the zoom study finds service-side downscaling shrinks small objects to a few pixels, while tiling raises accuracy by 11.1 to 14.5 points for Claude and Gemini. Pass ground-plane coordinates or crops to a VLM planner rather than a full-resolution frame, and treat an unsure reply as a trigger to zoom.",
+    "LLM-driven social robots need ordinary network security before prompt-injection hardening. On a Reachy Mini Lite, eleven prompt-injection attempts were reported as resisted, but an unauthenticated management interface let an attacker replace the system prompt and personality, and 10 of 11 source-verifiable apps lacked authentication. Bind configuration endpoints to localhost and require authentication on any robot that talks to children or the public."
+  ],
+  "must_read": [
+    {
+      "id": "2611.22388",
+      "why": "It is the most concrete guide today to why real-robot data underperforms, from a team with a very large collection operation, and it maps directly to how a ROS 2 teleop stack is set up.",
+      "key_idea": "Treat the collection system (embodiment workspace, teleop control scheme, calibration, observation completeness) as a variable that shapes the policy, and measure each one before scaling collection.",
+      "evidence": "Kinematic study of 25 dual-arm robots, controlled teleop experiments and fine-tuned pi0.5 evaluations: parallel body-part control cuts completion time 43-53%, compliant control improves success and reduces peak contact forces, active-search demos raise arm selection from 50% to 100%, inference-time miscalibration fails all 30 trials, and policies retain about 90% of detour path length.",
+      "caveat": "Results come from one team's dual-arm platforms and pi0.5 fine-tuning; mixed-calibration training is only shown usable 'in our tested configurations', and the abstract does not say how many tasks underlie each finding."
+    },
+    {
+      "id": "2611.22231",
+      "why": "Any team running quadrupeds or humanoids for long shifts will hit this limit, and the fix is a reward term, not new hardware.",
+      "key_idea": "Fit a lumped RC thermal model of the motors, then reward lowering the predicted steady-state temperature of the hottest motor, which responds within a gait cycle even though real temperatures change over minutes, so the policy needs no temperature input.",
+      "evidence": "On a Unitree Go2, the 13-node thermal network predicts all twelve motor temperatures with mean RMSE below 1 degree C across robots, gaits, payloads and speeds. With 5 kg at 1 m/s the baseline shuts down after 19 minutes (1.1 km) while the policy runs 174 minutes (10.0 km) until the battery is empty; on a factory circuit it completes 47 laps versus 25.",
+      "caveat": "Shown on one quadruped model in a 26 degree C room; the abstract does not report the cost in speed tracking or agility, or whether the thermal fit transfers to humanoids with different actuators."
+    },
+    {
+      "id": "2611.23118",
+      "why": "If you train or evaluate locomotion policies in a learned simulator, this audit shows the checks you probably rely on can mislead you.",
+      "key_idea": "Audit a learned simulator end to end on the decisions it supports (multi-step rollouts, uncertainty calibration and the policies trained inside it) rather than one-step prediction error.",
+      "evidence": "Rebuilt RWM for ANYmal D and measured 101 trained simulators: pruning 30% of weights keeps 90% of skill one step ahead but 39% at 2 s; ensemble disagreement ranks error well (Spearman +0.90) yet covers 4.6% of outcomes at one sigma; 13 of 18 better-predicting fine-tuned copies gave failing policies.",
+      "caveat": "The author states the scope: one robot, one gait, simulated data checked in a hand-built MuJoCo model, no hardware; the registered tests of which check ranks simulators by policy quality were not settled."
+    },
+    {
+      "id": "2611.22395",
+      "why": "It shows that a small VLA with explicit stages can be both more robust to how people phrase requests and easier to debug, which matters for robots taking instructions from varied users.",
+      "key_idea": "Split the VLA into a text encoder producing discrete step codes, a visual planner producing action codes, and a language-independent actor, so paraphrase robustness improves and each failure can be traced to a stage.",
+      "evidence": "250M parameters, 17 ms per control step; 91.4% on LIBERO-Goal versus 82.8% for SmolVLA under a matched protocol; 81.1% on 4,092 unseen LIBERO-Para paraphrases versus 36.5% for paraphrase-tuned SmolVLA; 91% success when instructions are encoded correctly versus 27.2% otherwise.",
+      "caveat": "All results are on LIBERO simulation suites; no real-robot test is reported, and paraphrase robustness is measured on LIBERO-Para wording, not on spoken or multilingual requests."
+    },
+    {
+      "id": "2611.23115",
+      "why": "Knowing who a person is attending to in a group conversation is a core HRI skill, and this paper shows speech cues are where the remaining gain is.",
+      "key_idea": "Turn gaze-model output, speaker detection and the transcript into one prompt with shared person labels, and let a VLM weigh gaze geometry against conversational cues to pick the attended person.",
+      "evidence": "New SORBET benchmark with 3,340 samples from 1,578 clips with synchronized speech, transcripts and attended-person labels; Nunchi beats the strongest existing method by 4.8 percentage points, gains hold across three VLMs, with automatic transcripts and on two existing datasets, and extra visual cues do not help.",
+      "caveat": "Evaluated on recorded clips rather than a robot in the conversation; the abstract does not report latency, and it is unclear how well the approach handles languages or cultures not in the clips."
+    }
+  ],
+  "summaries": {
+    "2611.22388": {
+      "problem": "Scaled real-robot data collection introduces pauses, detours and calibration errors that nobody measures before training.",
+      "method": "Combines a kinematic study of 25 dual-arm robots, controlled teleoperation experiments and pi0.5 fine-tuning to trace how collection-system choices show up in policy behavior.",
+      "why": "Gives a checklist (workspace, control latency, calibration, observation completeness, motion quality) to audit before spending on more demonstrations."
+    },
+    "2611.21919": {
+      "problem": "Imitation-learned manipulation runs far slower than humans because demos are slow and fast execution is unstable.",
+      "method": "Collects near-human-speed demos by kinesthetic teaching on a backdrivable bimanual arm, then uses test-time action smoothing and visual masking to align collection and deployment.",
+      "why": "With 50 demos per task it reports over 80% success near human speed on tasks like folding and bussing, so slow policies may be a data-interface problem."
+    },
+    "2611.22146": {
+      "problem": "Robot-free bimanual data capture rigs are costly or tied to one robot.",
+      "method": "A hand-worn parallel-jaw rig with swappable fingertips, VR-controller tracking and aperture encoders, retargeted by IK to seven bimanual arms.",
+      "why": "An open-source rig costing USD 557 per pair trained ACT to 12/20 on real towel folding, with 0/20 at 101 demos, showing how much demo count matters."
+    },
+    "2611.21938": {
+      "problem": "Imitation policies generalize poorly because training data covers few environments, and existing egocentric video shows little skilled work.",
+      "method": "Releases 10,124 hours of 1080p egocentric video with 100 Hz IMU from 12,227 contributors across 15,548 environments, 83% in workplaces, in LeRobot and MCAP formats under CC BY 4.0.",
+      "why": "A large, licensed, diversity-first human dataset to pretrain on, though benchmarks showing policy gains are deferred to later versions."
+    },
+    "2611.22302": {
+      "problem": "Gains credited to a human-data recipe may come from subset size, seed variance or downstream adaptation.",
+      "method": "A controlled HPT study on 20 MetaWorld tasks comparing task-informed and random equal-size subsets with seed-level reporting and targeted interventions.",
+      "why": "A random 5,000-recording subset matched most of the curated subset's gain, so check data-curation claims against equal-size random controls."
+    },
+    "2611.21908": {
+      "problem": "Human videos are cheap bimanual dexterous data, but noisy motion estimates and embodiment gaps block direct transfer.",
+      "method": "Uses object-motion confidence to balance object-level and wrist-level priors from video, refines them with RL in simulation, and rolls out the policies to train a diffusion policy.",
+      "why": "A route from human video to dexterous robot demos on tasks like pouring and cap unscrewing, though the abstract reports no numbers."
+    },
+    "2611.23118": {
+      "problem": "Learned simulators for legged robots are trained and checked one step ahead but used for hundreds of steps.",
+      "method": "Independently rebuilds and audits the Robotic World Model for ANYmal D across 101 simulators, compressed copies and policies trained inside them, with registered tests and nine withdrawn claims reported.",
+      "why": "Shows one-step accuracy and ensemble uncertainty can mislead model selection, so validate learned simulators by the policies they produce."
+    },
+    "2611.22561": {
+      "problem": "Action-conditioned world models can produce realistic videos yet lead a planner to poor decisions.",
+      "method": "CURE certifies whether a planning decision is trustworthy based on data support, then chooses to upweight data, roll out more samples, or collect new data.",
+      "why": "Trusted decisions had regret around 0.06 versus 0.38 for untrusted ones, while video quality did not identify good decisions; a usable check before acting on a world model."
+    },
+    "2611.21782": {
+      "problem": "Video world models used as simulators may not preserve the camera height of the robot they simulate.",
+      "method": "EyeHeight benchmark with rendered and real camera heights from 0.15 m to 2.2 m, tested on six open-weight interactive world models during turn-and-walk rollouts.",
+      "why": "Floor-level views drift toward 1.1-1.5 m human eye height and shift predicted navigation paths, a real risk for teams simulating small mobile robots."
+    },
+    "2611.22543": {
+      "problem": "Visual world models drift in object poses and relations over long rollouts.",
+      "method": "Runs a task-conditioned scene graph alongside the visual model and adds a bounded residual correction from coupled graph and visual changes, without altering the original dynamics.",
+      "why": "On real inverted-pendulum sequences it roughly halves 32-step angle error, and in simulated control an actor trained on corrected rollouts completes 46 of 50 episodes versus none."
+    },
+    "2611.22001": {
+      "problem": "Robot world models either fit one environment or cannot simulate long contact-rich interaction.",
+      "method": "Trains a world model from scratch on a large robot-native teleoperation dataset with no internet-video pretraining, running at 10 FPS on a commercial GPU.",
+      "why": "Suggests robot-native data can beat larger video models on contact and causality, and is shown for policy evaluation and co-training."
+    },
+    "2611.22395": {
+      "problem": "VLAs drop sharply on paraphrased instructions and their failures cannot be traced to language or control.",
+      "method": "A 250M VLA that maps instructions to discrete step codes, then to action codes, then to a language-independent actor.",
+      "why": "Paraphrase robustness and stage-level failure attribution matter for robots taking requests from many different people."
+    },
+    "2611.22584": {
+      "problem": "Agentic systems treat pretrained VLAs as opaque primitives and can only retry when they fail.",
+      "method": "Adds a two-way geometric interface: an agent steers the flow VLA toward an end-effector target via input gradients, and reads back action chunks and camera reprojections to diagnose errors.",
+      "why": "Makes a VLA call inspectable and correctable by a planner, with reported 99.4% on LIBERO-Plus and 89.4% on RoboCasa365."
+    },
+    "2611.22453": {
+      "problem": "Recorded VLA test trajectories are rarely used to predict whether a new execution will fail.",
+      "method": "Adapts spectrum-based fault localization so workspace voxels replace code lines, building failure suspiciousness maps from TCP trajectories and outcomes.",
+      "why": "A black-box runtime check (macro ROC-AUC 0.704 over 96,000 simulated pick-ups across four VLAs) that flags risky regions without model internals."
+    },
+    "2611.22367": {
+      "problem": "Robot failures are rare and hard to collect, so failure detectors lack training data.",
+      "method": "Fine-tunes an action-conditioned Cosmos world model and transplants motion from recorded failures into successful episodes to generate annotated failure videos.",
+      "why": "In a preliminary test, adding generated data raised detector AP from 0.41 to 0.51 and caught 33 of 36 failure intervals versus 28."
+    },
+    "2611.22736": {
+      "problem": "VLA robustness to persistent physical visual changes in the workspace is untested.",
+      "method": "Optimizes one adversarial tablecloth texture on a source VLA and tests it zero-shot on other tasks and models in LIBERO.",
+      "why": "One cloth cut pi0 and pi0.5 success by 62.50 and 43.75 points versus a plain cloth, with wrist views driving most of the drop, so table surfaces belong in VLA robustness tests."
+    },
+    "2611.22231": {
+      "problem": "Sustained legged locomotion ends in motor thermal shutdown long before the battery is empty.",
+      "method": "Fits a lumped RC thermal model and trains with a reward on the predicted steady-state temperature of the hottest motor, with no temperature input.",
+      "why": "Turned a 19-minute loaded run into 174 minutes on a Go2, which changes what long patrols or demos are feasible."
+    },
+    "2611.22445": {
+      "problem": "Few reports describe a complete autonomous humanoid running system under real race conditions.",
+      "method": "A Unitree G1 stack with stabilized head-camera lane perception, IMU-assisted leg odometry, an RL running policy with human motion prior, and thermal management.",
+      "why": "A field report where thermal margin set the pace in every event and a lane-detection error caused the one fall, useful for anyone deploying a G1."
+    },
+    "2611.22258": {
+      "problem": "Humanoid whole-body motion trackers have no awareness of nearby people.",
+      "method": "A lightweight adaptation that adds human perception and proactive avoidance to pretrained tracking policies while preserving reference motion.",
+      "why": "A path to running dance, demo or teleop motions around people without retraining the tracker, shown in sim and real."
+    },
+    "2611.22080": {
+      "problem": "Safety filters treat obstacles and people as binary safe or unsafe regions.",
+      "method": "Estimates kinetic, potential, contact-severity and thermal risk per object or person from RGB and LiDAR and feeds a continuous score into a Poisson safety function.",
+      "why": "Lets a service robot keep more distance from someone carrying a hot or heavy item, though only shown in a simulated restaurant."
+    },
+    "2611.22195": {
+      "problem": "Force control on soft tissue fails where the underlying muscle or bone changes, because the estimate lags the change.",
+      "method": "A brief low-amplitude haptic probe classifies the tissue regime first, then a pressure-distribution law and passivity budget set the contact area the hand must recruit.",
+      "why": "Relevant to massage, care or assistive robots touching people; tested on three human subjects."
+    },
+    "2611.22761": {
+      "problem": "LLM-controlled social robots expose configuration interfaces that bypass model-level safety.",
+      "method": "Demonstrates unauthenticated system-prompt and personality replacement on a Reachy Mini Lite and reviews 59 public repositories for the same weakness.",
+      "why": "Prompt-injection resistance does not protect a social robot whose configuration endpoint is open to the network."
+    },
+    "2611.23115": {
+      "problem": "Gaze geometry alone cannot tell whom a person is looking at when several people are present.",
+      "method": "Feeds gaze-model output, speaker detection and transcript into a VLM prompt with shared person labels and introduces the SORBET benchmark.",
+      "why": "Speech cues add 4.8 points over the best prior method, so robots in group conversations should use audio for attention estimation."
+    },
+    "2611.23111": {
+      "problem": "Event-based lip reading and speech analysis need a mouth region, but no event method supplies one densely.",
+      "method": "A two-pathway continuous-time recurrent network predicts a lip heatmap from the full event frame.",
+      "why": "Stable lip localization (2.1 target switches per second versus 8.9-11.0) in poor light helps robots track who is speaking."
+    },
+    "2611.23209": {
+      "problem": "VLM visual reasoning does not explore images the way people do, and raw gaze sequences are noisy supervision.",
+      "method": "Collects 7,109 human gaze trials and trains grounded reasoners using gaze as a prior rather than a sequence to imitate.",
+      "why": "Suggests human attention data can make robot VLM perception more human-like without full imitation."
+    },
+    "2611.22180": {
+      "problem": "It is unclear whether VLMs judge 3-D relations from the scene layout or from 2-D picture cues.",
+      "method": "Rendered scenes where the 2-D cue is wrong on half the statements, tested on frontier VLMs, plus top-down maps the models draw.",
+      "why": "Frontier models answer correctly from ground coordinates but rely on picture-plane shortcuts otherwise, so give VLM planners metric layout, not just images."
+    },
+    "2611.22709": {
+      "problem": "API VLMs silently downscale or reject large images, losing small details.",
+      "method": "Measures readable detail size for seven models with an eye-exam test and 601 small-object questions, and compares tiling and a two-step zoom.",
+      "why": "Gives concrete zoom rules, including tiling only after an unsure reply, for robot pipelines that send high-resolution frames to cloud VLMs."
+    },
+    "2611.22713": {
+      "problem": "Whole-body loco-manipulation policies rely on billions of parameters and task-specific fine-tuning.",
+      "method": "Places joint and link tokens on the robot's kinematic tree and lets each body part query its own visual evidence before denoising actions.",
+      "why": "Matches the Psi0 humanoid foundation model on nine simulated G1 tasks with 75x fewer parameters, and runs on a real G1 and Fetch."
+    },
+    "2611.22275": {
+      "problem": "Multi-humanoid collaboration needs whole-body coordination and synchronization without central control.",
+      "method": "Multi-agent post-training of a humanoid tracking model plus a vision-language planner with speech-based leader-follower coordination and no network link.",
+      "why": "Trained with two robots and scaling to ten, speech-based coordination is a pattern people can also follow and observe."
+    },
+    "2611.23070": {
+      "problem": "Embodied AI simulators model appliances as physical objects only, ignoring smart-home APIs.",
+      "method": "A Matter-protocol smart-home simulator with 84 device assets, a 40-task benchmark from 1,443 user requests, and 340 demonstrations.",
+      "why": "Two fine-tuned VLAs completed none of 120 episodes, and over 90% of failures stalled at navigation, grasping or doors, a reality check for home robots."
+    },
+    "2611.22356": {
+      "problem": "VLA control stalls while inference computes the next action chunk.",
+      "method": "Predicts the next observation and state, precomputes a speculative KV cache and chunk, and repairs only mismatched cache entries when real inputs arrive.",
+      "why": "Reports 2.67x query speedup over synchronous pi0.5 on LIBERO with comparable success, useful for smoother real-robot execution."
+    },
+    "2611.22609": {
+      "problem": "Generative policies can produce chunks that stall or undo earlier task progress.",
+      "method": "Refines flow-matching action chunks at inference with parallel physics rollouts and CMA-ES search so each chunk satisfies a task-progress funnel.",
+      "why": "Raised PushT success from 31.3% to 88.5% while keeping most motion in distribution, a way to add progress guarantees to existing policies."
+    },
+    "2611.22954": {
+      "problem": "CBF safety filters need model derivatives that simulators and learned models do not provide reliably.",
+      "method": "Solves the CBF safety filter with finite differences over forward-model rollouts and an implicit barrier built from backup-policy rollouts.",
+      "why": "Lets teams use a physics simulator or learned world model as the safety model, shown on hardware box-toppling."
+    },
+    "2611.22407": {
+      "problem": "Runtime monitors for ROS 2 cover topics and services but not the action lifecycle.",
+      "method": "Extends ROSMonitoring to reconstruct ROS 2 action goals, feedback, results and cancellations and enforce properties by rejecting, cancelling or suppressing.",
+      "why": "Directly usable runtime verification for Nav2-style action servers, with overhead characterized for the current synchronous implementation."
+    },
+    "2611.22403": {
+      "problem": "Behavior trees in safety-critical robots are rarely formally verified.",
+      "method": "A toolbox with a BT DSL, LTL and CTL specifications, nuXmv encoding, and generated Python code integrated with PyTrees and ROS.",
+      "why": "An open-source way to model-check the behavior trees already common in ROS 2 stacks."
+    },
+    "2611.22850": {
+      "problem": "Lidar-inertial odometry rarely bounds memory or reports its compute footprint on embedded hardware.",
+      "method": "A fixed-capacity multiresolution NDT map with relevance-based eviction and an equivariant filter, with CUDA, Vulkan and Metal backends.",
+      "why": "Processes a 128-beam lidar at 10 Hz on a Jetson Orin NX with bounded memory, which suits long-running mobile robots."
+    },
+    "2611.22767": {
+      "problem": "Passive back exoskeletons cannot modulate assistance, and building active ones from scratch is slow.",
+      "method": "Retrofits a commercial passive exoskeleton with off-the-shelf actuators, IMUs and a load cell for pose-based assistance.",
+      "why": "With nine participants it reduced resistance when bending, increased assistance when lifting, and got higher usability scores, a quick prototyping route for wearables."
+    },
+    "2611.23102": {
+      "problem": "Model-based quadruped controllers step on fixed cyclic gaits regardless of where safe footholds are.",
+      "method": "An RL step planner over at most 65 discrete choices on top of convex MPC, with no gait schedule, transferred to OCS2 via an inverse footstep model.",
+      "why": "In simulation it succeeded on 85.1% of void-heavy terrain trials versus 67.8% for OCS2 trotting, without retraining the policy for the new controller."
+    }
+  }
+}
