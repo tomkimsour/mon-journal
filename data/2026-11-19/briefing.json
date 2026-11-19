@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-19",
+  "headline": "Several of today's papers show that a robot policy has memorized or only skimmed what looked like competence (camera placement, word meaning, task success). The fixes come from the robot's own kinematics, its own rollouts and progress monitoring, not from more demonstrations.",
+  "thesis": "A thread runs through today's listing: what a deployed policy appears to understand is often memorized or surface-level. VLAs fine-tuned on a few demos have memorized the camera-to-base extrinsics, and two independent papers undo a bumped camera by using the arm itself, placed by forward kinematics, as the calibration target. A VLA sends synonyms to the right bowl but fails to finish the task. A VLM judge passes children's illustrations that people flag as culturally wrong. VLM agents state 90% confidence while being right 38.9% of the time. The constructive answers share a pattern. Post-training steers a policy's initial noise or relabels its own rollouts instead of collecting more expert demos. Long-horizon reliability comes from a monitor that tracks progress around a frozen short-horizon VLA. Touch helps once it is placed in the robot frame and gated, not fused raw. For a team building robots for people of many ages and cultures, the human-facing studies add a warning: task success saturates early, and workload, acceptability and response timing are what separate designs.",
+  "clusters": [
+    {
+      "title": "The robot's own kinematics is becoming free ground truth for undoing deployment shifts that policies silently memorize",
+      "why": "Few-shot VLA fine-tuning assumes the camera and base stay where they were during data collection. When that breaks, the usual fixes are recalibrating or collecting more varied demos. WACO and Homeward both use the arm, placed by forward kinematics, as a known object in the image. WACO uses it to estimate the camera and base shift, and Homeward uses it to re-render a moved camera back to the training view. Homeward finds that an off-the-shelf 3D foundation model can do worse than no correction at all because it tears the thin arm apart. DOCK uses forward kinematics on a grasped object as an annotation-free displacement signal, Doppel conditions a video world model on rendered body poses, and a frozen world model run in reverse finds a base-joint offset that no encoder registered. Before you collect more data after a camera or base moves, try canonicalizing the observation using the arm state you already have.",
+      "paper_ids": ["2611.24455", "2611.24360", "2611.23578", "2611.23620", "2611.24925"],
+      "confidence": "high"
+    },
+    {
+      "title": "Fluent VLA and VLM outputs overstate grounding: rewording, cultural context and stated confidence break in ways a success rate hides",
+      "why": "Language-capable models are usually evaluated by aggregate success or answer accuracy. GR00T N1.7 sends unseen landmark synonyms to the right bowl but completes only 67.6% of one task's episodes against 100% for the original word, and an open-loop score misses part of the repair. Counterfactual reasoning in driving VLMs makes actions more conservative without changing visual grounding. VLM judges handle explicit compliance and safety criteria in Indonesian children's books but miss content that human raters flag as culturally inappropriate. VLM agents reading CT scans keep their first hypothesis in 63.1% of runs and state a median 90% confidence while being right 38.9% of the time. A VLM safety monitor on PAL Robotics, HuRoN and CrowdBot data has no single best configuration: the right one depends on whether accuracy, calibrated confidence or early warning matters most. Robots that talk with people of different ages and backgrounds will hear paraphrases and culturally loaded requests, so test those in closed loop and keep humans in the loop for cultural judgement.",
+      "paper_ids": ["2611.24076", "2611.24376", "2611.23887", "2611.23480", "2611.24146"],
+      "confidence": "high"
+    },
+    {
+      "title": "Touch improves VLAs when it is spatially grounded and gated, not when it is fused raw into the policy input",
+      "why": "The default way to add touch to a VLA has been to append tactile features to the visual input. CoRA-VTLA reports that direct fusion disperses the action expert's visual attention and gets 50% against 73.33% with contact-guided attention and a memory of recent contact responses. 3DTouch places every taxel's position and force vector in the robot-base frame and gains 42 points over its VLA baseline on five real dexterous tasks. TacPilot uses separate gates to decide when tactile features need refreshing and when a residual should change the action. On the hardware side, LuxTac shows that per-taxel shear sensing can be built 3.5 mm thick from off-the-shelf parts, and SPICE shows that touch alone can guide reaching through occluding foliage. If you add touch to a manipulation stack, register it spatially and gate its influence rather than concatenating it.",
+      "paper_ids": ["2611.23963", "2611.23961", "2611.23804", "2611.23575", "2611.23585"],
+      "confidence": "high"
+    },
+    {
+      "title": "Post-training is moving onto the policy's own samples: steer its noise, relabel its rollouts, distill on its own trajectories",
+      "why": "Improving a pretrained generative policy usually means more expert demonstrations or reward-driven RL on the weights. LoRN steers only the initial video noise of world-action models and gains 26.2 points against 7.1 for action-noise steering, and the steering actors transfer from sim to three real bimanual tasks. A pi0.5 study finds that the best SFT checkpoint is rarely the most steerable one, and that LoRA is the least steerable recipe. SeRA relabels autonomous rollouts with later checkpoints and doubles real tomato-picking success to 80%. AeroRSI lets a failing aerial policy verify its own repairs by flying on from them. HINT-WAM and a driving takeover method both turn the policy's own trajectories into dense targets. Keep your deployment rollouts and intervention logs: they are becoming training data, and they are cheaper than new teleoperation.",
+      "paper_ids": ["2611.23628", "2611.23676", "2611.24273", "2611.24077", "2611.24789", "2611.23719"],
+      "confidence": "high"
+    },
+    {
+      "title": "Long-horizon VLA reliability is coming from progress monitoring around a frozen short-horizon policy, not from a larger policy",
+      "why": "The default answer to long-horizon failure has been training VLAs to handle memory, planning and recovery end to end. RePlan-VLA leaves the VLA untouched, monitors motion for progress and revises the plan, gaining 21.9% on RoboCasa365. GTI localizes the active subtask phase, conditions on phase-specific visual targets and rolls back on persistent deviation, raising real-robot full-task success from 21.7% to 59.2%. Grana estimates subtask progress from open-vocabulary descriptions as a reusable reward, and DUAC reads action uncertainty from a single flow-matching chunk to decide how far to execute before re-querying. If a VLA works on short tasks but fails on chains of them, build a progress monitor and recovery layer before fine-tuning further.",
+      "paper_ids": ["2611.23843", "2611.23926", "2611.24926", "2611.24178"],
+      "confidence": "medium"
+    },
+    {
+      "title": "In human-facing robot systems, task success saturates early, while workload, acceptability and response timing separate the designs",
+      "why": "Interfaces and expressive behaviours are often judged by whether the task got done. In a 17-person quadruped telepresence study, targets captured stayed near ceiling in every condition, but head-guided camera control lowered workload and wall contact and raised presence and acceptance. In remote endovascular navigation, 87.5% of attempts succeeded at 5% packet loss, yet all eight clinicians rated that condition unacceptable, and perceived video quality tracked their confidence and acceptability. Emo-H2A shows that a robot face driven token by token from the LLM's hidden states starts moving in 0.96 s instead of waiting 10 to 26 s for a turn-level emotion label. For HRI work, report the person's workload, acceptance and the robot's response latency alongside success, because those are the measures that still differ between designs.",
+      "paper_ids": ["2611.23939", "2611.24280", "2611.23932"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "A bumped camera or re-docked base is a calibration problem the robot can often solve itself. Homeward lifts pi0.5 from 76.5% to 95.1% across 1,599 LIBERO-Plus camera variants without retraining the policy, and WACO closes 87% of the real-robot gap on a UR5e from one RGB-D frame. A separate paper shows LiDAR elevation biases can hide inside extrinsics that look correct. Add a camera-perturbation test to VLA acceptance checks. Before collecting new data, try rendering the known arm into a canonical view.",
+    "For robots meant to serve people of different ages and cultures, the riskiest gap is not misunderstanding a word. It is understanding it well enough to pick the right object and then failing to finish. The GR00T synonym study separates choice from completion and shows that the repair sits mostly in the connector between the VLM and the action generator. Build a paraphrase set from how your actual users talk (children, older adults, non-native speakers), score choice and completion separately in closed loop, and do not use a VLM as the only judge of cultural appropriateness.",
+    "Measure the quantity the controller needs instead of reconstructing it. A radar CBF that uses Doppler range rate directly has 2 buffer incursions in 508 encounters, against 15 and 25 for Kalman-filter range-rate estimates. A matched QCar study finds that controller rankings (including Regulated Pure Pursuit) transfer from Gazebo to hardware but planner-dependent effects do not. If you tune Nav2 planner and controller pairs in simulation, check the pairing on hardware before you trust it.",
+    "Keep everything your deployed robot produces. Takeover logs, autonomous rollouts and failed episodes are now direct inputs to SeRA, AeroRSI, LoRN and fleet-driving post-training. The pi0.5 dexterous study adds a practical rule: when you plan to steer a policy afterward, do not pick the fine-tuning checkpoint by SFT rollout success."
+  ],
+  "must_read": [
+    {
+      "id": "2611.24455",
+      "why": "Any lab with third-person cameras on a VLA setup has hit this failure. This is a training-free fix tested on four frozen policies.",
+      "key_idea": "Canonicalize a moved camera back to the training view. Estimate the camera and static scene from the live frame plus one reference image, and render the robot links from the kinematic model instead of predicting their depth.",
+      "evidence": "About 300,000 closed-loop episodes across 1,599 LIBERO-Plus camera variants. Success rises from 76.5% to 95.1% for pi0.5, 68.0% to 91.2% for pi0, 62.5% to 77.6% for OpenVLA-OFT and 3.6% to 26.4% for OpenVLA. An off-the-shelf feed-forward 3D model can leave the policy worse than no correction.",
+      "caveat": "All reported numbers are in LIBERO-Plus simulation. The abstract gives no real-robot result, and lighting or clutter changes between the reference and live frames are not addressed."
+    },
+    {
+      "id": "2611.24076",
+      "why": "This is the clearest diagnosis so far of how a VLA fails on rewording, and it tells you where to intervene. That matters for robots that take instructions from varied speakers.",
+      "key_idea": "Score object choice and task completion separately, and patch token representations on both sides of the VLM-to-action connector to locate where word meaning gets lost.",
+      "evidence": "On GR00T N1.7 with two LIBERO-Spatial tasks, unseen synonyms pick the named bowl but complete 67.6% of one task's episodes against 100% for the original word. Fine-tuning only the connector on diversified landmark words repairs this, and an open-loop starting-frame score misses part of the repair.",
+      "caveat": "One model and two simulated tasks that differ by one landmark word. Whether this holds for longer instructions, other VLAs or real robots is untested."
+    },
+    {
+      "id": "2611.23939",
+      "why": "A controlled human study on a legged robot, measuring workload, presence and acceptance as well as task performance. These are the measures this team needs for teleoperated or shared-control interfaces.",
+      "key_idea": "Separate how the operator moves from how they look. Viewpoint control, not locomotion input, turns out to be the stronger lever on both performance and experience.",
+      "evidence": "Within-subject 2x2 study with 17 participants guiding a quadruped through a physical maze in VR. Head-guided camera control is associated with faster completion, less wall contact, lower workload and better presence, usability, acceptance and flow. Targets captured stay near ceiling and simulator sickness stays low in all conditions.",
+      "caveat": "17 participants, one maze task and one robot. The abstract does not describe participant age or background, so effects across age groups are unknown."
+    },
+    {
+      "id": "2611.24146",
+      "why": "It evaluates off-the-shelf VLMs as early-warning safety monitors on PAL Robotics data alongside two crowd and social navigation datasets. It is directly relevant to monitoring robots among people.",
+      "key_idea": "Treat safety monitoring as three-way classification (safe, potentially unsafe, unsafe) with uncertainty quantification. Compare video against odometry inputs and with or without temporal history, and judge both accuracy and how early the warning comes.",
+      "evidence": "Qwen, InternVL and LLaVA-OneVision on HuRoN, PAL Robotics and CrowdBot case studies. Qwen gives the strongest classification and prediction reliability. InternVL warns earlier in several configurations. The value of robot-state and history inputs depends on the model and the objective.",
+      "caveat": "The abstract reports no numbers, so the size of the gaps and the absolute early-warning lead time are unknown. These are general-purpose VLMs with no robot-specific tuning."
+    },
+    {
+      "id": "2611.23932",
+      "why": "Expressive faces that lag the conversation are a known HRI problem. This removes the turn-level emotion label and the delay that comes with it.",
+      "key_idea": "Read a valence-arousal-dominance coordinate from each LLM hidden state during decoding and map it straight to facial actuators, so the face follows the reply token by token.",
+      "evidence": "The readout is checked on six language models and drives a 29-DoF facial robot. The face shifts in the matching direction on 87.5% of within-reply valence transitions against near 50% for a single per-reply label, and first moves in 0.96 s against 10 to 26 s for the turn-level pipeline.",
+      "caveat": "Measures directional tracking and latency, not how people perceive the face. The abstract reports no user study, and cultural differences in reading facial expression are not addressed."
+    }
+  ],
+  "summaries": {
+    "2611.24455": {
+      "problem": "Frozen VLAs collapse when a third-person camera is moved, remounted or swapped after data collection.",
+      "method": "A training-free adapter estimates camera and static depth from the live frame and one training-view reference, and renders the robot from kinematics to reconstruct the training view.",
+      "why": "Gives a fix for camera bumps that needs no recalibration or new demos, tested on four policies."
+    },
+    "2611.24360": {
+      "problem": "Few-shot fine-tuned VLAs memorize the camera-to-base extrinsic and reach for the wrong place after a small camera or base shift.",
+      "method": "WACO uses the FK-placed arm as a metric calibration target and the static scene as a world anchor to canonicalize image, state and actions from one RGB-D frame.",
+      "why": "Raises shifted success by 36.7 points on a real UR5e without perturbed training data or test-time calibration."
+    },
+    "2611.23578": {
+      "problem": "Frozen DINO and V-JEPA feature distance barely tracks how far an object is from its goal, so latent planners optimize the wrong cost.",
+      "method": "DOCK learns object tokens whose changes match displacement measured by forward kinematics while the object is grasped, needing no annotation.",
+      "why": "Its planning cost places the object in 15 of 21 sim tasks, matching an oracle, which suggests frozen features should not be used directly as goal distances."
+    },
+    "2611.23620": {
+      "problem": "A frozen latent world model cannot tell when executed actions drift from commanded ones, so the planner keeps failing.",
+      "method": "Run the model in reverse to score hypothesized actuation shifts against what was observed, then estimate and compensate the shift.",
+      "why": "Found a base-joint offset no encoder registered and cut reach error from 36 mm to 3 to 5 mm on a real arm."
+    },
+    "2611.24925": {
+      "problem": "Video world models must learn both body motion and environment response from numeric actions, which does not transfer across embodiments.",
+      "method": "Doppel conditions a shared video model on camera-aligned renderings of future body poses, trained on about 600 hours across eight embodiments.",
+      "why": "Rendered kinematics gives one interface for arms, humanoids and human hands, which helps teams with mixed fleets."
+    },
+    "2611.24076": {
+      "problem": "Success rates cannot say whether a VLA fails on rewording by choosing the wrong object or by not finishing.",
+      "method": "Separates choice from completion on GR00T N1.7 and patches token vectors on both sides of the VLM-to-action connector.",
+      "why": "Shows synonyms pick the right bowl but finish less often, and that fine-tuning only the connector on varied wording repairs it."
+    },
+    "2611.24376": {
+      "problem": "Counterfactual reasoning in driving VLMs is assumed to add causal understanding.",
+      "method": "Tests action distributions, attention and causal-factor masking with and without counterfactual reasoning, including after reinforcement fine-tuning.",
+      "why": "Finds it mostly makes actions more conservative without changing visual grounding, a caution for robots that explain their decisions in language."
+    },
+    "2611.23887": {
+      "problem": "AI is entering children's publishing as judge and generator without evidence it meets developmental and cultural standards.",
+      "method": "Applies VLM judges against Indonesia's government Book Leveling Guideline on real and generated illustrations, cross-checked by human raters.",
+      "why": "VLMs handle explicit compliance and safety but miss culturally inappropriate content, which matters for any robot producing content for children."
+    },
+    "2611.23480": {
+      "problem": "It is unclear how VLM agents explore and decide when they must navigate a large visual record themselves.",
+      "method": "Six VLMs read 100 emergency CT and MRI exams under four navigation conditions, compared with nine radiologists.",
+      "why": "Agents anchor on early hypotheses and state a median 90% confidence while being right 38.9% of the time, so their stated confidence cannot be trusted as a safety signal."
+    },
+    "2611.24146": {
+      "problem": "Evidence that general VLMs can predict robot failures before they happen is thin.",
+      "method": "Evaluates Qwen, InternVL and LLaVA-OneVision on video and odometry from HuRoN, PAL Robotics and CrowdBot for three-level safety classification with uncertainty.",
+      "why": "Gives a starting configuration guide for VLM safety monitors on social robots, and shows the best choice depends on whether accuracy, calibration or early warning matters most."
+    },
+    "2611.23963": {
+      "problem": "A single tactile frame is ambiguous, and fusing touch directly into a VLA disperses its visual attention.",
+      "method": "Adds a queryable action-response memory and contact-guided gaze supervision as lightweight modules on a pretrained VLA.",
+      "why": "Reaches 73.33% against 50% for direct fusion with the same sensors, which is a concrete argument against naive tactile concatenation."
+    },
+    "2611.23961": {
+      "problem": "Finger occlusion hides contact geometry from vision in dexterous manipulation.",
+      "method": "Expresses RGB-D points and five-finger taxel forces in the robot-base frame, with hand-object relations, to condition the VLA action expert.",
+      "why": "Gains 42 points over the VLA baseline on five real UR7e plus XHand tasks."
+    },
+    "2611.23804": {
+      "problem": "Re-encoding all tactile input every step is wasteful, and not every tactile change should alter the action.",
+      "method": "Separate perception and intervention gates around a frozen visual policy add bounded residuals only when needed.",
+      "why": "Cuts encoded regions by 56.4% with essentially unchanged action predictions, useful for tactile stacks on limited onboard compute."
+    },
+    "2611.23575": {
+      "problem": "Cheap tactile arrays sense only pressure, and camera-based shear sensors are too bulky to tile over a gripper.",
+      "method": "An open-source 3.5 mm optical taxel array from off-the-shelf parts, with a colored-wall cartridge that encodes shear in returned light.",
+      "why": "Per-taxel three-axis force at low cost, and adding it to an ACT policy improved peg-in-hole over vision only."
+    },
+    "2611.23585": {
+      "problem": "Reaching through dense foliage involves unavoidable contact under heavy visual occlusion.",
+      "method": "A diffusion policy conditioned on spatial tactile signals and explicit contact state, with touch as the only environmental feedback.",
+      "why": "95% branch-manoeuvring success against 45% for the strongest tactile baseline over 180 real trials, a strong case for touch-led control under occlusion."
+    },
+    "2611.23628": {
+      "problem": "Noise-steering methods for pretrained generative policies do not scale to the high-dimensional noise of world-action models.",
+      "method": "LoRN steers through a fixed low-rank random projection with norm control, so it can steer video noise as well as action noise.",
+      "why": "Gains 26.2 points over the base policy without changing weights, and sim-trained steering transfers to real bimanual tasks."
+    },
+    "2611.23676": {
+      "problem": "It is unclear how to adapt a gripper-trained VLA to a multi-finger hand with few demos.",
+      "method": "Compares five SFT recipes on pi0.5 with a LEAP hand, each followed by diffusion-steering RL.",
+      "why": "Freeze the VLM, fully train the action expert, avoid LoRA, and do not select checkpoints by SFT rollout success."
+    },
+    "2611.24273": {
+      "problem": "Interactive imitation learning leaves most autonomous robot experience unused or imitates its suboptimal actions.",
+      "method": "SeRA relabels autonomous rollouts with later checkpoints, filters by agreement and trains on action sets rather than exact labels.",
+      "why": "Real tomato picking rises from 40% to 80% with the same human feedback budget."
+    },
+    "2611.24077": {
+      "problem": "Aerial VLA failures need repairs at states the policy itself reaches, which humans cannot label at scale.",
+      "method": "The policy verifies candidate repairs by flying on from them and distills the verified ones each round.",
+      "why": "Three rounds raise TravelUAV success from 46.4% to 67.5% and halve collisions without extra human labels."
+    },
+    "2611.24789": {
+      "problem": "SFT trains the flow-matching action expert only on noised demos, never on states its own sampler produces.",
+      "method": "On-policy self-distillation where the same WAM, given the demo's future video as hindsight, acts as teacher along the student's own denoising path.",
+      "why": "A reward-free post-training route for world-action models, though the abstract reports no results."
+    },
+    "2611.23719": {
+      "problem": "Human takeover data from deployed driving models is imperfect because people intervene too late or unnecessarily.",
+      "method": "Shift corrective maneuvers earlier, score candidates with a learned trajectory scorer, and distill the best into the deployed model.",
+      "why": "A pattern for turning intervention logs from any deployed robot fleet into training targets."
+    },
+    "2611.23843": {
+      "problem": "VLAs degrade on long-horizon tasks that chain many dependent manipulations.",
+      "method": "A VLA-agnostic layer monitors motion for progress and revises the plan, with no VLA fine-tuning.",
+      "why": "Gains 21.9% on RoboCasa365 and 10.4% on CALVIN over the next strongest baseline, and was tested on a Franka."
+    },
+    "2611.23926": {
+      "problem": "Global task intent drifts away from the current executable context during long VLA executions.",
+      "method": "Localizes the active subtask and phase, conditions on phase-specific visual targets, and rolls back on persistent deviation.",
+      "why": "Real-robot full-task success rises from 21.7% to 59.2%."
+    },
+    "2611.24926": {
+      "problem": "Reward models trained on short tasks do not track progress well on multi-minute tasks.",
+      "method": "Estimates progress of open-vocabulary subtasks and composes them, trained with an annotation protocol that needs no numeric progress scores.",
+      "why": "A reusable progress signal for long tasks, built from annotations that are cheap to collect."
+    },
+    "2611.24178": {
+      "problem": "Adaptive action chunking needs multiple samples to estimate uncertainty and conflates valid alternative strategies with real uncertainty.",
+      "method": "Derives per-action uncertainty from the flow field of a single generated chunk via Jacobian-vector products.",
+      "why": "Cheap, post-hoc uncertainty for choosing how far to execute before re-querying a VLA."
+    },
+    "2611.23939": {
+      "problem": "Telepresence interfaces split attention between steering, looking and inspecting.",
+      "method": "A 2x2 within-subject study of joystick versus treadmill locomotion and joystick versus head-guided camera on a VR-controlled quadruped.",
+      "why": "Viewpoint control drives workload, presence and acceptance more than locomotion input does, which guides teleoperation UI design."
+    },
+    "2611.24280": {
+      "problem": "Effects of network degradation on clinician acceptance of remote robotic procedures are poorly characterized.",
+      "method": "A network emulation framework with 480 navigation attempts across 15 conditions by eight clinicians and eight engineers.",
+      "why": "Success stayed at 87.5% at 5% packet loss, yet all clinicians rated it unacceptable, a clear example of success and acceptance diverging."
+    },
+    "2611.23932": {
+      "problem": "LLM-driven robot faces lag the conversation because they wait for a turn-level emotion label.",
+      "method": "Extracts a valence-arousal-dominance coordinate from each decoding hidden state and drives a 29-DoF face per token, with no training.",
+      "why": "Gives continuous, conversation-synchronized expression with first motion in under a second."
+    },
+    "2611.24771": {
+      "problem": "Human-guided load transfer needs a robot that supports a payload while following small human forces over a large workspace.",
+      "method": "Inner Cartesian impedance, outer 6D admittance on human wrench, and workspace-aware base assistance on a Franka FR3 mobile manipulator in ROS.",
+      "why": "A clear control layering for pHRI co-carrying, though validation is one suitcase-transfer experiment."
+    },
+    "2611.23654": {
+      "problem": "Range-based safety filters reconstruct range rate from noisy ranges or estimators, adding delay when obstacles change motion.",
+      "method": "Uses FMCW radar Doppler directly as the CBF derivative, with a measurement margin from sensor error bounds.",
+      "why": "2 buffer incursions in 508 encounters against 15 and 25 for Kalman-filter variants, and the controller ran on a Unitree Go1."
+    },
+    "2611.23589": {
+      "problem": "Safety certification needs forward invariance of the deployed controller, which is impossible for learned or aggressive behaviour.",
+      "method": "Certifies the ability to switch back into a trusted recovery mode, with contraction-based tubes and a switching-time program.",
+      "why": "Lets uncertified learned policies run under a formal exit strategy, shown on a full-scale racecar in the rain."
+    },
+    "2611.24310": {
+      "problem": "Proprioceptive-only legged state estimation drifts vertically, corrupting swing-leg height references.",
+      "method": "Couples an LI-EKF with a grid elevation map so footstep heights act as landmarks and revisited cells act like loop closures.",
+      "why": "An open-source estimator that cuts trajectory error by 22.1% on ANYmal GrandTour data, for when cameras and LiDAR are degraded."
+    },
+    "2611.24155": {
+      "problem": "Traversability navigation usually relies on LiDAR, long mapping and modular pipelines that are slow to port to a new robot.",
+      "method": "A camera-only network that jointly learns a BEV traversability map, its uncertainty and a diffusion-generated path, with metric BEV memory.",
+      "why": "Completed 96% of a 120 m unseen route, and retraining 3% of parameters adapted it to a small legged robot in 2.3 minutes."
+    },
+    "2611.23916": {
+      "problem": "Humanoid locomotion and fall recovery usually need separate controllers and switching logic.",
+      "method": "Behavior-conditioned adversarial motion priors train walking, getting up and command resumption in one proprioceptive policy.",
+      "why": "96.80% get-up and 96.96% push-recovery success, deployed on a 64.5 kg humanoid without controller switching."
+    },
+    "2611.24499": {
+      "problem": "Collecting mobile-manipulation demos is slowed by split teleoperation interfaces and manual post-processing.",
+      "method": "One controller drives base, arm and recording, with a ROS pipeline that filters, synchronizes and exports Zarr datasets.",
+      "why": "A reusable pattern for ROS-based demo collection on mobile manipulators, though validated on a single pick-and-place task."
+    },
+    "2611.23646": {
+      "problem": "Fixed pose landmarks cannot fully describe how a person's repetitive movement is expressed.",
+      "method": "Profiles intensity, extent, frequency and rhythmicity from tracked masks and optical flow, applied to 1,404 annotated movement bouts from six autistic participants.",
+      "why": "An interpretable movement description for robots working with neurodivergent users, which captures variation that pose skeletons miss."
+    },
+    "2611.24800": {
+      "problem": "Planners and path-tracking controllers are benchmarked separately, and it is unclear whether simulation predicts how specific pairings behave on hardware.",
+      "method": "Matched Gazebo and QCar runs of three controllers, including Regulated Pure Pursuit, crossed with Hybrid A* and NavFn.",
+      "why": "Controller rankings transfer but planner-dependent smoothness effects do not, so Nav2 pairings tuned in sim need hardware checks."
+    },
+    "2611.24074": {
+      "problem": "A humanoid's executed motion can differ in meaning from the language-generated reference once the balance controller intervenes.",
+      "method": "Scores the semantics of the physically executed motion through a differentiable world model and backpropagates into the motion generator.",
+      "why": "Keeps what a gesture means intact on the real body, which matters when people direct humanoids by speech."
+    }
+  }
+}
