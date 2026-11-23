@@ -1,0 +1,47 @@
+{
+  "week": "2026-W47",
+  "headline": "This week's numbers were less trustworthy than they looked. Success checkers, world-model losses, fluent language and demographic prompts all overstated how well robots work, and the papers that measured people directly found that partners, ages and workload break designs that look finished.",
+  "summary": "The week had four snapshots: 16, 18, 19 and 20 November. The theme that recurred most was that the usual number misleads. A learned simulator that predicts better can still produce failing policies. A VLA can pick the right bowl for a synonym and still not finish the task. Benchmark success checkers accept incomplete runs, and most world-model planner failures turn out to be stalls in the planning loop rather than model error. Touch appeared on three days with a consistent rule: it helps when it is registered in the robot frame and gated, not concatenated raw. Post-training kept moving onto the robot's own rollouts, failures and intervention logs. The human-facing papers asked the most of a team building robots for people of different ages and cultures. A handover policy collapsed with unfamiliar partners, task success saturated while workload and acceptance still separated designs, and age-prompted VLMs shifted affect in the opposite direction to real older adults. Single-day themes that did not recur included motor heat as the limit on legged endurance (18 November), arm kinematics as free calibration (19 November) and event-triggered calls to large models (20 November). They are still worth keeping.",
+  "trends": [
+    {
+      "title": "Evaluators overstate progress: success checkers, one-step losses and fluent language all pass robots that fail",
+      "body": "On 18 November, an audit of the Robotic World Model for ANYmal D found that 13 of 18 fine-tuned copies which predicted better produced failing policies, and CURE showed plausible videos can lead to high-regret plans. On 19 November, GR00T N1.7 chose the right bowl for unseen synonyms but completed only 67.6% of one task's episodes. On 20 November, SimAudit found 61 checker defects across 49 tasks in three simulated manipulation suites, and AFFECT raised world-model-to-real policy success correlation on DROID from 0.47 to 0.79. Before a number drives a go/no-go decision, check what produced it.",
+      "paper_ids": ["2611.23118", "2611.22561", "2611.24076", "2611.25179", "2611.25980"]
+    },
+    {
+      "title": "World-model planners fail mostly in the loop around the model, so diagnose stalls, search and scoring before retraining",
+      "body": "On 16 November, LASR offered an offline check on whether latent actions encode action at all. On 18 November, the RWM audit and CURE moved world-model evaluation to the decisions the model supports. On 20 November, Stuck in Place found at least 96% of JEPA planner failures on pushing tasks were stalls, and Search or Scoring found the Metaworld cost sound on real outcomes (AUROC 0.94) but at chance on predicted ones (0.54). Log stall, search and ranking failures separately, because each needs a different fix.",
+      "paper_ids": ["2611.17775", "2611.23118", "2611.25415", "2611.25347"]
+    },
+    {
+      "title": "Touch helps manipulation when it is spatially registered and gated, not when it is concatenated raw",
+      "body": "On 16 November, TouchTwin used an 880-taxel glove to fix grip forces in real-to-sim replays. On 19 November, direct fusion reached 50% against 73.33% for contact-guided attention in CoRA-VTLA, and 3DTouch gained 42 points by placing taxel forces in the robot-base frame. On 20 November, TacInno trained only on the tactile change that vision cannot predict, and TipDex-VTLA trusted touch more when lighting degraded vision. If you add touch, measure what it contributes beyond the camera.",
+      "paper_ids": ["2611.17619", "2611.23963", "2611.23961", "2611.26405", "2611.25683"]
+    },
+    {
+      "title": "The human is a variable to measure or randomize, and success rates hide most of the difference between designs",
+      "body": "On 16 November, a humanoid handover policy fell from 95% to 31% success with unseen partners until a hidden start delay was randomized, and VLAN showed VLMs failing to adapt routes across user profiles. On 18 November, Nunchi showed that speaker and transcript cues, not more visual cues, improve attention estimation in group conversation. On 19 November, a 17-person quadruped telepresence study found targets near ceiling in every condition while workload and acceptance differed, and clinicians rated 5% packet loss unacceptable at 87.5% success. On 20 November, age-prompted VLMs moved valence opposite to real older adults. Validate person-dependent behaviour against measured human data from the groups you serve.",
+      "paper_ids": ["2611.18491", "2611.18346", "2611.23115", "2611.23939", "2611.24280", "2611.25593"]
+    },
+    {
+      "title": "Post-training is moving onto the robot's own failures, rollouts and collection artifacts",
+      "body": "On 16 November, Agentic-Teacher generated demonstrations from failed VLA states. On 18 November, a study drawing on hundreds of thousands of hours showed teleoperation detours and calibration errors carry straight into policies, so the collection rig becomes a training variable. On 19 November, SeRA relabeled autonomous rollouts to double real tomato-picking success to 80%, LoRN steered only initial noise for a 26.2-point gain, and AeroRSI let a drone policy verify its own repairs. Keep deployment rollouts and intervention logs, and audit the teleop rig before scaling collection.",
+      "paper_ids": ["2611.17394", "2611.22388", "2611.24273", "2611.23628", "2611.24077"]
+    }
+  ],
+  "top_papers": [
+    {"id": "2611.25593", "why": "The clearest evidence this month that a demographic prompt does not make a model perceive like that age group, and it uses 822 human raters to show it. This bears directly on robots built for different ages."},
+    {"id": "2611.18491", "why": "Shows how a fluent handover policy has learned a single partner timing, and gives a one-line randomization that lifts unseen-partner success from 31% to 80%."},
+    {"id": "2611.22388", "why": "A checklist for the collection system (workspace, latency, calibration, operator motion) from a very large data operation. Use it before buying more demonstrations."},
+    {"id": "2611.25179", "why": "Finds that success checkers in RoboTwin 2.0, RoboCasa365 and RoboDojo are wrong in both directions, which affects any checkpoint chosen on those suites."},
+    {"id": "2611.25347", "why": "A cheap diagnostic that tells a team whether to spend on search or on a better world model, with pre-registered rules."},
+    {"id": "2611.24455", "why": "A training-free fix for bumped cameras that lifts π0.5 from 76.5% to 95.1% across 1,599 camera variants. This failure hits every lab."},
+    {"id": "2611.22231", "why": "Turns a 19-minute loaded Go2 run into 174 minutes with a thermal reward term. It changes what long deployments can plan for."},
+    {"id": "2611.23939", "why": "A controlled telepresence study that reports workload, presence and acceptance alongside task success. These are the measures HRI interfaces should be judged on."}
+  ],
+  "next_week": [
+    "Feed the team's sim success checkers a few deliberately partial and a few valid but unusual executions, and log every misjudgement.",
+    "Run a target-reassignment test on identical initial states for the current manipulation policy, using phrasings collected from real users of different ages.",
+    "Add workload and acceptance questionnaires alongside task success to the next user study, and record participant age and background so effects can be split by group."
+  ]
+}
