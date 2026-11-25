@@ -1,0 +1,283 @@
+{
+  "date": "2026-11-25",
+  "headline": "Robot policies are being split into parts you can check: world models that predict the future without rendering it, agents that hand off to policies only inside measured boundaries, and failures traced to specific pathways and patched without retraining, while social perception starts to rest on measured cues like sound direction and gaze shifts.",
+  "thesis": "Today's strongest papers stop treating a robot policy as one black box judged by average success. Six world-action models keep future prediction as a training signal but skip rendering frames at run time, bringing action latency down to 15-60 ms per step or chunk. Agent-plus-policy systems are found to fail at the handoff, and the fixes make each skill's valid start region or swept volume explicit and checkable. Diagnostics trace failures to specific causes: an instruction shortcut, reflections in a mirror, a clock that keeps running during inference. Some of these failures can be fixed without retraining. On the human side, coding agents now build and tune capabilities on a physical social robot, and perception for group interaction is being anchored in microphone direction and gaze-shift events rather than VLM guesses. For a team building robots for people of all ages and cultures, the message is to check each part on its own: when the robot asks for help, who it thinks is speaking, whether it acts within the time a person expects, and whether a skill was called from a state where it works.",
+  "clusters": [
+    {
+      "title": "World-action models keep the training benefit of predicting the future but stop rendering it at run time",
+      "why": "World-action models were assumed to need generated future video to benefit from it, which made them too slow for closed-loop control. G0.7's direct action decoding matches imagine-then-act from the same checkpoint at 60 ms per 16-step chunk, 7.6x faster. LeanWAM compresses the future into 32 tokens and predicts a chunk in 25.1 ms on an A100. FoveaWAM acts in 15.1 ms by predicting only the target's SE(3) trajectory precisely and the surroundings as sparse flow. iWAM, EffectWAM and DexWAC each condition actions on one forward pass or a latent endpoint instead of frames. If you dropped WAMs for latency, re-test a skip-rendering variant before settling on a plain VLA.",
+      "paper_ids": ["2611.31822", "2611.31740", "2611.31705", "2611.33141", "2611.32053", "2611.32654"],
+      "confidence": "high"
+    },
+    {
+      "title": "Agent-plus-policy systems fail at the handoff, and the fixes make each skill's valid start region explicit and checkable",
+      "why": "Systems where a VLM agent calls learned skills assumed the plan was the hard part. Today's papers find the failures concentrate at the seams: a policy only works from a limited set of start states, and a frozen VLA retraces its habitual trajectory into leftover objects. Boundary-Aware Policy Learning trains on contact segments from diverse start poses so the boundary can be stated to the agent, reaching 98.4% in randomized RoboTwin 2.0 scenes with 41.3% lower API cost. Skill Envelopes predict seam collisions at 0.946 AUROC and lift 3-4 step drawer chains from 29.7% to 93.8%. Next-Manip and MFM-VLA use a lightweight classifier or calibrated router to decide when the agent should step in at all. Write each skill's precondition as something code can check, not as a language description.",
+      "paper_ids": ["2611.32238", "2611.32245", "2611.32533", "2611.31452", "2611.32813"],
+      "confidence": "high"
+    },
+    {
+      "title": "Targeted diagnostics find VLA failures that average success hides, and some can be patched without retraining",
+      "why": "A drop in success rate has usually been answered with more data. Today's diagnostics find failures that are specific and repeatable. In π0.5, an instruction shortcut overrides grounding that already tracks the moved object. A mirror cuts success by 10.8 to 56.7 points through phantom targeting of reflections. The best of more than 30 methods meets RoboClock's time constraints on 8.3% of easy tasks. A single change mid-task costs ten policies 4.4 to 9.9 points. Continual fine-tuning with near-zero in-domain forgetting still collapses out of distribution. Because these failures are specific, some can be fixed in place: Pathway-Separated Guidance raises target-reaching from 22.0% to 52.6% without training, and an LLM agent editing about 0.0002% of π0.5's parameters reduces recurring failures in simulation. Build a failure taxonomy for your deployed policy before collecting more demonstrations.",
+      "paper_ids": ["2611.32206", "2611.31715", "2611.33010", "2611.32233", "2611.31868", "2611.31511"],
+      "confidence": "high"
+    },
+    {
+      "title": "Coding agents now write, verify and tune robot skills as code, but only checks under real physics keep them honest",
+      "why": "Code-as-policy work mostly stayed in simulation because real tasks have no success checker or reset. RESET builds both from one real demonstration and evolves skill code in a verified reconstruction. The frozen code then runs on 4 robots and succeeds in 80% of 280 trials. PyRUA-Dex writes dexterous bimanual programs without demonstrations. EvoMisty has Claude Code and Codex each build more than 100 verified capabilities on a physical Misty II social robot, and its optimization cuts dialogue latency by 52% and 71%. The counterpoint is a Go2 study: giving the LLM a research paper made its controllers worse under physics (2 of 8 against 7 of 8), while the two looked identical in a kinematic simulator. Keep a physics-level or on-robot check in every agent-written code loop.",
+      "paper_ids": ["2611.31894", "2611.33144", "2611.31341", "2611.32534", "2611.32381"],
+      "confidence": "high"
+    },
+    {
+      "title": "Social perception for robots is being anchored in measured cues (sound direction, gaze shifts) instead of VLM guesses",
+      "why": "Social perception has leaned on VLMs reading the image, and they make things up. NOBODY finds that 25 VLMs mention a person in scenes with no one in them four times as often as human captions do. BEARING maps the direction a microphone array hears into the camera image and uses it as a visual prompt, which raises speaker accuracy from 54% to 74%. Gaze World Model co-trains gaze with latent scene prediction and detects gaze shifts about 10 points better in four-class AP, including on ChildPlay. LookAnything unifies gaze tasks and runs on a real robot. For multi-party and child interaction, give the robot measured cues and let the language model reason over them rather than infer them.",
+      "paper_ids": ["2611.31735", "2611.31836", "2611.32351", "2611.31714"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Human support in robot teams adapts to the operator: when to ask, how much force authority to share, what to show",
+      "why": "Supervision and teleoperation interfaces have mostly been fixed designs: alert on failure, mirror the hand, stream all the video. A help-seeking policy trained with offline RL learns when an intervention is likely to help. In a physical user study it sends fewer unnecessary alerts and supports novices without hurting experts. A compliant hand switches from kinematic mapping to force control when it senses contact through its own tendons, and the operator's grasping speed sets the force. An XR interface turns LiDAR occupancy into controller vibration and significantly lowers cognitive load for 20 participants. Follow-Bench 2.0 shows that socially aware person following in crowds, especially side-following, is far from solved. Treat operator expertise and workload as experimental variables, not noise.",
+      "paper_ids": ["2611.31925", "2611.32937", "2611.32584", "2611.32579"],
+      "confidence": "medium"
+    }
+  ],
+  "insights": [
+    "Treat help-seeking as a learned timing problem and evaluate it per user group. The help-request paper learns when to alert from how helpful past interventions were, and novices gain without experts losing. EmbodiSafety shows the best reference model reaches 56.1% complete decision accuracy on snapshots when it must choose between acting, clarifying and escalating to a human. RoboClock adds that the best of more than 30 methods meets time windows on 8.3% of easy tasks. For robots that serve children, older adults and expert staff, log the user's expertise next to every alert and report alert usefulness for each group, not as one average.",
+    "Use cheap physical signals for who and where, and language for to whom and why. BEARING's microphone-direction prompt raises speaker accuracy by 20 points, but addressee accuracy moves only about two points, because whether someone is talking to one person or to the group depends more on the words. NOBODY shows VLMs invent people four times as often as humans do. Split the pipeline accordingly, and check that the robot's captions or logs never mention a person its sensors did not detect.",
+    "Re-test world-action models on latency before ruling them out. G0.7 runs at 60 ms per 16-step chunk and FoveaWAM acts in 15.1 ms, both on one RTX 5090, and LeanWAM predicts a chunk in 25.1 ms on an A100. FoveaWAM's OnTimeBench and RoboClock both keep the scene moving while the policy computes. Adopt that protocol in your own simulation tests: a policy that is accurate but slow will miss when a person holds out an object.",
+    "Gate agent-written robot code on physics, not on a kinematic check. RESET checks its reconstructed world against the demonstration before practice, EvoMisty verifies every capability on the physical robot, and the Go2 study shows that extra paper context hurt only under physics. If a coding agent writes your ROS 2 nodes or skills, require a physics simulation or hardware-in-the-loop run before merge."
+  ],
+  "must_read": [
+    {
+      "id": "2611.31925",
+      "why": "This is the day's most direct HRI paper. It decides when a robot should interrupt its human supervisor, tests across user expertise levels, and includes a physical user study.",
+      "key_idea": "Train a help-seeking policy with offline RL on two signals: how helpful past interventions were and how much progress the robot makes on its own. The robot then asks for help only when an intervention is likely to pay off.",
+      "evidence": "Evaluated in several task environments and at different user expertise levels in simulation, then in a physical user study. The learned policy improves exploration efficiency, reduces unnecessary alerts, and supports novice users better without compromising expert performance in real-time human-robot teaming missions.",
+      "caveat": "The abstract gives no participant count, alert rates or effect sizes. The setting is a supervisor helping with navigation and exploration, not face-to-face interaction, and the abstract does not say whether the learned timing carries over to users of other ages or cultures."
+    },
+    {
+      "id": "2611.31735",
+      "why": "Group conversation is the normal case for home and public robots. This paper shows that a microphone array beside the camera beats asking a VLM who is speaking.",
+      "key_idea": "A label-free online calibration maps the direction a microphone array hears into the camera image. That direction then does three jobs: a visual prompt for a VLM, one input to a fusion with visual active-speaker detection, and a verifiable reward for alignment.",
+      "evidence": "On 9,498 addressee-labelled utterances from three AMI sites and egocentric EasyCom, the direction prompt raises speaker accuracy from 54% to 74%, and addressee accuracy moves by about two points. For co-located speakers on AVDIAR, visual active-speaker detection holds 95% where direction alone falls to 59%. Shrinking the lookahead from 5 s to 0.5 s costs 4.5 DER points on AMI, and the verifiable reward beats self-evaluation under GRPO, reward-ranked fine-tuning and DPO.",
+      "caveat": "It is evaluated on meeting and egocentric datasets, not on a moving robot. Addressee detection barely improves. Online calibration dips for the first two minutes. The abstract does not cover languages, accents or noisy rooms."
+    },
+    {
+      "id": "2611.31894",
+      "why": "It turns one real demonstration into inspectable skill code that runs on several robots, with real-robot trial counts.",
+      "key_idea": "One demonstration supplies three things: the scene geometry, the success criterion and a reference trajectory. RESET rebuilds the world, checks it by open-loop replay and silhouette consistency, evolves white-box task graphs from per-node failures, and deploys frozen code with no runtime LLM calls. The verified world can be shared with other robots.",
+      "evidence": "On 8 tasks, it reaches 97% average success on unseen layouts in simulation, against 27% for zero-shot code, 31% for per-task fine-tuned π0.5 and 50% for Diffusion Policy. A robot with similar arms reuses 95% of the source skill functions unchanged. On real hardware, the programs run on 4 robots and succeed in 80% of 280 trials.",
+      "caveat": "The 97% and the baseline comparison come from simulation, and the real-robot 80% is not broken down by task or robot. The authors report that geometric reconstruction errors can stall or mislead practice. Deformable and person-facing tasks are not shown."
+    },
+    {
+      "id": "2611.32206",
+      "why": "Anyone running a VLA in a home will see it reach for where an object used to be. This paper explains the cause and gives a training-free fix.",
+      "key_idea": "Separate two routes inside the VLA: an image-based grounding pathway and a direct instruction-to-action pathway. Masking each in turn shows that grounding already guides action but the instruction shortcut overrides it. Pathway-Separated Guidance strengthens the first and suppresses the second at inference.",
+      "evidence": "Across six VLAs, the authors identify a scene shortcut and an instruction shortcut. On LIBERO-PRO Object under position perturbations, PSG raises target-reaching from 22.0% to 52.6% and task success from 16.6% to 40.8%, while largely preserving performance on the original tasks.",
+      "caveat": "Results are on a simulation benchmark only, and 40.8% success is still low. PSG needs access to the model's internals, and the detailed pathway analysis is reported for π0.5."
+    },
+    {
+      "id": "2611.32233",
+      "why": "Around people, timing is part of being correct: an object handed over late is a failed handover. This benchmark measures that directly.",
+      "key_idea": "Tasks are built around three temporal constraints (time window, reaction to an event, throughput). Evaluation is latency-aligned: environment time keeps advancing during model inference and control-interface delays.",
+      "evidence": "60 tasks across five application domains and more than 30 evaluated methods. The best-performing approach, a trained VLA, reaches only 8.3% temporal success even on easy tasks, with persistent problems in generalization and transfer.",
+      "caveat": "The abstract does not say whether the tasks are simulated or on hardware, or what compute the latencies were measured on, so absolute scores will shift with your GPU. It also does not say whether any tasks involve a human partner."
+    }
+  ],
+  "summaries": {
+    "2611.31925": {
+      "problem": "Robots that ask for help too often overload their operators, and robots that ask too late end up stuck or fail beyond recovery.",
+      "method": "An alert policy is trained with offline RL on how helpful past interventions were and on autonomous progress, so the robot asks only when help is likely to pay off.",
+      "why": "In a physical user study it sent fewer unnecessary alerts and helped novices without slowing experts, which is the balance a mixed user base needs."
+    },
+    "2611.31735": {
+      "problem": "Deciding who is speaking to whom in a group is usually done offline from single-channel audio clips.",
+      "method": "BEARING maps microphone-array direction into the camera image and uses it as a VLM visual prompt, as a fusion input and as a verifiable reward, all online.",
+      "why": "Speaker accuracy rises from 54% to 74%, which makes a mic array a cheap upgrade for robots used with families or classrooms."
+    },
+    "2611.31894": {
+      "problem": "Real tasks give coding agents neither a ground-truth success checker nor a resettable place to practice.",
+      "method": "RESET rebuilds a world and a frozen success criterion from one demonstration, verifies the world by replay, evolves white-box skill code and deploys it with no runtime LLM calls.",
+      "why": "It succeeds in 80% of 280 trials on 4 real robots with skills shared across embodiments, and the result is code you can inspect rather than an opaque policy."
+    },
+    "2611.32206": {
+      "problem": "VLAs reach for an object's training location after the object has been moved.",
+      "method": "Masking experiments separate a grounding pathway from an instruction-to-action shortcut, and Pathway-Separated Guidance strengthens the first and suppresses the second at inference.",
+      "why": "Without any training it raises target-reaching from 22.0% to 52.6% under position perturbations, which matters in homes where objects rarely stay put."
+    },
+    "2611.32233": {
+      "problem": "Robot benchmarks check spatial correctness but not whether actions happen within valid time windows.",
+      "method": "RoboClock has 60 tasks with time-window, event-reactive and throughput constraints, and its clock keeps advancing during inference.",
+      "why": "The best method meets the timing on 8.3% of easy tasks, so latency belongs in the evaluation of any human-facing robot."
+    },
+    "2611.31822": {
+      "problem": "World-action models that generate frames before every action are too slow for closed-loop control, and most see only short histories.",
+      "method": "G0.7 extends context to five minutes of history, pretrains on teleoperation plus human egocentric video, and decodes actions directly at 60 ms per 16-step chunk.",
+      "why": "Human egocentric video drove the largest out-of-distribution gains, and multi-minute tasks like box folding reach 86.9% mean task progress."
+    },
+    "2611.31740": {
+      "problem": "WAMs built on large video generators are expensive to train and run, and it is unclear how much future information a policy actually needs.",
+      "method": "LeanWAM compresses future transitions into 32 tokens shaped by a frozen video generator, then distils them into a 1.4B-parameter policy.",
+      "why": "At 25.1 ms per action chunk on an A100, 12.3-41.5 times faster than representative WAMs, it fits a realistic robot compute budget."
+    },
+    "2611.31705": {
+      "problem": "To manipulate a moving object, a policy must predict the scene at the moment its action executes, and slow prediction pushes that moment further away.",
+      "method": "FoveaWAM predicts the target's motion precisely as an SE(3) trajectory and the surroundings as sparse 3D flow, and evaluates on OnTimeBench, where the scene moves while the policy computes.",
+      "why": "It reaches 82.1% on OnTimeBench, 20.8 points above the strongest baseline, which bears directly on taking an object from a person's moving hand."
+    },
+    "2611.33141": {
+      "problem": "Rendering future frames is too expensive for real-time control, and cheaper stand-ins risk hurting action quality.",
+      "method": "iWAM learns a bidirectional flow map so that a single video-backbone forward pass from sampled noise conditions the policy.",
+      "why": "It reports keeping the generalization benefit of WAMs at much lower inference cost, in simulation and on real robots."
+    },
+    "2611.32053": {
+      "problem": "World-action models make action execution wait for slow video synthesis.",
+      "method": "EffectWAM encodes visual change relative to the current frame, grounds it in measured end-effector and gripper changes, and samples change and action chunk together, rendering video only on demand.",
+      "why": "Trained on more than 20,000 hours of mixed-embodiment data, it shows one way to keep heterogeneous datasets useful in a single model."
+    },
+    "2611.32654": {
+      "problem": "WAMs use future prediction only as an auxiliary loss, while dynamics and value are learned in separate models.",
+      "method": "DexWAC learns actor, action-conditioned world model and critic in one pretraining stage, then improves the actor with PPO on imagined rollouts or critic-guided best-of-N.",
+      "why": "It reaches 75% against 45% for π0.5 on two real tasks, which suggests one model can support both imitation and policy improvement."
+    },
+    "2611.32238": {
+      "problem": "Agent-orchestrated systems fail when the agent hands control to a policy outside the start states where that policy works.",
+      "method": "The policy is fine-tuned on contact segments from diverse start poses to get a wide, describable boundary, which is then expanded with curated successful system rollouts.",
+      "why": "It reaches 98.4% in randomized RoboTwin 2.0 scenes with 41.3% lower API cost, so the handoff contract is worth engineering."
+    },
+    "2611.32245": {
+      "problem": "Frozen VLA skills chained by a planner fail at the seams between skills, even after the robot re-homes.",
+      "method": "The paper measures the 3D volume each skill sweeps in successful runs and exposes it as CHECK and FREE tools, so code can clear blocking leftovers before the next skill runs.",
+      "why": "It lifts 3-4 step drawer chains from 29.7% to 93.8%, using a geometric precondition you can check on a real scene."
+    },
+    "2611.32533": {
+      "problem": "Calling a multimodal agent at every step is expensive, but a learned policy on its own cannot recover beyond its training.",
+      "method": "A lightweight Agent Invocation Controller decides whether the policy or the agent acts, using compact task context drawn from in-context examples.",
+      "why": "It improves results while cutting agent inference cost, a template for budgeting LLM calls on a robot."
+    },
+    "2611.31452": {
+      "problem": "VLAs struggle when object positions and goals change, and multimodal foundation models are too slow for fine control.",
+      "method": "Stage-by-stage interventions show failures come from target grounding and global routing. A foundation model handles grounding, controllers do free-space motion, the VLA keeps fine manipulation, and a calibrated router decides when to intervene.",
+      "why": "Gains over the base VLA range from 3.6 to 74.0 points across simulated benchmarks and reach 30.9 points on real chemistry tasks, showing where a VLA actually needs help."
+    },
+    "2611.32813": {
+      "problem": "When goals are ambiguous and actions depend on each other, long-horizon tasks are hard to split between VLM reasoning and visuomotor control.",
+      "method": "A VLM estimates symbolic state and goal, a PDDL solver plans skills, and an agentic harness steers each skill by language or pointing and verifies the outcome before replanning.",
+      "why": "A shared phase-level interface lets specialist policies and generalist action models sit under one recovery loop."
+    },
+    "2611.31715": {
+      "problem": "Fixing a robot foundation model's recurring failures usually means collecting more data and retraining.",
+      "method": "An LLM agent rewires a few near-silent neurons in π0.5's action expert so that a corrective movement fires when the failure state appears.",
+      "why": "Editing about 0.0002% of the parameters improves recurring failures in simulation. That offers a hot-fix path, but it works best when the failure is easy to recognize and the fix is simple."
+    },
+    "2611.33010": {
+      "problem": "Manipulation policies are evaluated in scenes without reflective surfaces.",
+      "method": "RoboDojo-Mirror adds single-mirror, dual-mirror and mirrored-tabletop conditions, plus matched non-reflective panels to separate reflection effects from collisions.",
+      "why": "Every mirror condition lowers success for all five policies, by up to 62.5 points on mirrored tabletops, so homes with mirrors and glossy surfaces need explicit tests."
+    },
+    "2611.31868": {
+      "problem": "It was unclear whether a mid-task change hurts because of when it happens or because the world has changed.",
+      "method": "CALVIN-MAX has 7,828 cases, each compared across three runs that differ only in whether and when a change to objects, camera, robot or instruction arrives.",
+      "why": "Ten policies lose 4.4 to 9.9 points, and the cost carries into the next instruction, which matters when people move things while the robot works."
+    },
+    "2611.31511": {
+      "problem": "VLAs updated continually with experience replay show near-zero forgetting, but that has only been measured in-domain.",
+      "method": "The paper tests Pi0 with replay on LIBERO and LIBERO-Plus and probes how its representations drift.",
+      "why": "Out-of-distribution performance on earlier tasks collapses while in-domain results hold, so post-deployment updates need OOD regression tests."
+    },
+    "2611.33144": {
+      "problem": "High-quality dexterous demonstrations are scarce and hard to collect.",
+      "method": "Parallel coding agents explore skills and ways to combine them, a distilling agent condenses the successes into one program, and the program is refined under randomized layouts.",
+      "why": "It reaches 81.0% on DexJoCo under full randomization and learns piano and calligraphy on two 22-DoF hands, so code can replace demonstrations for some dexterous skills."
+    },
+    "2611.31341": {
+      "problem": "LLM-programmed social robots rely on hand-built control interfaces and do not improve their tasks against user metrics.",
+      "method": "Coding agents build control programs from the official documentation, verify each capability on the physical robot, optimize tasks for user-chosen metrics and distil reusable skills.",
+      "why": "On a Misty II, both agents complete all 28 AutoMisty tasks, and reusing an optimized dialogue skill cuts latency by 33-72% on three other dialogue tasks, which is directly useful for companion and education robots."
+    },
+    "2611.32534": {
+      "problem": "Generated simulation scenes often look right but cannot support the task, and generated scoring programs implement the success conditions wrongly.",
+      "method": "A coding agent writes scene, task, behavior and rubric programs together, with closed-loop simulation feedback and independent review, then freezes them as versions for repeatable evaluation.",
+      "why": "Agent-generated evaluation environments are only trustworthy if their rubrics are faithful, and this platform targets exactly that."
+    },
+    "2611.32381": {
+      "problem": "It is unknown whether giving an LLM research papers improves the robot code it writes.",
+      "method": "Go2 navigation controllers written by a frozen Claude Opus 5 with and without a specific paper are compared in Isaac Sim and in a kinematic simulator.",
+      "why": "With an incremental-replanning paper in context, 2 of 8 controllers complete all trips against 7 of 8 without it (p = 0.041), and only physics simulation reveals the difference."
+    },
+    "2611.31836": {
+      "problem": "Gaze estimation works frame by frame and misses how attention shifts in response to events in the scene.",
+      "method": "Gaze World Model co-trains latent scene prediction with person-conditioned gaze supervision on a frozen V-JEPA 2.1 encoder to detect and forecast gaze shifts.",
+      "why": "Shift detection is about 10 points higher in four-class AP, including on the ChildPlay dataset, giving robots a signal for when a child's or adult's attention moves."
+    },
+    "2611.32351": {
+      "problem": "Gaze-following models depend on head crops or depth maps and are trained on a single domain.",
+      "method": "LookAnything uses learnable gaze-prior queries in one multi-task model that outputs points, boxes, heatmaps and language, trained on 311K question-answer pairs.",
+      "why": "It beats 33 VLMs on holistic gaze following and was deployed on a real robot, making it a candidate joint-attention module."
+    },
+    "2611.31714": {
+      "problem": "VLMs attribute actions and events to people who are not in the image.",
+      "method": "NOBODY is a preference dataset used to align open VLMs with DPO, together with a benchmark for this bias.",
+      "why": "VLMs mention a person four times as often as human captions do in scenes with no one in them, and a robot that narrates or logs scenes should not invent people."
+    },
+    "2611.32937": {
+      "problem": "In vision-based teleoperation the operator cannot feel grasp force, and tactile fingertips add wiring and cost.",
+      "method": "Springs in the tendons are read to estimate finger forces, and on detected contact the hand switches from mirroring the operator's hand to finger-level force control, with grasping speed setting the force.",
+      "why": "It grasps fragile and heavy objects more reliably than direct teleoperation and lets control authority be shared finger by finger."
+    },
+    "2611.32584": {
+      "problem": "Teleoperators lose situational awareness, and 360-degree feeds in headsets cause motion sickness.",
+      "method": "Fixed front and rear cameras are combined with LiDAR occupancy maps converted into vibration on handheld controllers.",
+      "why": "With 20 participants, haptic obstacle feedback significantly reduced the cognitive load of obstacle avoidance."
+    },
+    "2611.32579": {
+      "problem": "Robot person following is evaluated in pieces rather than as perception and planning coupled together in crowds.",
+      "method": "Follow-Bench 2.0 is an Unreal Engine closed-loop benchmark with pedestrian flows, queues and occlusions, scored on safety-comfort metrics including social-space intrusion, for both back- and side-following.",
+      "why": "Modular pipelines beat end-to-end visual policies, and side-following in crowds is far from solved, which matters for robots that escort people."
+    },
+    "2611.31577": {
+      "problem": "Fabric manipulation has no standard evaluation with stable contact simulation.",
+      "method": "FabricBench offers six bimanual tasks and 10,000 assets on a contact-driven solver with no artificial attachment.",
+      "why": "No policy exceeds 36% on T-shirt folding, deformation hurts more than appearance shifts, and real π0.5 keeps the same difficulty ordering (ρ = 0.94)."
+    },
+    "2611.33130": {
+      "problem": "Demonstrations show competent behavior but rarely show recovery from awkward states.",
+      "method": "β-Data is collected by adversarial teleoperation: one person perturbs the scene while another keeps going, and segments are relabeled with their local outcomes.",
+      "why": "On three real platforms it gives better data scaling and needs fewer rollouts in online fine-tuning, and the collection protocol is easy to copy."
+    },
+    "2611.32797": {
+      "problem": "Large policies spend capacity learning geometry that perception and robot models already provide.",
+      "method": "The policy takes object poses, relative SE(3) transforms and joint screw axes as input and learns only execution, with 30K parameters.",
+      "why": "It reaches 80.2% across five unseen arms and 21 of 24 real trials zero-shot, which argues for supplying geometry rather than learning it."
+    },
+    "2611.33054": {
+      "problem": "Embodied safety is usually tested with rule following and binary judgments.",
+      "method": "EmbodiSafety has 1,092 snapshot and 540 trajectory tasks with six response modes, including clarification, autonomous recovery and escalation to a human.",
+      "why": "The best reference model reaches 56.1% and 61.5% complete decision accuracy, so deciding when to involve a human is still weak."
+    },
+    "2611.32353": {
+      "problem": "Robot in-context learning is limited by scarce paired demonstrations from humans or other robots.",
+      "method": "Any2Act expresses each demonstration in the executing robot's camera layout and action space, learns from 1.2M robot trajectories, and adds small adapters for other sources.",
+      "why": "It reaches 57.5% on unseen tasks from a single demonstration, above VLAs fine-tuned on 50 demonstrations, which points toward teaching robots by showing."
+    },
+    "2611.32788": {
+      "problem": "Action representations are rarely compared under matched data, architecture and compute.",
+      "method": "Keypose and dense action chunks are compared under matched conditions in simulation and on a real robot.",
+      "why": "Keypose tolerates slowed, paused and rerouted demonstrations but depends on its executor, which matters when demonstrations come from non-experts working at uneven pace."
+    },
+    "2611.32260": {
+      "problem": "Training humanoid VLAs depends on costly real-robot teleoperation.",
+      "method": "EgoLoAF derives all training data from egocentric demonstrations without wearable trackers and injects hand-object affordances into the action expert.",
+      "why": "It nearly matches teleoperation (73.1 against 74.4 task progress) with 4.03 times better data-collection efficiency, and it releases 1,000 hours of data."
+    },
+    "2611.32718": {
+      "problem": "Depth foundation models are too large for Raspberry Pi-class robots and break under int8 quantization.",
+      "method": "Depth Anything V2-Large is distilled into an attention-free ResNet-34 U-Net that runs at 27.1 FPS on a Hailo-8L, with mapping, planning and SLAM on the Pi's CPU.",
+      "why": "In hardware-in-the-loop tests the stack reaches the goal without contact in 7.9 of 10 scenes, a template for low-cost mobile bases."
+    },
+    "2611.32523": {
+      "problem": "Learned leg odometry suffers from the sim-to-real gap, and real labels are costly.",
+      "method": "AirLeg is self-supervised visual-inertial-leg SLAM: bundle adjustment refines the leg network, and the fused estimates keep adapting it online.",
+      "why": "It completes all 17 GrandTour sequences with 0.19 m average error and reaches 0.6% drift on a low-cost quadruped from 0.5 h of unlabeled data, in real time on embedded compute."
+    }
+  }
+}
