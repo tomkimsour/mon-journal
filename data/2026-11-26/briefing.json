@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-26",
+  "headline": "Robot evaluation is moving past one success number: judges are being checked against humans and kept outside the training loop, policies are tested on people changing their minds, and embodied agents are scored on whether they waited for enough evidence before acting.",
+  "thesis": "Today's papers keep finding that the usual success numbers hide where robots actually fail. Simulator predicates and in-loop judges disagree with people, and the fixes are human-aligned or sealed evaluators that change policy rankings. VLAs that score above 95% on fixed instructions almost never follow a changed instruction mid-task, which is exactly what a person in the room will do. Perception and world models fail in ways their own confidence hides: SLAM that is fully confident in the dark, depth that helps until holes appear, world models trained only on successful grasps. On the social side, new benchmarks score timing and sufficiency of evidence (when to respond, when to hold back, when a memory is stale) rather than recognition alone. For a team building robots that live with people of different ages and cultures, the practical move is to test the moments where a human changes the situation and to treat 'not yet sure' as a correct output.",
+  "clusters": [
+    {
+      "title": "Embodied agents are being graded on whether they had enough evidence to act, not only on whether the answer was right",
+      "why": "Social and embodied benchmarks have mostly scored recognition on complete clips, so a lucky early guess counted as success. AIRIS feeds models only the prefix available at query time and penalizes premature commitment; across 45 models, they often guess intents before the evidence is there. LUDIUS finds models struggle most when they must reason about what a resident saw or heard earlier. EvOrderBench and HumblePRM show that withholding or abstaining when the evidence is insufficient is a separate skill from accuracy. On a real Spot, repeated VLM misses turn out to be correlated and do not prove an object is gone. Add 'wait', 'ask' and 'not sure' as scored outcomes in your interaction tests, and do not treat repeated detector misses as independent evidence.",
+      "paper_ids": ["2611.34347", "2611.34328", "2611.33492", "2611.33452", "2611.34915", "2611.34067"],
+      "confidence": "high"
+    },
+    {
+      "title": "VLAs that ace fixed instructions ignore a person who changes their mind mid-task, and relocating the robot works better than re-instructing it",
+      "why": "Manipulation benchmarks give one instruction per episode, so nobody measured what happens when the user revises it. DTU-Bench finds 13 VLA configurations average 95.8% on the original tasks but only 1.6% when the target object changes during execution; policies often finish the old task first. The instruction black hole paper proves static imitation cannot tell a listening policy from a deaf one once the execution state reveals the task. Both fixes move the robot rather than retrain it: a scripted release-and-retreat lifts π0.5 from 2% to 38%, and the Wormhole plug-in raises committed-switch success to 93.1%. If people will talk to your robot while it works, add mid-task instruction changes to your test suite now.",
+      "paper_ids": ["2611.34538", "2611.34280"],
+      "confidence": "medium"
+    },
+    {
+      "title": "Success checks are being rebuilt to match human judgment and to sit outside the loop that is being optimized",
+      "why": "Teams have trusted simulator predicates or a learned judge to say whether a rollout succeeded or a retrained policy improved. PROVE reports simulator predicates agree with humans on only 69.09% of RoboCasa365 rollouts; its own checker reaches 96.83% and changes the ranking of open-source policies. SealedLoop shows a success classifier accepted 65 of 196 failures in one generation, and keeps a new policy only when a judge the improver cannot see confirms the gain. Best-of-N steering with an imperfect verifier gets worse as N grows, a form of reward hacking. BOT-Scale and WorldPhyReward make the score itself explain what went wrong. Keep one evaluator that your training or selection loop never touches, and spot-check it against human labels.",
+      "paper_ids": ["2611.33733", "2611.33794", "2611.33398", "2611.34297", "2611.34130"],
+      "confidence": "high"
+    },
+    {
+      "title": "World-action models are being taught what failure looks like, so they can predict a bad outcome before executing it",
+      "why": "Robot world models were trained mostly on successful demonstrations and assumed to generalize to slips and pushes. WorldReforge finds five pretrained action-conditioned models are at most 10.4% better than copying the first frame at predicting object motion off the happy path, and fixes this with 62k simulated perturbed grasps. WAtcher imagines each action chunk's outcome and uses a detachable Safe-Guard to cut hazardous trials from 27.0% to 10.8% without lowering task success. Aegis-VLA separates predicting a correction from deciding whether to apply it. A probing study finds visual and policy representations mostly capture when contact happens but not how much force. If you use a world model for safety or planning, train it on failures and do not expect it to infer force from video.",
+      "paper_ids": ["2611.33925", "2611.34124", "2611.33993", "2611.34422", "2611.33745"],
+      "confidence": "high"
+    },
+    {
+      "title": "Agent harnesses that keep what they learned across attempts outperform agents that start fresh every episode",
+      "why": "LLM or VLM agents controlling robots usually forget everything when a task ends, and harness design has been chosen ad hoc. SEEK stores procedures plus the measured effects of past actions and raises success from 19.7% to 48.0% over ten attempts while using fewer model calls. RegHarness gates which steps and skill edits persist, reaching 87.8% on LIBERO-PRO against 39.4% for the base agent. RoboEvo² distills harness-verified trajectories back into the policy. A study of over 470,000 rollouts finds harness design alone shifts success by tens of points with the same models. Before swapping models, log execution effects and version your skills so the agent improves between runs.",
+      "paper_ids": ["2611.33915", "2611.33739", "2611.34675", "2611.34778", "2611.34750"],
+      "confidence": "high"
+    },
+    {
+      "title": "Perception and world-model pipelines fail in ways their own confidence and simulation-based validation hide",
+      "why": "A confident estimate or a good simulated score is usually taken as a sign the pipeline works. MASt3R-SLAM gives pure noise the same geometric self-consistency as a real dark frame pair and keeps reporting full frame rate while over 95% of accepted correspondences are wrong. Depth helps imitation policies even at twenty times the camera's noise, but holes over about one-sixth of the wrist image erase the benefit. Synthetic validation ranks material-estimation inputs in the wrong order for real drops. An audit of Navigation World Models finds that mismatched action encoding inflates prediction error by enough that fixing it cuts error 42%. Plausible failure labels for depth models match humans only at chance. Test your stack under the real degradation (darkness, depth holes, encoding mismatches) and check the confidence signal itself.",
+      "paper_ids": ["2611.30173", "2611.33352", "2611.34894", "2611.34739", "2611.34393"],
+      "confidence": "high"
+    }
+  ],
+  "insights": [
+    "Mid-task human input is the cheapest robustness test you are not running. DTU-Bench and the instruction black hole paper show near-total failure to follow a changed instruction, and both fixes work by moving the robot back to an approach state rather than retraining. For HRI work, script a few 'actually, take the other one' interruptions into every evaluation, and measure both whether the robot switches and whether it disturbs objects on the way, which the scripted retreat sometimes does.",
+    "Several frozen VLAs got large gains purely from test-time intervention. Cairn steers a frozen π0.5 along object trajectories from 24.5% to 95.1% on displaced-object LIBERO scenes, ahead of a fine-tuned π0.5. Removing the temporal mean of the initial noise lifts real-robot π0.5 from 40% to 68%, and optimizing the sampling schedule adds 2.8 points. Before fine-tuning a VLA on a new layout, try steering the sampler or the trajectory and keep the weights you know.",
+    "Treat abstention as a feature to train and test, not a failure. HumblePRM increases abstention on ambiguous images while leaving clear-image accuracy roughly unchanged, EvOrderBench shows open models commit to an event order even when the frames do not establish it, and AIRIS penalizes guessing intent too early. For robots that serve children, older adults or people with unfamiliar norms, an agent that waits or asks is safer than one that guesses; make that a measured outcome in user studies.",
+    "Count independent evidence, not repeated evidence. The Spot memory study finds nearby revisits often reproduce the same VLM miss, and SealedLoop shows an in-loop judge shares errors with the policy it scores. In both cases the remedy is to discount correlated signals and add a source that the system under test cannot influence."
+  ],
+  "must_read": [
+    {
+      "id": "2611.34538",
+      "why": "It puts a number on a failure every team with a talking robot will hit: the user changes the request halfway through.",
+      "key_idea": "Benchmark 40 task revisions across seven update types and three execution stages, comparing instructions given before execution with the same change given mid-execution.",
+      "evidence": "13 VLA configurations on LIBERO average 95.8% on original tasks but 1.6% when the object to manipulate changes mid-task. A scripted release-and-retreat lifts π0.5 from 2% to 38% and DM0.5 from 8% to 48%, sometimes causing unwanted object motion.",
+      "caveat": "Simulation only on LIBERO; the revisions are scripted language changes, not real users, and the fix is a hand-written controller rather than a learned behavior."
+    },
+    {
+      "id": "2611.34328",
+      "why": "It is the closest benchmark today to the reader's goal: social judgment by a home robot, grounded in social psychology and spanning multiple people, safety and household norms.",
+      "key_idea": "Turn 15 social intelligence skills from social psychology, sociology and cognitive science into week-long simulated household episodes where a VLM must decide when and how to speak and act.",
+      "evidence": "Six editions: three cover all 15 skills in different households, three focus on multi-person interaction, safety, and context-specific norms. Frontier models and a smaller fine-tuned model do worse when reasoning about what a resident saw or heard earlier, reconciling competing interests, or acting within safety rules.",
+      "caveat": "Simulated residents and their reactions, not real people; the abstract reports no numbers, and cultural variation in norms is only implied by the context-specific edition."
+    },
+    {
+      "id": "2611.33794",
+      "why": "Anyone running a data flywheel or self-improvement loop needs to know whether the 'better' policy is actually better.",
+      "key_idea": "Add a sealed judge outside the improvement loop and keep a new policy only if a sequential test on that judge confirms the gain, which separates judge error from transfer gap.",
+      "evidence": "On LIBERO, a success classifier accepted 65 of 196 failures in one generation. In driving, on pairs with known sealed gain, the test accepted 11 of 12 real gains and none of 59 losses; a driving loop ended at 0.674 PDMS against 0.649 under its own critic.",
+      "caveat": "The real-world part is a single driving field test with 6 blind pairs; the manipulation evidence is LIBERO simulation, and the sealed judge itself still needs to be trustworthy."
+    },
+    {
+      "id": "2611.30173",
+      "why": "Learned dense SLAM is being put on legged robots, and this shows it can be fully confident while lost, with a cheap way to detect it.",
+      "key_idea": "In low light the network invents the same geometry for both views, which inflates the self-consistency statistic that keyframing and relocalization both trust; reading that statistic at keyframe-pair baselines exposes the collapse.",
+      "evidence": "Pure quantized noise scores 0.936 self-consistency against 0.935 for a real dark pair; on a dark sequence the system emits 7 keyframes from 1,605 frames with over 95% of accepted correspondences violating ground-truth epipolar geometry. The signature reproduces on a Jetson AGX Orin on a legged robot on the two darkest of four routes.",
+      "caveat": "Studied on MASt3R-SLAM only; the detection result is in-sample on ETH3D dark sequences, and the low-light fixes improve tracking without making trajectories accurate."
+    },
+    {
+      "id": "2611.33352",
+      "why": "It gives a concrete buying and preprocessing rule for wrist depth cameras on learned manipulation policies.",
+      "key_idea": "Separate depth noise from missing depth (holes) using a sensor model calibrated on a real wrist stereo camera, and show coverage matters far more than precision.",
+      "evidence": "Complete depth adds about ten percentage points of success, mostly surviving twenty times the camera's noise; holes over about one-sixth of the wrist image erase the benefit. Filling holes and marking them valid restores most of it; policies trained on clean depth can fall below RGB-only when holes appear at deployment.",
+      "caveat": "Policies are evaluated in simulation with a calibrated noise model, using ACT and three encoders; real-robot transfer of the coverage rule is not shown."
+    }
+  ],
+  "summaries": {
+    "2611.34538": {
+      "problem": "VLA benchmarks fix the instruction for the whole episode, so nobody measures how policies react when a user revises the task mid-execution.",
+      "method": "DTU-Bench defines 40 task revisions over seven update types and three execution stages on LIBERO and tests 13 VLA configurations plus a scripted release-and-retreat.",
+      "why": "Robots working with people will be interrupted, and today's VLAs almost never switch to the new request."
+    },
+    "2611.34280": {
+      "problem": "Once a VLA commits to a task, new instructions are absorbed and the robot finishes the old task or freezes.",
+      "method": "Wormhole uses optimal transport to pick an approach-phase state of the new task, moves the robot there at a limited rate, and lets the unmodified policy take over.",
+      "why": "A training-free way to make a frozen policy respond to changed requests, with less action discontinuity than a scripted restart."
+    },
+    "2611.34328": {
+      "problem": "There is no benchmark for whether a robot's VLM exercises social judgment about when and how to act in everyday home life.",
+      "method": "LUDIUS turns 15 social intelligence skills from social psychology and related fields into week-long simulated household episodes with multi-person, safety and norm-focused editions.",
+      "why": "It directly tests the social reasoning a home or care robot needs, and its pipeline can be reused to build context-specific benchmarks for other settings."
+    },
+    "2611.34347": {
+      "problem": "Social perception benchmarks give models full clips, hiding whether they commit to a social decision before the evidence is there.",
+      "method": "AIRIS is a causal streaming benchmark (Attention, Intention, Reaction, Interaction) over 357 egocentric clips that only shows the observation prefix and rewards calibrated waiting.",
+      "why": "It measures premature intent-guessing and mistimed intervention, which are the failures people notice in social robots."
+    },
+    "2611.33492": {
+      "problem": "Forced-choice temporal benchmarks reward VLMs for guessing event order even when the sampled frames cannot establish it.",
+      "method": "EvOrderBench builds 579 event families whose inputs differ only in whether the frames establish the order, scoring both ordering and correct withholding.",
+      "why": "Robots that narrate or reason about what a person did need to know when their frames are insufficient."
+    },
+    "2611.33452": {
+      "problem": "Outcome-only reward models train VLMs to answer confidently even when the image is too ambiguous to support it.",
+      "method": "HumblePRM scores a perception stage and a calibration stage separately, rewarding agreement between evidence and expressed confidence.",
+      "why": "A route to VLMs that abstain on ambiguous scenes without losing accuracy on clear ones, useful for robots that should ask instead of guess."
+    },
+    "2611.34915": {
+      "problem": "Persistent robot memories can go stale, but repeated VLM misses are an ambiguous signal that an object is gone.",
+      "method": "On a Spot with four cameras, the authors measure correlated false negatives and introduce a dependence-aware, reversible update that stops using unsupported memories as navigation goals without declaring the object absent.",
+      "why": "Service robots that remember where things are need this distinction to avoid both chasing stale memories and deleting valid ones."
+    },
+    "2611.34067": {
+      "problem": "3D affordance grounding assumes the full scene is observed, while a robot receiving a request mid-stream must decide when to answer and where.",
+      "method": "StreamAff uses the grounding model's own patch evidence, weighed against a wait option, to decide response timing and which frame to ground in.",
+      "why": "Responding to a spoken request at the right moment, with the right part, is a core interaction skill for assistive robots."
+    },
+    "2611.33733": {
+      "problem": "Simulator predicates and VLM judges disagree with humans on whether mobile manipulation rollouts succeeded.",
+      "method": "PROVE first specifies success conditions from the instruction, scene and a generated goal image, then checks the outcome; PROVE-Lite distills this into a 4B evaluator.",
+      "why": "Policy rankings change under a human-aligned judge, so teams comparing policies on native checks may be picking the wrong one."
+    },
+    "2611.33794": {
+      "problem": "Self-improving embodied policies are kept or rolled back by a judge that sits inside the same loop and shares its errors.",
+      "method": "SealedLoop adds an out-of-loop judge and a sequential test with a bounded chance of keeping a worse policy.",
+      "why": "Data flywheels and RL post-training loops need independent evidence that a new policy is actually better."
+    },
+    "2611.33398": {
+      "problem": "Best-of-N test-time steering assumes more samples help, but an inaccurate verifier can be exploited.",
+      "method": "On 60 LIBERO-Safety cases with π0.5, controlled verifier errors show selected rewards diverge from true rewards as N grows; calibration and softmax selection partly help.",
+      "why": "If you sample-and-select VLA actions, verifier accuracy limits how far you can scale N."
+    },
+    "2611.34297": {
+      "problem": "Manipulation scores reduce mid-task drops and placement errors to one number that does not say what to fix.",
+      "method": "BOT-Scale adapts behavioral assessment scales from medicine, defining the score as a sum of penalties on evidence-tied behavioral factors.",
+      "why": "A traceable score makes evaluation results actionable for debugging policies."
+    },
+    "2611.34130": {
+      "problem": "General video benchmarks miss the fine-grained physical errors that matter when world models are used for robotics.",
+      "method": "WorldPhy provides 300 robotics tasks, over 12K human annotations and a trained reward model scoring six physical dimensions plus instruction following.",
+      "why": "Gives a way to check whether a world model is physically plausible enough before using it to evaluate or train policies."
+    },
+    "2611.33925": {
+      "problem": "Robot world models are trained on successful demonstrations and break down when grasps slip, push or tilt objects.",
+      "method": "WorldReforge trains on 62k simulated perturbed grasps with losses focused on object and contact regions and on tracking surface points across frames.",
+      "why": "World models used for evaluation or planning must predict failure physics, and failed contacts turn out to teach different physics than successful holds."
+    },
+    "2611.34124": {
+      "problem": "World-action models execute every action chunk without considering whether it is risky.",
+      "method": "WAtcher previews each chunk's outcome in two denoising steps and a detachable Safe-Guard, trained on auto-labeled hazard windows, triggers a bounded retreat when risk is high.",
+      "why": "A pluggable pre-execution safety check that reduces hazardous trials without lowering task success."
+    },
+    "2611.33993": {
+      "problem": "An accurate forecast of a moving object does not tell a VLA whether changing its planned action will help.",
+      "method": "Aegis-VLA proposes bounded corrections from a trajectory world model and uses a learned reliability gate to decide whether and how strongly to apply them.",
+      "why": "Separating 'what correction' from 'whether to correct' is a reusable pattern for dynamic manipulation, such as handovers with a moving person."
+    },
+    "2611.34422": {
+      "problem": "World models and VLAs are assumed to understand interactions, but force is a hidden variable video may not reveal.",
+      "method": "Lightweight readouts probe frozen image, video, world and policy model representations against synchronized force measurements.",
+      "why": "Most models capture when contact occurs but not how much force, and robot post-training does not fix this, so force-sensitive tasks still need force sensing."
+    },
+    "2611.33745": {
+      "problem": "Choosing between actions requires comparing outcomes in the same situation, which factual world models cannot do.",
+      "method": "WhatIf couples candidate futures through shared latent physics on action-grounded causal graphs and plans by counterfactual advantage with a bound on probability of harm.",
+      "why": "A principled way to rank plans by how likely switching actions is to cause harm, though evidence is simulator-only."
+    },
+    "2611.33915": {
+      "problem": "Robot agents built on foundation models lose execution knowledge when a task ends and repeat the same mistakes.",
+      "method": "SEEK keeps programmatic procedures plus a bank of measured action effects, including failures, and revises procedures only where they do not cover a new condition.",
+      "why": "Robots that improve across attempts without retraining the model, while making fewer API calls."
+    },
+    "2611.33739": {
+      "problem": "Code-as-policy agents lack rules for which steps and code changes should persist across runs.",
+      "method": "RegHarness commits a step only when a verifier and an LLM auditor approve it, and develops skill revisions from logged failures that stay disabled until enabled.",
+      "why": "Shows that skill quality and governance, not just the model, drive success with low-cost LLMs."
+    },
+    "2611.34675": {
+      "problem": "VLAs need new demonstrations in unfamiliar settings, while reasoning agents are slow and costly to run every time.",
+      "method": "RoboEvo² alternates between a coding-agent harness that fixes policy failures and distilling verified harness trajectories back into the policy.",
+      "why": "A way to grow policy competence without extra human demonstrations, including on a Unitree G1."
+    },
+    "2611.34778": {
+      "problem": "Harness design for VLM-plus-VLA robot agents spans thousands of configurations and is usually picked from a few alternatives.",
+      "method": "Over 470,000 rollouts across eight benchmarks, six VLMs and 15 VLA/WAM checkpoints yield design rules and the X-Harness reference recipe.",
+      "why": "Evidence-based guidance on when the VLM should step in and what the policy code needs, before you build your own harness."
+    },
+    "2611.34750": {
+      "problem": "LLM manipulation agents are expensive and control robots step by step.",
+      "method": "SOLVE has a multimodal LLM write a sparse ordered list of 6-DoF keyposes per call, interpolated by a motion planner, grounded with noisy depth queries.",
+      "why": "Training-free manipulation at much lower cost per episode, with 75 of 85 real-robot successes on zero-shot tasks."
+    },
+    "2611.30173": {
+      "problem": "Dense visual SLAM based on learned two-view geometry fails silently in low light.",
+      "method": "The authors trace how one inflated self-consistency statistic misleads both keyframing and relocalization, and read it at keyframe-pair baselines to detect collapse.",
+      "why": "Robots deployed indoors at night or in dim spaces need a failure signal that SLAM's own confidence does not give."
+    },
+    "2611.33352": {
+      "problem": "It is unclear whether depth noise or missing depth is what hurts RGB-D imitation policies.",
+      "method": "A sensor model calibrated on a real wrist stereo camera separately injects noise and holes into simulated ACT policies with three encoders.",
+      "why": "Judge depth cameras by coverage, not precision, and handle validity masks carefully."
+    },
+    "2611.34894": {
+      "problem": "Material-estimation predictors are validated only in simulation, which may rank inputs wrongly for the real world.",
+      "method": "PhysReader reads video plus 2D optical-flow tracklets and learns the 3D lift in simulation, evaluated on a new real drop dataset checked against tensile tests.",
+      "why": "Shows that the most informative input in simulation can transfer worst, a caution for any sim-validated perception module."
+    },
+    "2611.34739": {
+      "problem": "World model evaluations assume actions are encoded at rollout the same way as in training.",
+      "method": "An audit of Navigation World Models finds three interacting mismatches; the ActRosetta tool checks and repairs action encoding.",
+      "why": "Before comparing action-conditioned world models, verify the action interface or the comparison may be meaningless."
+    },
+    "2611.34393": {
+      "problem": "Failure analyses of monocular depth models name causes that are rarely tested.",
+      "method": "VEO labels failing regions with a cause and tests the labels against annotations, blinded human raters, targeted edits and use as a training signal.",
+      "why": "Most plausible failure labels did not survive testing, so diagnostic claims about perception should be verified before acting on them."
+    },
+    "2611.34914": {
+      "problem": "VLAs tie object placement to training layouts and collide or misplace when objects move or obstacles appear.",
+      "method": "Cairn keeps the VLA frozen and steers its denoising toward SE(3) trajectories of the held object sampled from a small point-cloud prior.",
+      "why": "Adapts a frozen π0.5 to new layouts without robot data per layout, and the prior trained in simulation guided a real Franka."
+    },
+    "2611.33816": {
+      "problem": "Diffusion-based VLA actions are sensitive to initial noise in ways that make recovery hard.",
+      "method": "The authors show initial noise biases actions along its temporal mean, train with antithetic noise pairs, and remove that mean at inference.",
+      "why": "A simple change that raised real-robot π0.5 success from 40% to 68%."
+    },
+    "2611.34148": {
+      "problem": "Flow-matching policies use a uniform sampling schedule even though the result depends on it under a fixed step budget.",
+      "method": "Ground Your Steps optimizes the schedule per task and budget by matching generated and demonstrated chunk distributions, without training.",
+      "why": "Free success gains for π0.5 and GR00T N1.7 in simulation and on three real tasks."
+    },
+    "2611.34351": {
+      "problem": "Inverse RL assumes humans plan over an effectively infinite horizon, but human foresight is bounded and depends on the situation.",
+      "method": "SC-AIRL mixes per-depth policies with a state-conditional router to model state-dependent planning depth in pedestrian crossing and highway overtaking.",
+      "why": "Better human behavior models for robots sharing space with people, and inferred planning depth correlated with self-reported anxiety and impulsivity."
+    },
+    "2611.34586": {
+      "problem": "Velocity-obstacle methods tie collision constraints to specific velocity-tracking models.",
+      "method": "Geometric Acceleration Obstacles derive tight half-plane supports of the collision set in acceleration space, giving affine constraints for a real-time QP.",
+      "why": "Millisecond-level collision avoidance validated in physical pedestrian encounters, relevant for mobile bases in crowds."
+    },
+    "2611.34932": {
+      "problem": "Appearance-based image retrieval for localization is brittle when people move around and objects get rearranged.",
+      "method": "MERLoc renders a dense reference memory from one 3D Gaussian Splatting scan and retrieves references by pose prior rather than appearance.",
+      "why": "Runs at 5 Hz on a Jetson Orin NX and let a navigation policy traverse a hallway with people roaming and rearranging objects."
+    },
+    "2611.34449": {
+      "problem": "Cross-embodiment VLAs struggle with inconsistent robot descriptions and new platforms.",
+      "method": "HoloBrain-0.5 standardizes URDF frames and encodes kinematic graphs in a shared 3D representation, pretraining continuous and discrete policies on over 10,000 hours of data.",
+      "why": "Reports transfer to a Unitree G1 humanoid with limited demonstrations where π0.5 scores much lower."
+    },
+    "2611.33390": {
+      "problem": "Hard manipulation often hinges on tight spatial constraints that demonstrations recorded elsewhere do not transfer to.",
+      "method": "RoboARC provides 90 MuJoCo puzzle tasks with a privileged and a real-sensor regime, evaluating coding agents and VLA policies.",
+      "why": "Shows frontier coding agents can reason out the motions given part poses and geometry, but not from their own sensors in one attempt; zero-shot VLAs solve none."
+    },
+    "2611.34569": {
+      "problem": "Humanoids trained on rigid ground transfer poorly to elastic terrain where contacts change the support that follows.",
+      "method": "RIPPLE adds a pretensioned mass-spring membrane to MJLab for GPU-parallel training and stages transfer from rigid-ground skills using proprioception only.",
+      "why": "Zero-shot balancing and jumping on a trampoline, and a policy that tolerates a wide stiffness range without calibration."
+    },
+    "2611.34408": {
+      "problem": "Reviews of lower-limb exoskeletons are organized by mechanics or algorithms, not by how the device adapts to its user.",
+      "method": "The survey organizes work around structural, task, user-specific and control adaptation as a closed loop of structure, sensing and control.",
+      "why": "A map of physical human-robot interaction research focused on adapting to diverse users."
+    }
+  }
+}
